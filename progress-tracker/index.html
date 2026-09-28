@@ -12,15 +12,15 @@
     header{background:var(--navy);color:#fff;padding:22px max(20px,calc((100vw - 1180px)/2));border-bottom:5px solid var(--yellow)}
     .brand{font-size:13px;letter-spacing:.08em;color:#c8d2e1;font-weight:700}.title{font-size:clamp(22px,3vw,32px);line-height:1.2;margin:5px 0 0;font-weight:800}
     main{max-width:1180px;margin:22px auto;padding:0 20px 40px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 16px #17243b0a}
-    .inputs{padding:18px 20px;margin-bottom:20px}.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{font-size:17px;margin:0}.hint{font-size:13px;color:var(--muted)}
-    .input-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.field label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:5px}.field input{width:100%;height:42px;border:1px solid #c7d0dc;border-radius:8px;padding:7px 10px;font-family:inherit;font-size:17px;font-weight:600;color:var(--ink);background:#fff}.field input:focus{outline:3px solid #2878d033;border-color:var(--blue)}
+    .inputs{padding:18px 20px;margin-bottom:14px}.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{font-size:17px;margin:0}.hint{font-size:13px;color:var(--muted)}.input-panel.test{border:2px dashed #9aabc0;background:#fbfcfe}.input-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.action{border:0;border-radius:8px;padding:10px 15px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}.action.secondary{background:#e8eef6;color:var(--ink)}.action:hover{filter:brightness(1.08)}.input-note{font-size:13px;color:var(--muted);margin:9px 0 0}.view-label{font-size:14px;font-weight:750;margin:0 0 12px;padding:10px 13px;border-radius:9px;background:#e7f2ff;color:#135c9e}.view-label.test-view{background:#fff4d2;color:#805500}
+    .input-grid{display:grid;grid-template-columns:repeat(7,minmax(88px,1fr));gap:10px}.field label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:5px}.field input{width:100%;height:42px;border:1px solid #c7d0dc;border-radius:8px;padding:7px 10px;font-family:inherit;font-size:17px;font-weight:600;color:var(--ink);background:#fff}.field input:focus{outline:3px solid #2878d033;border-color:var(--blue)}
     .validation{min-height:22px;color:var(--bad);font-size:13px;font-weight:650;margin-top:8px}
     .legend{display:flex;flex-wrap:wrap;gap:9px 18px;align-items:center;padding:0 2px;margin:0 0 12px;color:var(--muted);font-size:13px}.legend strong{color:var(--ink)}.legend-item{display:flex;align-items:center;gap:6px}.dot{width:11px;height:11px;border-radius:50%;display:inline-block}.dot.blue{background:var(--blue)}.dot.yellow{background:var(--yellow)}.dot.red{background:var(--red)}
     .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:16px 17px 15px;position:relative;overflow:hidden;border-top:4px solid var(--line)}.card.blue{border-top-color:var(--blue)}.card.yellow{border-top-color:var(--yellow)}.card.red{border-top-color:var(--red)}
     .card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.rank{font-size:21px;font-weight:850;letter-spacing:.01em}.flag{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap}.flag.blue{color:#135c9e;background:#e7f2ff}.flag.yellow{color:#805500;background:#fff4d2}.flag.red{color:#a3232c;background:#ffebeb}
     .target{font-size:13px;color:var(--muted)}.target b{font-size:16px;color:var(--ink)}.progress-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin:13px 0 5px;font-size:13px}.progress-head b{font-size:17px}.track{height:9px;border-radius:99px;background:#e8edf3;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue);width:0;transition:width .2s}.card.yellow .fill{background:var(--yellow)}.card.red .fill{background:var(--red)}
     .key-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.metric{background:#f5f7fa;border-radius:9px;padding:9px 10px}.metric span{display:block;color:var(--muted);font-size:12px}.metric b{display:block;font-size:22px;line-height:1.2;margin-top:2px}.metric b small{font-size:13px;font-weight:700}.subline{color:var(--muted);font-size:12px;margin-top:9px}.gd{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:13px;display:flex;justify-content:space-between;gap:8px}.gd b{font-size:16px;color:var(--ink)}
-    .method{margin-top:16px;padding:13px 16px;color:#536176;font-size:13px;line-height:1.65}.method strong{color:var(--ink)}.method p{margin:2px 0}.asof{color:#e4eaf2;font-size:13px;margin-top:8px}
+    .method{margin-top:16px;padding:13px 16px;color:#536176;font-size:13px;line-height:1.65}.method strong{color:var(--ink)}.method p{margin:2px 0}.asof{color:#e4eaf2;font-size:13px;margin-top:8px}dialog{width:min(520px,calc(100% - 28px));border:0;border-radius:14px;padding:22px;color:var(--ink);box-shadow:0 16px 50px #101d3566}dialog::backdrop{background:#101d3580}dialog h2{margin:0 0 8px;font-size:20px}dialog p{color:var(--muted);margin:0 0 14px} .confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 16px}.confirm-cell{background:#f5f7fa;padding:9px 11px;border-radius:8px}.confirm-cell span{display:block;color:var(--muted);font-size:13px}.confirm-cell b{font-size:17px}
     @media(max-width:850px){.input-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:560px){header{padding:18px 16px}main{padding:0 12px 26px;margin:14px auto}.inputs{padding:15px 13px}.section-head{align-items:flex-start;flex-direction:column;gap:2px}.input-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.cards{grid-template-columns:1fr;gap:10px}.card{padding:14px}.legend{gap:7px 12px}.metric b{font-size:20px}}
   </style>
@@ -29,37 +29,45 @@
   <header>
     <div class="brand">GIRAVANZ KITAKYUSHU · J3</div>
     <h1 class="title">上位6位ラインへの現在地</h1>
-    <div class="asof">初期値の基準：2026年9月26日・第8節終了時点</div>
+    <div class="asof">基準：2026年9月26日・第8節終了時点</div>
   </header>
   <main>
     <section class="panel inputs" aria-labelledby="input-title">
-      <div class="section-head"><h2 id="input-title">北九州の現在成績</h2><span class="hint">数値を変えると目安が更新されます</span></div>
-      <div class="input-grid">
-        <div class="field"><label for="asofDate">入力成績の基準日</label><input id="asofDate" type="date" value="2026-09-26"></div>
-        <div class="field"><label for="played">消化試合</label><input id="played" type="number" min="0" max="38" value="8"></div>
-        <div class="field"><label for="points">勝点</label><input id="points" type="number" min="0" max="114" value="7"></div>
-        <div class="field"><label for="wins">勝</label><input id="wins" type="number" min="0" max="38" value="1"></div>
-        <div class="field"><label for="draws">分</label><input id="draws" type="number" min="0" max="38" value="4"></div>
-        <div class="field"><label for="losses">敗</label><input id="losses" type="number" min="0" max="38" value="3"></div>
-        <div class="field"><label for="gf">得点</label><input id="gf" type="number" min="0" value="10"></div>
-        <div class="field"><label for="ga">失点</label><input id="ga" type="number" min="0" value="16"></div>
-      </div>
-      <div class="validation" id="validation" role="status" aria-live="polite"></div>
+      <div class="section-head"><h2 id="input-title">本入力（実際の成績）</h2><span class="hint">確定前に内容を確認できます</span></div>
+      <div class="input-grid" id="main-fields"></div>
+      <div class="validation" id="main-validation" role="status" aria-live="polite"></div>
+      <div class="input-actions"><button class="action" id="confirm-main" type="button">本入力を確認して確定</button></div>
+      <p class="input-note">確定した成績はこの端末に保存されます。</p>
+    </section>
+
+    <section class="panel inputs input-panel test" aria-labelledby="test-title">
+      <div class="section-head"><h2 id="test-title">試し入力（仮の成績）</h2><span class="hint">本入力は変更されません</span></div>
+      <div class="input-grid" id="test-fields"></div>
+      <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
+      <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">本入力の結果に戻る</button></div>
+      <p class="input-note">試し入力は保存されず、本入力にも反映されません。</p>
     </section>
 
     <div class="legend" aria-label="判定の説明">
-      <strong>勝点ペースの色</strong>
+      <strong>色の見方</strong>
       <span class="legend-item"><i class="dot blue"></i>平均ペース以上</span>
       <span class="legend-item"><i class="dot yellow"></i>残り平均2点/試合以内が必要</span>
       <span class="legend-item"><i class="dot red"></i>残り平均2点/試合超が必要</span>
     </div>
+    <div class="view-label" id="view-label" aria-live="polite">本入力の確定値で表示中</div>
     <section class="cards" id="cards" aria-label="順位別進捗"></section>
     <section class="panel method" aria-label="計算方法">
-      <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。勝点から逆算した最低勝数ではありません。</p>
-      <p><strong>最大敗数：</strong>表示された追加勝数をちょうど達成し、目標勝点にも届く場合の今後の最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
+      <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
+      <p><strong>最大敗数：</strong>表示された必要勝数をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
       <p><strong>得失点差：</strong>得点−失点。あと改善は、過去3年の順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">本入力の確定確認</h2>
+    <p>次の成績で本入力を更新します。内容を確認してください。</p>
+    <div class="confirm-grid" id="confirm-summary"></div>
+    <div class="input-actions"><button class="action secondary" id="cancel-confirm" type="button">戻って修正</button><button class="action" id="save-confirm" type="button">この内容で確定</button></div>
+  </dialog>
   <script>
     const TOTAL=38;
     const history=[
@@ -73,23 +81,41 @@
     const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
     const ceil=x=>Math.ceil(x-1e-10);
     const $=id=>document.getElementById(id);
-    const fields=['played','points','wins','draws','losses','gf','ga'];
-    [...fields,'asofDate'].forEach(id=>$(id).addEventListener('input',render));
-    function render(){
-      const s=Object.fromEntries(fields.map(id=>[id,Number($(id).value)]));
+    const fields=[['played','消化試合',38],['points','勝点',114],['wins','勝',38],['draws','分',38],['losses','敗',38],['gf','得点',null],['ga','失点',null]];
+    const defaults={asofDate:'2026-09-26',played:8,points:7,wins:1,draws:4,losses:3,gf:10,ga:16};
+    const storageKey='giravanz-j3-progress-confirmed-v1';
+    let mainStats={...defaults};
+    try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&fields.every(([id])=>Number.isInteger(saved[id])&&saved[id]>=0)&&typeof saved.asofDate==='string')mainStats={...defaults,...saved};}catch{}
+    let activeStats=mainStats, activeView='main', pendingMain=null;
+    function makeFields(prefix,values){
+      const date=`<div class="field"><label for="${prefix}-asofDate">入力成績の基準日</label><input id="${prefix}-asofDate" type="date" value="${values.asofDate||defaults.asofDate}"></div>`;
+      $(prefix+'-fields').innerHTML=date+fields.map(([id,label,max])=>`<div class="field"><label for="${prefix}-${id}">${label}</label><input id="${prefix}-${id}" type="number" min="0"${max===null?'':` max="${max}"`} value="${values[id]}"></div>`).join('');
+    }
+    function readStats(prefix){return {asofDate:$(`${prefix}-asofDate`).value,...Object.fromEntries(fields.map(([id])=>[id,Number($(`${prefix}-${id}`).value)]))};}
+    function validate(s){
       const problems=[];
-      const validNumbers=fields.every(id=>$(id).value.trim()!==''&&Number.isInteger(s[id])&&s[id]>=0);
-      if(!validNumbers) problems.push('各成績に0以上の整数を入力してください。');
-      if(!$('asofDate').value) problems.push('入力成績の基準日を入力してください。');
-      if(validNumbers){
-        if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
-        if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
-        if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
-      }
-      $('validation').textContent=problems.join(' ');
+      if(fields.some(([id])=>!Number.isFinite(s[id])||!Number.isInteger(s[id])||s[id]<0)) problems.push('すべて0以上の整数で入力してください。');
+      if(!s.asofDate) problems.push('入力成績の基準日を入力してください。');
+      if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
+      if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
+      if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
+      return problems;
+    }
+    function paint(prefix,problems){
+      $(`${prefix}-validation`).textContent=problems.join(' ');
+      return problems.length===0;
+    }
+    function showResults(s,view){
+      activeStats=s;activeView=view;
+      $('view-label').textContent=view==='test'?'試し入力の成績で表示中（本入力は保存済みのままです）':'本入力の確定値で表示中';
+      $('view-label').className='view-label'+(view==='test'?' test-view':'');
+      render();
+    }
+    function render(){
+      const s=activeStats;
+      const problems=validate(s);
       if(problems.length){$('cards').innerHTML='';return;}
-      const left=TOTAL-s.played, currentGD=s.gf-s.ga;
-      const asofDate=$('asofDate').value;
+      const left=TOTAL-s.played, currentGD=s.gf-s.ga, asofDate=s.asofDate;
       $('cards').innerHTML=history.map(h=>{
         const target=ceil(avg(h.pts));
         const needPts=Math.max(0,target-s.points);
@@ -103,10 +129,10 @@
         const rate=expected===0?0:s.points/expected;
         const reqPpg=left===0?(needPts===0?0:Infinity):needPts/left;
         const state=pointsImpossible?'red':rate>=1?'blue':reqPpg>2?'red':'yellow';
-        const status=pointsImpossible?'目標勝点に届かない':state==='blue'?'平均ペース以上':state==='yellow'?'残り平均2点以内':'残り平均2点超';
+        const status=pointsImpossible?'目標勝点に届かない':state==='blue'?'平均ペース以上':state==='yellow'?'追い上げ可能':'厳しいペース';
         const maxBar=Math.min(100,Math.max(0,rate*100));
         const gdAvg=avg(h.gd), gdImprove=gdAvg-currentGD;
-        const ppgText=left===0?(needPts===0?'勝点目標に到達済':'勝点目標に届かない'):reqPpg.toFixed(2)+'点';
+        const ppgText=left===0?(needPts===0?'到達済':'到達困難'):reqPpg.toFixed(2)+'点';
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
           <div class="target">入力成績の基準日：${asofDate}</div>
@@ -116,16 +142,30 @@
           <div class="key-metrics">
             <div class="metric"><span>残り試合</span><b>${left}<small>試合</small></b></div>
             <div class="metric"><span>目標までの勝点</span><b>${needPts}<small>点</small></b></div>
-            <div class="metric"><span>平均勝数の目安まであと</span><b>${winsNeed}<small>勝</small></b></div>
-            <div class="metric"><span>上記の勝数をちょうど達成する場合、今後の最大敗数</span><b>${planImpossible?'—':lossesMax}<small>${planImpossible?'':'敗'}</small></b></div>
+            <div class="metric"><span>あと必要な勝利</span><b>${winsNeed}<small>勝</small></b></div>
+            <div class="metric"><span>必要勝数達成時の最大敗数</span><b>${planImpossible?'—':lossesMax}<small>${planImpossible?'':'敗'}</small></b></div>
           </div>
-          <div class="subline">必要勝点ペース：${ppgText}${left?'／試合':''}${pointsImpossible?' · 勝点目標は残り試合では達成不可':''}</div>
+          <div class="subline">必要勝点ペース：${left?ppgText+'／試合':ppgText}${pointsImpossible?' · 勝点目標は残り試合では達成不可':''}</div>
           ${winsImpossible?'<div class="subline">平均勝数の目安は残り試合では達成不可</div>':''}
-          ${planImpossible&&!winsImpossible&&!pointsImpossible?'<div class="subline">表示の勝数をちょうど達成する組合せでは、勝点目標に届きません。追加の勝利が必要です。</div>':''}
+          ${planImpossible&&!winsImpossible&&!pointsImpossible?'<div class="subline">表示の勝数をちょうど達成する組合せでは勝点目標に届かず、追加の勝利が必要です。</div>':''}
           <div class="gd"><span>得失点差 ${currentGD>=0?'+':''}${currentGD} → 平均 ${gdAvg>=0?'+':''}${gdAvg.toFixed(1)}</span><b>あと ${gdImprove>=0?'+':''}${gdImprove.toFixed(1)}</b></div>
         </article>`;
       }).join('');
     }
+    function summary(s){const labels={played:'消化試合',points:'勝点',wins:'勝',draws:'分',losses:'敗',gf:'得点',ga:'失点'};return `<div class="confirm-cell"><span>入力成績の基準日</span><b>${s.asofDate}</b></div>`+fields.map(([id])=>`<div class="confirm-cell"><span>${labels[id]}</span><b>${s[id]}</b></div>`).join('');}
+    makeFields('main',mainStats);makeFields('test',mainStats);
+    $('confirm-main').addEventListener('click',()=>{
+      const s=readStats('main');if(!paint('main',validate(s)))return;
+      pendingMain=s;$('confirm-summary').innerHTML=summary(s);$('confirm-dialog').showModal();
+    });
+    $('cancel-confirm').addEventListener('click',()=>{$('confirm-dialog').close();pendingMain=null;});
+    $('save-confirm').addEventListener('click',()=>{
+      if(!pendingMain)return;
+      mainStats={...pendingMain};try{localStorage.setItem(storageKey,JSON.stringify(mainStats));}catch{}
+      makeFields('main',mainStats);makeFields('test',mainStats);$('confirm-dialog').close();pendingMain=null;showResults(mainStats,'main');
+    });
+    $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
+    $('show-main').addEventListener('click',()=>showResults(mainStats,'main'));
     render();
   </script>
 </body>
