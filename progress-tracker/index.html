@@ -128,7 +128,7 @@
         const expected=avg(h.pts)*s.played/TOTAL;
         const rate=expected===0?0:s.points/expected;
         const reqPpg=left===0?(needPts===0?0:Infinity):needPts/left;
-        const state=pointsImpossible?'red':rate>=1?'blue':reqPpg>2?'red':'yellow';
+        const state=(pointsImpossible||reqPpg>2)?'red':rate>=1?'blue':'yellow';
         const status=pointsImpossible?'目標勝点に届かない':state==='blue'?'平均ペース以上':state==='yellow'?'追い上げ可能':'厳しいペース';
         const maxBar=Math.min(100,Math.max(0,rate*100));
         const gdAvg=avg(h.gd), gdImprove=gdAvg-currentGD;
