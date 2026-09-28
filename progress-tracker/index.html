@@ -13,7 +13,7 @@
     .brand{font-size:13px;letter-spacing:.08em;color:#c8d2e1;font-weight:700}.title{font-size:clamp(22px,3vw,32px);line-height:1.2;margin:5px 0 0;font-weight:800}
     main{max-width:1180px;margin:22px auto;padding:0 20px 40px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 16px #17243b0a}
     .inputs{padding:18px 20px;margin-bottom:20px}.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{font-size:17px;margin:0}.hint{font-size:13px;color:var(--muted)}
-    .input-grid{display:grid;grid-template-columns:repeat(7,minmax(88px,1fr));gap:10px}.field label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:5px}.field input{width:100%;height:42px;border:1px solid #c7d0dc;border-radius:8px;padding:7px 10px;font-family:inherit;font-size:17px;font-weight:600;color:var(--ink);background:#fff}.field input:focus{outline:3px solid #2878d033;border-color:var(--blue)}
+    .input-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.field label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:5px}.field input{width:100%;height:42px;border:1px solid #c7d0dc;border-radius:8px;padding:7px 10px;font-family:inherit;font-size:17px;font-weight:600;color:var(--ink);background:#fff}.field input:focus{outline:3px solid #2878d033;border-color:var(--blue)}
     .validation{min-height:22px;color:var(--bad);font-size:13px;font-weight:650;margin-top:8px}
     .legend{display:flex;flex-wrap:wrap;gap:9px 18px;align-items:center;padding:0 2px;margin:0 0 12px;color:var(--muted);font-size:13px}.legend strong{color:var(--ink)}.legend-item{display:flex;align-items:center;gap:6px}.dot{width:11px;height:11px;border-radius:50%;display:inline-block}.dot.blue{background:var(--blue)}.dot.yellow{background:var(--yellow)}.dot.red{background:var(--red)}
     .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:16px 17px 15px;position:relative;overflow:hidden;border-top:4px solid var(--line)}.card.blue{border-top-color:var(--blue)}.card.yellow{border-top-color:var(--yellow)}.card.red{border-top-color:var(--red)}
@@ -29,12 +29,13 @@
   <header>
     <div class="brand">GIRAVANZ KITAKYUSHU · J3</div>
     <h1 class="title">上位6位ラインへの現在地</h1>
-    <div class="asof">基準：2026年9月26日・第8節終了時点</div>
+    <div class="asof">初期値の基準：2026年9月26日・第8節終了時点</div>
   </header>
   <main>
     <section class="panel inputs" aria-labelledby="input-title">
       <div class="section-head"><h2 id="input-title">北九州の現在成績</h2><span class="hint">数値を変えると目安が更新されます</span></div>
       <div class="input-grid">
+        <div class="field"><label for="asofDate">入力成績の基準日</label><input id="asofDate" type="date" value="2026-09-26"></div>
         <div class="field"><label for="played">消化試合</label><input id="played" type="number" min="0" max="38" value="8"></div>
         <div class="field"><label for="points">勝点</label><input id="points" type="number" min="0" max="114" value="7"></div>
         <div class="field"><label for="wins">勝</label><input id="wins" type="number" min="0" max="38" value="1"></div>
@@ -47,15 +48,15 @@
     </section>
 
     <div class="legend" aria-label="判定の説明">
-      <strong>色の見方</strong>
+      <strong>勝点ペースの色</strong>
       <span class="legend-item"><i class="dot blue"></i>平均ペース以上</span>
       <span class="legend-item"><i class="dot yellow"></i>残り平均2点/試合以内が必要</span>
       <span class="legend-item"><i class="dot red"></i>残り平均2点/試合超が必要</span>
     </div>
     <section class="cards" id="cards" aria-label="順位別進捗"></section>
     <section class="panel method" aria-label="計算方法">
-      <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
-      <p><strong>最大敗数：</strong>表示された必要勝数をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
+      <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。勝点から逆算した最低勝数ではありません。</p>
+      <p><strong>最大敗数：</strong>表示された追加勝数をちょうど達成し、目標勝点にも届く場合の今後の最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
       <p><strong>得失点差：</strong>得点−失点。あと改善は、過去3年の順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
@@ -73,44 +74,54 @@
     const ceil=x=>Math.ceil(x-1e-10);
     const $=id=>document.getElementById(id);
     const fields=['played','points','wins','draws','losses','gf','ga'];
-    fields.forEach(id=>$(id).addEventListener('input',render));
+    [...fields,'asofDate'].forEach(id=>$(id).addEventListener('input',render));
     function render(){
       const s=Object.fromEntries(fields.map(id=>[id,Number($(id).value)]));
       const problems=[];
-      if(fields.some(id=>!Number.isFinite(s[id])||s[id]<0)) problems.push('0以上の数値を入力してください。');
-      if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
-      if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
-      if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
+      const validNumbers=fields.every(id=>$(id).value.trim()!==''&&Number.isInteger(s[id])&&s[id]>=0);
+      if(!validNumbers) problems.push('各成績に0以上の整数を入力してください。');
+      if(!$('asofDate').value) problems.push('入力成績の基準日を入力してください。');
+      if(validNumbers){
+        if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
+        if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
+        if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
+      }
       $('validation').textContent=problems.join(' ');
       if(problems.length){$('cards').innerHTML='';return;}
       const left=TOTAL-s.played, currentGD=s.gf-s.ga;
+      const asofDate=$('asofDate').value;
       $('cards').innerHTML=history.map(h=>{
         const target=ceil(avg(h.pts));
         const needPts=Math.max(0,target-s.points);
         const winsNeed=Math.max(0,ceil(avg(h.w))-s.wins);
         const drawsNeed=Math.max(0,needPts-3*winsNeed);
         const lossesMax=Math.max(0,left-winsNeed-drawsNeed);
-        const impossible=winsNeed+drawsNeed>left;
+        const winsImpossible=winsNeed>left;
+        const pointsImpossible=needPts>3*left;
+        const planImpossible=winsNeed+drawsNeed>left;
         const expected=avg(h.pts)*s.played/TOTAL;
         const rate=expected===0?0:s.points/expected;
         const reqPpg=left===0?(needPts===0?0:Infinity):needPts/left;
-        const state=rate>=1?'blue':reqPpg>2?'red':'yellow';
-        const status=state==='blue'?'平均ペース以上':state==='yellow'?'追い上げ可能':'厳しいペース';
+        const state=pointsImpossible?'red':rate>=1?'blue':reqPpg>2?'red':'yellow';
+        const status=pointsImpossible?'目標勝点に届かない':state==='blue'?'平均ペース以上':state==='yellow'?'残り平均2点以内':'残り平均2点超';
         const maxBar=Math.min(100,Math.max(0,rate*100));
         const gdAvg=avg(h.gd), gdImprove=gdAvg-currentGD;
-        const ppgText=left===0?(needPts===0?'到達済':'到達困難'):reqPpg.toFixed(2)+'点';
+        const ppgText=left===0?(needPts===0?'勝点目標に到達済':'勝点目標に届かない'):reqPpg.toFixed(2)+'点';
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
+          <div class="target">入力成績の基準日：${asofDate}</div>
           <div class="target">3年平均：<b>${target}点</b> ／ 現在 ${s.points}点</div>
           <div class="progress-head"><span>平均ペース進捗</span><b>${Math.round(rate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの平均ペース進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(rate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
           <div class="key-metrics">
             <div class="metric"><span>残り試合</span><b>${left}<small>試合</small></b></div>
             <div class="metric"><span>目標までの勝点</span><b>${needPts}<small>点</small></b></div>
-            <div class="metric"><span>あと必要な勝利</span><b>${winsNeed}<small>勝</small></b></div>
-            <div class="metric"><span>必要勝数達成時の最大敗数</span><b>${impossible?'—':lossesMax}<small>${impossible?'':'敗'}</small></b></div>
+            <div class="metric"><span>平均勝数の目安まであと</span><b>${winsNeed}<small>勝</small></b></div>
+            <div class="metric"><span>上記の勝数をちょうど達成する場合、今後の最大敗数</span><b>${planImpossible?'—':lossesMax}<small>${planImpossible?'':'敗'}</small></b></div>
           </div>
-          <div class="subline">必要勝点ペース：${ppgText}／試合${impossible?' · 残り試合では届かない計算':''}</div>
+          <div class="subline">必要勝点ペース：${ppgText}${left?'／試合':''}${pointsImpossible?' · 勝点目標は残り試合では達成不可':''}</div>
+          ${winsImpossible?'<div class="subline">平均勝数の目安は残り試合では達成不可</div>':''}
+          ${planImpossible&&!winsImpossible&&!pointsImpossible?'<div class="subline">表示の勝数をちょうど達成する組合せでは、勝点目標に届きません。追加の勝利が必要です。</div>':''}
           <div class="gd"><span>得失点差 ${currentGD>=0?'+':''}${currentGD} → 平均 ${gdAvg>=0?'+':''}${gdAvg.toFixed(1)}</span><b>あと ${gdImprove>=0?'+':''}${gdImprove.toFixed(1)}</b></div>
         </article>`;
       }).join('');
