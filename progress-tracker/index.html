@@ -137,8 +137,8 @@
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
           <div class="target">入力成績の基準日：${asofDate}</div>
-          <div class="target">3年平均：<b>${target}点</b> ／ 現在 ${s.points}点</div>
-          <div class="progress-head"><span>目標勝点の達成率</span><b>${s.points}／${target}点 · ${Math.round(achievementRate*100)}%</b></div>
+          <div class="target">目標は過去3年の同順位平均勝点（切り上げ）</div>
+          <div class="progress-head"><span>現在 ${s.points}点／目標 ${target}点</span><b>達成率 ${Math.round(achievementRate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
           <div class="key-metrics">
             <div class="metric"><span>残り試合</span><b>${left}<small>試合</small></b></div>
