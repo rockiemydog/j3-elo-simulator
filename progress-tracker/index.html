@@ -126,19 +126,20 @@
         const pointsImpossible=needPts>3*left;
         const planImpossible=winsNeed+drawsNeed>left;
         const expected=avg(h.pts)*s.played/TOTAL;
-        const rate=expected===0?0:s.points/expected;
+        const paceRate=expected===0?0:s.points/expected;
+        const achievementRate=s.points/target;
         const reqPpg=left===0?(needPts===0?0:Infinity):needPts/left;
-        const state=(pointsImpossible||reqPpg>2)?'red':rate>=1?'blue':'yellow';
+        const state=(pointsImpossible||reqPpg>2)?'red':paceRate>=1?'blue':'yellow';
         const status=pointsImpossible?'目標勝点に届かない':state==='blue'?'平均ペース以上':state==='yellow'?'追い上げ可能':'厳しいペース';
-        const maxBar=Math.min(100,Math.max(0,rate*100));
+        const maxBar=Math.min(100,Math.max(0,achievementRate*100));
         const gdAvg=avg(h.gd), gdImprove=gdAvg-currentGD;
         const ppgText=left===0?(needPts===0?'到達済':'到達困難'):reqPpg.toFixed(2)+'点';
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
           <div class="target">入力成績の基準日：${asofDate}</div>
           <div class="target">3年平均：<b>${target}点</b> ／ 現在 ${s.points}点</div>
-          <div class="progress-head"><span>平均ペース進捗</span><b>${Math.round(rate*100)}%</b></div>
-          <div class="track" role="progressbar" aria-label="${h.rank}位ラインの平均ペース進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(rate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
+          <div class="progress-head"><span>目標勝点の達成率</span><b>${Math.round(achievementRate*100)}%</b></div>
+          <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
           <div class="key-metrics">
             <div class="metric"><span>残り試合</span><b>${left}<small>試合</small></b></div>
             <div class="metric"><span>目標までの勝点</span><b>${needPts}<small>点</small></b></div>
