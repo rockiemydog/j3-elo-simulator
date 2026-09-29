@@ -50,15 +50,15 @@
 
     <div class="legend" aria-label="判定の説明">
       <strong>色の見方</strong>
-      <span class="legend-item"><i class="dot blue"></i>平均ペース以上</span>
-      <span class="legend-item"><i class="dot yellow"></i>残り平均2点/試合以内が必要</span>
-      <span class="legend-item"><i class="dot red"></i>残り平均2点/試合超が必要</span>
+      <span class="legend-item"><i class="dot blue"></i>平均ペース以上・必要ペース2点/試合以下</span>
+      <span class="legend-item"><i class="dot yellow"></i>平均ペース未満・必要ペース2点/試合以下</span>
+      <span class="legend-item"><i class="dot red"></i>必要ペース2点/試合超、または到達不可</span>
     </div>
     <div class="view-label" id="view-label" aria-live="polite">本入力の確定値で表示中</div>
     <section class="cards" id="cards" aria-label="順位別進捗"></section>
     <section class="panel method" aria-label="計算方法">
       <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
-      <p><strong>最大敗数：</strong>表示された必要勝数をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
+      <p><strong>最大敗数：</strong>表示された平均勝数の目安をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
       <p><strong>得失点差：</strong>得点−失点。あと改善は、過去3年の順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
@@ -142,8 +142,8 @@
           <div class="key-metrics">
             <div class="metric"><span>残り試合</span><b>${left}<small>試合</small></b></div>
             <div class="metric"><span>目標までの勝点</span><b>${needPts}<small>点</small></b></div>
-            <div class="metric"><span>あと必要な勝利</span><b>${winsNeed}<small>勝</small></b></div>
-            <div class="metric"><span>必要勝数達成時の最大敗数</span><b>${planImpossible?'—':lossesMax}<small>${planImpossible?'':'敗'}</small></b></div>
+            <div class="metric"><span>平均勝数の目安まであと</span><b>${winsNeed}<small>勝</small></b></div>
+            <div class="metric"><span>上記の勝数を達成した場合の最大敗数</span><b>${planImpossible?'—':lossesMax}<small>${planImpossible?'':'敗'}</small></b></div>
           </div>
           <div class="subline">必要勝点ペース：${left?ppgText+'／試合':ppgText}${pointsImpossible?' · 勝点目標は残り試合では達成不可':''}</div>
           ${winsImpossible?'<div class="subline">平均勝数の目安は残り試合では達成不可</div>':''}
