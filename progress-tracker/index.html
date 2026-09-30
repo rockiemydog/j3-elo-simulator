@@ -57,9 +57,9 @@
     <div class="view-label" id="view-label" aria-live="polite">本入力の確定値で表示中</div>
     <section class="cards" id="cards" aria-label="順位別進捗"></section>
     <section class="panel method" aria-label="計算方法">
-      <p><strong>勝利数：</strong>過去3年の各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
+      <p><strong>勝利数：</strong>2023〜2025年のJ3各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
       <p><strong>最大敗数：</strong>表示された平均勝数の目安をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
-      <p><strong>得失点差：</strong>得点−失点。あと改善は、過去3年の順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
+      <p><strong>得失点差：</strong>得点−失点。あと改善は、2023〜2025年のJ3順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
   <dialog id="confirm-dialog" aria-labelledby="confirm-title">
@@ -137,7 +137,7 @@
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
           <div class="target">入力成績の基準日：${asofDate}</div>
-          <div class="target">目標は過去3年の同順位平均勝点（切り上げ）</div>
+          <div class="target">目標は2023〜2025年のJ3同順位平均勝点（切り上げ）</div>
           <div class="progress-head"><span>現在 ${s.points}点／目標 ${target}点</span><b>達成率 ${Math.round(achievementRate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
           <div class="key-metrics">
