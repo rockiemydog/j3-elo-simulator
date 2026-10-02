@@ -29,15 +29,21 @@
   <header>
     <div class="brand">GIRAVANZ KITAKYUSHU · J3</div>
     <h1 class="title">上位6位ラインへの現在地</h1>
-    <div class="asof">基準：2026年9月26日・第8節終了時点</div>
+    <div class="asof">初期の手入力成績：2026年9月26日・第8節終了時点</div>
   </header>
   <main>
+    <section class="panel inputs" aria-labelledby="sync-title">
+      <h2 id="sync-title">試合結果との連動</h2>
+      <p id="sync-status" class="input-note" aria-live="polite"></p>
+      <div class="input-actions"><button class="action" id="enable-sync" type="button">確定した試合結果と連動する</button><a class="action secondary" href="../">試合結果を登録する</a></div>
+      <p class="input-note">同じブラウザ・同じサイトで保存した実際の結果を集計します。仮定結果は含みません。手入力の成績は残しておけます。</p>
+    </section>
     <section class="panel inputs" aria-labelledby="input-title">
-      <div class="section-head"><h2 id="input-title">本入力（実際の成績）</h2><span class="hint">確定前に内容を確認できます</span></div>
+      <div class="section-head"><h2 id="input-title">手入力（連動を使わない場合）</h2><span class="hint">確定前に内容を確認できます</span></div>
       <div class="input-grid" id="main-fields"></div>
       <div class="validation" id="main-validation" role="status" aria-live="polite"></div>
       <div class="input-actions"><button class="action" id="confirm-main" type="button">本入力を確認して確定</button></div>
-      <p class="input-note">確定した成績はこの端末に保存されます。</p>
+      <p class="input-note">手入力を確定すると手入力モードに切り替わります。連動中も保存済みの手入力は保持します。</p>
     </section>
 
     <section class="panel inputs input-panel test" aria-labelledby="test-title">
@@ -68,6 +74,7 @@
     <div class="confirm-grid" id="confirm-summary"></div>
     <div class="input-actions"><button class="action secondary" id="cancel-confirm" type="button">戻って修正</button><button class="action" id="save-confirm" type="button">この内容で確定</button></div>
   </dialog>
+  <script src="../shared-results.js"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -86,7 +93,29 @@
     const storageKey='giravanz-j3-progress-confirmed-v1';
     let mainStats={...defaults};
     try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&fields.every(([id])=>Number.isInteger(saved[id])&&saved[id]>=0)&&typeof saved.asofDate==='string')mainStats={...defaults,...saved};}catch{}
-    let activeStats=mainStats, activeView='main', pendingMain=null;
+    const syncModeKey='giravanz-j3-progress-source-v1';
+    let sourceMode='waiting';
+    try {const mode=localStorage.getItem(syncModeKey);if(['auto','manual'].includes(mode))sourceMode=mode;}catch{}
+    let activeStats=mainStats, activeView='main', pendingMain=null, syncHasExtras=false;
+    function setSourceMode(mode){sourceMode=mode;try{localStorage.setItem(syncModeKey,mode);return true;}catch{return false;}}
+    function refreshLinkedResults(force=false) {
+      const data=J3Results.clubStats();
+      const healthy=data.available&&!data.rejected&&!validate(data.stats).length;
+      if(force&&!healthy){$('sync-status').textContent='保存済みの試合結果を読み取れません。結果登録画面で確認してください。';return;}
+      if(force){
+        if(data.stats.played<mainStats.played&&!confirm(`試合結果からの集計は${data.stats.played}試合、保存済みの手入力は${mainStats.played}試合です。手入力を保持したまま、試合結果の集計を表示しますか？`))return;
+        setSourceMode('auto');activeView='main';
+      }
+      if(sourceMode==='waiting'&&healthy&&data.stats.played>=mainStats.played)setSourceMode('auto');
+      const linked=sourceMode==='auto'&&healthy;
+      syncHasExtras=data.extraCount>0;
+      $('enable-sync').disabled=linked;
+      $('enable-sync').textContent=linked?'試合結果と連動中':'確定した試合結果と連動する';
+      $('sync-status').textContent=!healthy?'保存済みの試合結果を読み取れません。手入力の成績を表示できます。':linked?`連動中：北九州 ${data.stats.played}試合・${data.stats.points}点（${data.stats.wins}勝${data.stats.draws}分${data.stats.losses}敗）／リーグ確定${data.games.length}試合`:
+        sourceMode==='waiting'?`手入力の${mainStats.played}試合を保持しています。試合結果側は${data.stats.played}試合です。不足する結果を登録すると自動連動に切り替わります。`:'手入力モードです。保存済みの試合結果へ切り替えられます。';
+      if(activeView!=='test')showResults(linked?data.stats:mainStats,linked?'linked':'main');
+    }
+
     function makeFields(prefix,values){
       const date=`<div class="field"><label for="${prefix}-asofDate">入力成績の基準日</label><input id="${prefix}-asofDate" type="date" value="${values.asofDate||defaults.asofDate}"></div>`;
       $(prefix+'-fields').innerHTML=date+fields.map(([id,label,max])=>`<div class="field"><label for="${prefix}-${id}">${label}</label><input id="${prefix}-${id}" type="number" min="0"${max===null?'':` max="${max}"`} value="${values[id]}"></div>`).join('');
@@ -107,7 +136,7 @@
     }
     function showResults(s,view){
       activeStats=s;activeView=view;
-      $('view-label').textContent=view==='test'?'試し入力の成績で表示中（本入力は保存済みのままです）':'本入力の確定値で表示中';
+      $('view-label').textContent=view==='test'?'試し入力の成績で表示中（実績は変更しません）':view==='linked'?'確定した試合結果から自動集計して表示中':'手入力の確定値で表示中';
       $('view-label').className='view-label'+(view==='test'?' test-view':'');
       render();
     }
@@ -136,7 +165,7 @@
         const ppgText=left===0?(needPts===0?'到達済':'到達困難'):reqPpg.toFixed(2)+'点';
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
-          <div class="target">入力成績の基準日：${asofDate}</div>
+          <div class="target">${activeView==='linked'?(syncHasExtras?'試合結果から集計（追加結果の日付は未登録）':'内蔵試合結果の基準日：2026-09-20'):'入力成績の基準日：'+asofDate}</div>
           <div class="target">目標は2023〜2025年のJ3同順位平均勝点（切り上げ）</div>
           <div class="progress-head"><span>現在 ${s.points}点／目標 ${target}点</span><b>達成率 ${Math.round(achievementRate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
@@ -162,12 +191,22 @@
     $('cancel-confirm').addEventListener('click',()=>{$('confirm-dialog').close();pendingMain=null;});
     $('save-confirm').addEventListener('click',()=>{
       if(!pendingMain)return;
-      mainStats={...pendingMain};try{localStorage.setItem(storageKey,JSON.stringify(mainStats));}catch{}
-      makeFields('main',mainStats);makeFields('test',mainStats);$('confirm-dialog').close();pendingMain=null;showResults(mainStats,'main');
+      try{localStorage.setItem(storageKey,JSON.stringify(pendingMain));}catch{$('confirm-title').textContent='保存できませんでした';return;}mainStats={...pendingMain};setSourceMode('manual');
+      makeFields('main',mainStats);makeFields('test',mainStats);$('confirm-dialog').close();pendingMain=null;refreshLinkedResults();
     });
     $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
-    $('show-main').addEventListener('click',()=>showResults(mainStats,'main'));
-    render();
+    $('show-main').textContent='実際の成績に戻る';
+    $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
+    $('enable-sync').addEventListener('click',()=>refreshLinkedResults(true));
+    window.addEventListener('storage',e=>{
+      if(e.key===storageKey||e.key===null){try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&!validate(saved).length){mainStats={...saved};makeFields('main',mainStats);}}catch{}}
+      if(e.key===syncModeKey||e.key===null){try{sourceMode=localStorage.getItem(syncModeKey)||'waiting';}catch{}}
+      if([J3Results.storeKey,storageKey,syncModeKey].includes(e.key)||e.key===null)refreshLinkedResults();
+    });
+    window.addEventListener('focus',()=>refreshLinkedResults());
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshLinkedResults();});
+    refreshLinkedResults();
   </script>
 </body>
 </html>
+
