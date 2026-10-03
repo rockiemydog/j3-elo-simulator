@@ -51,7 +51,7 @@
       <div class="input-grid" id="test-fields"></div>
       <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
       <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">本入力の結果に戻る</button></div>
-      <p class="input-note">試し入力は保存されず、本入力にも反映されません。実績を確定すると、試し入力は確定した実績値に戻り、実績を表示します。</p>
+      <p class="input-note">試し入力は保存されず、本入力にも反映されません。手入力を確定したとき、または保存済みの確定結果の更新・削除を読み取ったとき、試し入力を現在の実績値に戻して実績を表示します。手入力モードでは手入力の確定値を使います。</p>
     </section>
 
     <div class="legend" aria-label="判定の説明">
@@ -92,13 +92,25 @@
     const defaults={asofDate:'2026-09-26',played:8,points:7,wins:1,draws:4,losses:3,gf:10,ga:16};
     const storageKey='giravanz-j3-progress-confirmed-v1';
     let mainStats={...defaults};
-    try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&fields.every(([id])=>Number.isInteger(saved[id])&&saved[id]>=0)&&typeof saved.asofDate==='string')mainStats={...defaults,...saved};}catch{}
+    try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&typeof saved.asofDate==='string'&&!validate(saved).length)mainStats={...defaults,...saved};}catch{}
     const syncModeKey='giravanz-j3-progress-source-v1';
     let sourceMode='waiting';
     try {const mode=localStorage.getItem(syncModeKey);if(['auto','manual'].includes(mode))sourceMode=mode;}catch{}
-    let activeStats=mainStats, activeView='main', pendingMain=null, syncHasExtras=false;
+    let activeStats=mainStats, activeView='main', pendingMain=null, syncHasExtras=false, actualSignature=null;
+    function readSavedProgress() {
+      try {
+        const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
+        const next=saved&&typeof saved.asofDate==='string'&&!validate(saved).length?saved:defaults;
+        if(JSON.stringify(next)!==JSON.stringify(mainStats)){
+          mainStats={...next};makeFields('main',mainStats);paint('main',[]);
+          pendingMain=null;$('confirm-dialog').close();
+        }
+      }catch{}
+      try{const mode=localStorage.getItem(syncModeKey);sourceMode=['auto','manual'].includes(mode)?mode:'waiting';}catch{}
+    }
     function setSourceMode(mode){sourceMode=mode;try{localStorage.setItem(syncModeKey,mode);return true;}catch{return false;}}
     function refreshLinkedResults(force=false) {
+      readSavedProgress();
       const data=J3Results.clubStats();
       const healthy=data.available&&!data.rejected&&!validate(data.stats).length;
       if(force&&!healthy){$('sync-status').textContent='保存済みの試合結果を読み取れません。結果登録画面で確認してください。';return;}
@@ -113,7 +125,13 @@
       $('enable-sync').textContent=linked?'試合結果と連動中':'確定した試合結果と連動する';
       $('sync-status').textContent=!healthy?'保存済みの試合結果を読み取れません。手入力の成績を表示できます。':linked?`連動中：北九州 ${data.stats.played}試合・${data.stats.points}点（${data.stats.wins}勝${data.stats.draws}分${data.stats.losses}敗）／リーグ確定${data.games.length}試合`:
         sourceMode==='waiting'?`手入力の${mainStats.played}試合を保持しています。試合結果側は${data.stats.played}試合です。不足する結果を登録すると自動連動に切り替わります。`:'手入力モードです。保存済みの試合結果へ切り替えられます。';
-      if(activeView!=='test')showResults(linked?data.stats:mainStats,linked?'linked':'main');
+      const actual=linked?data.stats:mainStats;
+      const signature=JSON.stringify([sourceMode,actual,healthy?data.games:null]);
+      if(force||signature!==actualSignature){
+        makeFields('test',actual);paint('test',[]);activeView='main';
+      }
+      actualSignature=signature;
+      if(activeView!=='test')showResults(actual,linked?'linked':'main');
     }
 
     function makeFields(prefix,values){
@@ -199,8 +217,6 @@
     $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
     $('enable-sync').addEventListener('click',()=>refreshLinkedResults(true));
     window.addEventListener('storage',e=>{
-      if(e.key===storageKey||e.key===null){try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&!validate(saved).length){mainStats={...saved};makeFields('main',mainStats);}}catch{}}
-      if(e.key===syncModeKey||e.key===null){try{sourceMode=localStorage.getItem(syncModeKey)||'waiting';}catch{}}
       if([J3Results.storeKey,storageKey,syncModeKey].includes(e.key)||e.key===null)refreshLinkedResults();
     });
     window.addEventListener('focus',()=>refreshLinkedResults());
