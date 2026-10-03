@@ -51,7 +51,7 @@
       <div class="input-grid" id="test-fields"></div>
       <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
       <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">本入力の結果に戻る</button></div>
-      <p class="input-note">試し入力は保存されず、本入力にも反映されません。</p>
+      <p class="input-note">試し入力は保存されず、本入力にも反映されません。実績を確定すると、試し入力は確定した実績値に戻り、実績を表示します。</p>
     </section>
 
     <div class="legend" aria-label="判定の説明">
@@ -192,7 +192,7 @@
     $('save-confirm').addEventListener('click',()=>{
       if(!pendingMain)return;
       try{localStorage.setItem(storageKey,JSON.stringify(pendingMain));}catch{$('confirm-title').textContent='保存できませんでした';return;}mainStats={...pendingMain};setSourceMode('manual');
-      makeFields('main',mainStats);makeFields('test',mainStats);$('confirm-dialog').close();pendingMain=null;refreshLinkedResults();
+      makeFields('main',mainStats);makeFields('test',mainStats);paint('test',[]);$('confirm-dialog').close();pendingMain=null;activeView='main';refreshLinkedResults();
     });
     $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
     $('show-main').textContent='実際の成績に戻る';
