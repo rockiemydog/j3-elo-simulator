@@ -3,8 +3,14 @@ on:
   push:
     paths:
       - scripts/update-official-results.py
+      - scripts/notify-official-results.py
       - .github/workflows/official-results.yml
   workflow_dispatch:
+    inputs:
+      test_email:
+        description: Send a test email after checking official results
+        type: boolean
+        default: false
   schedule:
     - cron: '17,47 * * * *'
 permissions:
@@ -23,8 +29,11 @@ jobs:
           python-version: '3.12'
       - name: Fetch and validate finished official matches
         id: fetch
-        run: python scripts/update-official-results.py
+        run: |
+          cp official-results.json "$RUNNER_TEMP/j3-results-before.json"
+          python scripts/update-official-results.py
       - name: Publish updated feed
+        id: publish
         if: steps.fetch.outputs.changed == 'true'
         run: |
           git config user.name 'github-actions[bot]'
@@ -32,3 +41,18 @@ jobs:
           git add official-results.json
           git commit -m 'Update official J3 finished results'
           git push origin HEAD:main
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Email successful official result changes
+        if: steps.fetch.outputs.changed == 'true' || inputs.test_email == true
+        continue-on-error: true
+        env:
+          SMTP_USERNAME: ${{ secrets.J3_SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.J3_SMTP_PASSWORD }}
+          NOTIFICATION_COMMIT: ${{ steps.publish.outputs.commit || github.sha }}
+          TEST_EMAIL: ${{ inputs.test_email }}
+        run: |
+          if [ "$TEST_EMAIL" = "true" ]; then
+            python scripts/notify-official-results.py --before "$RUNNER_TEMP/j3-results-before.json" --test
+          else
+            python scripts/notify-official-results.py --before "$RUNNER_TEMP/j3-results-before.json"
+          fi
