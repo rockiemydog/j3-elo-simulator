@@ -33,7 +33,7 @@
   </header>
   <main>
     <section class="panel inputs" aria-labelledby="sync-title">
-      <h2 id="sync-title">試合結果との連動</h2>
+      <h2 id="sync-title">試合結果との連動</h2><p id="auto-status" class="input-note" aria-live="polite">公式結果の自動取得を確認中です。</p>
       <p id="sync-status" class="input-note" aria-live="polite"></p>
       <div class="input-actions"><button class="action" id="enable-sync" type="button">確定した試合結果と連動する</button><a class="action secondary" href="../">試合結果を登録する</a></div>
       <p class="input-note">同じブラウザ・同じサイトで保存した実際の結果を集計します。仮定結果は含みません。手入力の成績は残しておけます。</p>
@@ -74,7 +74,7 @@
     <div class="confirm-grid" id="confirm-summary"></div>
     <div class="input-actions"><button class="action secondary" id="cancel-confirm" type="button">戻って修正</button><button class="action" id="save-confirm" type="button">この内容で確定</button></div>
   </dialog>
-  <script src="../shared-results.js?v=operation-20261005-1"></script>
+  <script src="../shared-results.js?v=automatic-20261005-1"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -222,13 +222,19 @@
     window.addEventListener('storage',e=>{
       if([J3Results.storeKey,storageKey,syncModeKey].includes(e.key)||e.key===null)refreshLinkedResults();
     });
-    window.addEventListener('focus',()=>refreshLinkedResults());
-    window.addEventListener('pageshow',()=>refreshLinkedResults());
+    async function syncAutomaticResults(force=false){
+      await J3Results.refreshOfficial(force);const state=J3Results.feedState;
+      $('auto-status').textContent=state.state==='ready'?`公式結果を自動取得：${state.asOfDate}まで・${state.count}試合`:state.state==='unavailable'?'公式結果を取得できませんでした。直前の正常な成績を保持しています。':'公式結果の自動取得を確認中です。';
+      refreshLinkedResults();
+    }
+    setInterval(()=>{if(!document.hidden)syncAutomaticResults();},300000);
+    window.addEventListener('focus',()=>{refreshLinkedResults();syncAutomaticResults();});
+    window.addEventListener('pageshow',()=>{refreshLinkedResults();syncAutomaticResults();});
     window.addEventListener('j3-results-changed',()=>refreshLinkedResults());
     // Same-tab writes do not emit a storage event; also catch iPad page restoration.
     setInterval(()=>{if(!document.hidden)refreshLinkedResults();},2000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshLinkedResults();});
-    refreshLinkedResults();
+    refreshLinkedResults();syncAutomaticResults();
   </script>
 </body>
 </html>

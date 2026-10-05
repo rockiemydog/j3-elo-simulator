@@ -25,7 +25,7 @@
   <div class="grid">
     <aside class="panel">
       <p><a href="progress-tracker/">北九州の進捗トラッカーを見る →</a></p>
-      <h2>試合を入力</h2><div class="sub">対戦を選び、得点を＋／−で合わせます。</div>
+      <h2>公式結果の自動更新</h2><p id="autoStatus" class="sub" aria-live="polite">公式の終了試合を自動取得しています…</p><button class="btn" id="refreshOfficial" type="button">最新結果を確認する</button><details class="advanced"><summary>手動登録（補助）</summary><h2>試合を入力</h2><div class="sub">対戦を選び、得点を＋／−で合わせます。</div>
       <div class="team-pickers"><div class="field"><label for="home">ホーム</label><select id="home"><option>岐阜</option><option selected>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div><div class="versus">対</div><div class="field"><label for="away">アウェー</label><select id="away"><option>岐阜</option><option>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option selected>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div></div>
       <div class="score-pickers"><div class="score-box"><span>ホーム得点</span><div class="stepper"><button type="button" id="hgMinus" aria-label="ホーム得点を1減らす">−</button><input id="hg" type="number" min="0" max="30" value="0" inputmode="numeric"><button type="button" id="hgPlus" aria-label="ホーム得点を1増やす">＋</button></div></div><div class="score-sep">―</div><div class="score-box"><span>アウェー得点</span><div class="stepper"><button type="button" id="agMinus" aria-label="アウェー得点を1減らす">−</button><input id="ag" type="number" min="0" max="30" value="0" inputmode="numeric"><button type="button" id="agPlus" aria-label="アウェー得点を1増やす">＋</button></div></div></div>
       <div class="prematch" id="prematch" aria-live="polite"></div>
@@ -34,7 +34,7 @@
       <button class="hidden-action" id="confirm">確定結果として保存</button><button class="hidden-action" id="add">仮定として試す</button>
       <div class="error" id="error" role="alert"></div>
       <details class="advanced"><summary>1節10試合をまとめて登録</summary><div class="sub">1行＝ホーム,得点,得点,アウェー</div><textarea id="batch" class="batch" placeholder="愛媛,0,1,北九州&#10;岐阜,2,0,福島"></textarea><div class="actions"><button class="btn primary" id="batchAdd">10試合を一括確定</button></div></details>
-      <h3>登録・仮定した結果</h3><div id="scenarios" class="scenario-list"></div><div class="actions reset-actions"><button class="btn" id="resetScenario">仮定結果をすべて消す</button><button class="btn reset-current" id="resetCurrent" type="button">内蔵データの状態に戻す</button></div><div class="reset-note" id="resetNote">初期データを確認中…</div>
+      </details><h3>登録・仮定した結果</h3><div id="scenarios" class="scenario-list"></div><div class="actions reset-actions"><button class="btn" id="resetScenario">仮定結果をすべて消す</button><button class="btn reset-current" id="resetCurrent" type="button">内蔵データの状態に戻す</button></div><div class="reset-note" id="resetNote">初期データを確認中…</div>
       <details class="advanced"><summary>計算精度を変更</summary><div class="runs"><div><label for="runs">シミュレーション精度</label><select id="runs"><option value="3000">クイック（3,000回）</option><option value="10000" selected>標準（10,000回）</option><option value="30000">高精度（30,000回）</option></select></div><button class="btn" id="rerun">再計算</button></div></details>
       <details class="advanced"><summary>バックアップ・復元</summary><div class="actions"><button class="btn" id="exportCsv">CSV保存</button><label class="btn" for="importCsv">CSV読込</label><input id="importCsv" type="file" accept=".csv,text/csv" hidden></div></details>
       <details class="advanced"><summary>Elo設定・初期データ</summary><div class="data-audit" id="dataAudit"></div><div class="note">全クラブ1500から開始し、K値20、ホーム補正60で開催順にEloを更新します。点差はレーティング更新に使いません。引き分けはDavidson方式です。Eloは得点数を予測しないため、未消化試合の順位計算用スコアは勝ち1–0・引分1–1・負け0–1に統一します。これにより少数データの大差試合が得失点差へ過剰反映されることを防ぎます。残り試合では現在のEloを固定し、モンテカルロ法で計算します。21試合の暫定バックテストは的中率38.1%、Log loss 1.094、Brier score 0.661でした。同期間のポアソン版は47.6%、1.032、0.626で、現時点ではポアソン版が優位です。負傷・出場停止・天候・日程間隔は未反映です。</div><div class="actions"><button class="btn" id="recheckData" type="button">初期データを再検算</button></div><div class="source-links"><a href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">公式の日程・結果</a><a href="https://www.jleague.jp/j3/standings/" target="_blank" rel="noopener">公式順位表</a></div></details>
@@ -48,12 +48,13 @@
     </section>
   </div>
 </main>
-<script src="shared-results.js?v=operation-20261005-1"></script>
+<script src="shared-results.js?v=automatic-20261005-1"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
-const completed=J3Results.initialGames.map(g=>g.slice());
-const DATA_AS_OF='2026年10月4日・第9節終了';
+let completed=J3Results.initialGames.map(g=>g.slice());
+const historicalAuditGames=completed.slice(0,70).map(g=>g.slice());
+let DATA_AS_OF='2026年10月4日・第9節終了';
 const ELO_START=1500, ELO_K=20, ELO_HOME=60;
 const EXPECTED_ROUND_7_CARDS=['FC大阪|福島','熊本|松本','愛媛|讃岐','群馬|高知','鳥取|奈良','鹿児島|栃木SC','金沢|山口','相模原|北九州','長野|岐阜','滋賀|琉球'];
 const OFFICIAL_CHECK={'岐阜':[10,7,3,1,3,15,5],'愛媛':[16,7,5,1,1,18,8],'鹿児島':[19,7,6,1,0,15,7],'相模原':[11,7,3,2,2,12,8],'鳥取':[10,7,3,1,3,10,14],'FC大阪':[13,7,3,4,0,13,7],'長野':[11,7,3,2,2,8,8],'滋賀':[12,7,4,0,3,13,10],'熊本':[10,7,2,4,1,6,4],'栃木SC':[9,7,2,3,2,10,12],'琉球':[10,7,3,1,3,9,9],'讃岐':[4,7,1,1,5,7,13],'山口':[13,7,4,1,2,9,5],'奈良':[11,7,3,2,2,14,15],'高知':[5,7,1,2,4,3,14],'北九州':[6,7,1,3,3,9,15],'松本':[5,7,0,5,2,6,9],'金沢':[7,7,2,1,4,10,12],'群馬':[6,7,2,0,5,7,14],'福島':[4,7,1,1,5,12,17]};
@@ -90,7 +91,7 @@ function applyGame(s,g){const [h,a,hg,ag]=g,i=ix[h],j=ix[a];s.gf[i]+=hg;s.ga[i]+
 const confirmed=()=>[...completed,...confirmedExtra];
 function stateWithScenario(what=scenarios){const s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};[...confirmed(),...what].forEach(g=>applyGame(s,g));return s}
 function key(g){return `${g[0]}|${g[1]}`}
-function auditInitialData(){const issues=[],seen=new Set(),s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};if(teams.length!==20||new Set(teams).size!==20)issues.push(`クラブ一覧が20クラブ・重複なしではありません（${teams.length}件）`);for(const g of completed){if(!validStored(g))issues.push(`不正な試合：${g.join(',')}`);if(seen.has(key(g)))issues.push(`重複：${key(g)}`);seen.add(key(g));if(validStored(g)&&seen.size<=70)applyGame(s,g)}if(completed.slice(0,70).length!==70)issues.push(`確定試合数が70ではありません（${completed.length}）`);const round7=completed.slice(60,70).map(key).sort(),expectedRound7=EXPECTED_ROUND_7_CARDS.slice().sort();if(round7.length!==expectedRound7.length||round7.some((card,i)=>card!==expectedRound7[i]))issues.push('第7節の公式ホーム／アウェーカードが一致しません');for(const club of teams){const i=ix[club];if(s.p[i]!==7)issues.push(`${club}の試合数が7ではありません（${s.p[i]}）`)}for(const [club,expected] of Object.entries(OFFICIAL_CHECK)){const i=ix[club],actual=[s.pts[i],s.p[i],s.w[i],s.d[i],s.l[i],s.gf[i],s.ga[i]];if(!i&&i!==0)issues.push(`公式照合表に未知のクラブ：${club}`);if(actual.some((v,n)=>v!==expected[n]))issues.push(`${club}の集計不一致`)}if(Object.keys(OFFICIAL_CHECK).length!==20)issues.push(`公式照合表が20クラブ分ではありません（${Object.keys(OFFICIAL_CHECK).length}件）`);const theoretical=teams.length*(teams.length-1);if(theoretical!==380)issues.push('全対戦数が380になりません');return{ok:issues.length===0,issues,count:completed.length,remaining:380-completed.length}}
+function auditInitialData(){const issues=[],seen=new Set(),s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};if(teams.length!==20||new Set(teams).size!==20)issues.push(`クラブ一覧が20クラブ・重複なしではありません（${teams.length}件）`);for(const g of completed){if(!validStored(g))issues.push(`不正な試合：${g.join(',')}`);if(seen.has(key(g)))issues.push(`重複：${key(g)}`);seen.add(key(g));}historicalAuditGames.forEach(g=>applyGame(s,g));if(historicalAuditGames.length!==70)issues.push(`確定試合数が70ではありません（${completed.length}）`);const round7=historicalAuditGames.slice(60,70).map(key).sort(),expectedRound7=EXPECTED_ROUND_7_CARDS.slice().sort();if(round7.length!==expectedRound7.length||round7.some((card,i)=>card!==expectedRound7[i]))issues.push('第7節の公式ホーム／アウェーカードが一致しません');for(const club of teams){const i=ix[club];if(s.p[i]!==7)issues.push(`${club}の試合数が7ではありません（${s.p[i]}）`)}for(const [club,expected] of Object.entries(OFFICIAL_CHECK)){const i=ix[club],actual=[s.pts[i],s.p[i],s.w[i],s.d[i],s.l[i],s.gf[i],s.ga[i]];if(!i&&i!==0)issues.push(`公式照合表に未知のクラブ：${club}`);if(actual.some((v,n)=>v!==expected[n]))issues.push(`${club}の集計不一致`)}if(Object.keys(OFFICIAL_CHECK).length!==20)issues.push(`公式照合表が20クラブ分ではありません（${Object.keys(OFFICIAL_CHECK).length}件）`);const theoretical=teams.length*(teams.length-1);if(theoretical!==380)issues.push('全対戦数が380になりません');return{ok:issues.length===0,issues,count:completed.length,remaining:380-completed.length}}
 function renderInitialAudit(){const a=auditInitialData(),title=$('dataReadyTitle'),text=$('dataReadyText'),bar=$('dataReady');title.textContent=a.ok?'Elo版の初期データ準備完了':'初期データに問題があります';text.textContent=a.ok?`${DATA_AS_OF}更新・確定${a.count}試合・未消化${a.remaining}試合・集計照合OK`:`${a.issues.length}件の不整合を検出しました。登録を始めないでください。`;bar.classList.toggle('ok',a.ok);$('acceptInitial').disabled=!a.ok;$('dataAudit').innerHTML=`更新基準：${DATA_AS_OF}<br>クラブ：${teams.length}/20<br>確定試合：${a.count}/380<br>未消化：${a.remaining}<br>Elo初期値：${ELO_START}<br>K値：${ELO_K}<br>ホーム補正：+${ELO_HOME}<br>重複・形式・集計検査：${a.ok?'正常':'要確認'}${a.issues.length?`<br><span class="error">${a.issues.join('<br>')}</span>`:''}`;$('resetNote').textContent=a.ok?`復帰先：${DATA_AS_OF}更新・確定${a.count}試合`:'復帰不可：内蔵データに不一致があります';$('resetCurrent').disabled=!a.ok||(!confirmedExtra.length&&!scenarios.length);let accepted=false;try{accepted=localStorage.getItem(SETUP_STORE)===DATA_AS_OF}catch{}bar.style.display=accepted?'none':'flex';return a}
 function remainingFixtures(what=scenarios){const used=new Set([...confirmed(),...what].map(key)),out=[];for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)for(const [h,a] of [[i,j],[j,i]])if(!used.has(`${teams[h]}|${teams[a]}`))out.push([h,a]);return out}
 function mulberry32(a){return()=>{let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
@@ -147,6 +148,13 @@ $('exportCsv').onclick=()=>{const rows=['ホーム,ホーム得点,アウェー�
 $('importCsv').onchange=async e=>{const text=await e.target.files[0]?.text();if(!text)return;commitRows(parseRows(text,380));e.target.value=''};
 $('acceptInitial').onclick=()=>{if(!auditInitialData().ok)return;try{localStorage.setItem(SETUP_STORE,DATA_AS_OF)}catch{}$('dataReady').style.display='none'};$('recheckData').onclick=()=>{const a=renderInitialAudit();$('dataReady').style.display='flex';$('error').textContent=a.ok?'初期データは正常です。':'初期データに不整合があります。'};
 $('rerun').onclick=()=>{baseline=null;run()};$('runs').onchange=()=>{baseline=null;run()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeTab=b.dataset.tab;renderTable()});
+async function syncAutomaticResults(force=false){
+  const changed=await J3Results.refreshOfficial(force),state=J3Results.feedState;
+  $('autoStatus').textContent=state.state==='ready'?`自動取得済：${state.asOfDate}まで・確定${state.count}試合。公式結果を約30分ごとに確認します。`:state.state==='unavailable'?'自動取得できませんでした。直前の正常な結果を保持しています。時間をおいて再確認してください。':'自動取得を確認中です。';
+  if(changed){completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=state.asOfDate;refreshSavedResults();baseline=null;renderInitialAudit();renderScenarios();run();}
+}
+$('refreshOfficial').onclick=()=>syncAutomaticResults(true);
+setInterval(()=>{if(!document.hidden)syncAutomaticResults();},300000);
 function refreshSavedResults(){
   const saved=loadStored();
   if(saved===null){$('error').textContent='保存済み結果を読み取れません。画面の結果を保持しています。CSVを保存して確認してください。';return;}
@@ -154,11 +162,11 @@ function refreshSavedResults(){
   confirmedExtra=saved;lastSavedExtras=confirmedExtra.map(g=>g.slice());const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderScenarios();run();
 }
 window.addEventListener('storage',e=>{if(e.key===STORE||e.key===null)refreshSavedResults();});
-window.addEventListener('focus',refreshSavedResults);
-window.addEventListener('pageshow',refreshSavedResults);
+window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults();});
+window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSavedResults();});
-initSelects();setEntryMode('confirmed');updateSubmitLabel();renderInitialAudit();renderPrematch();renderScenarios();run();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();}});
+initSelects();setEntryMode('confirmed');updateSubmitLabel();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();
 </script>
 </body>
 </html>

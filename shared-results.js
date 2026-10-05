@@ -12,7 +12,7 @@ completed.push(...[["山口", "相模原", 2, 2], ["金沢", "鳥取", 4, 1], ["
 
 const storeKey='j3-elo-simulator-confirmed-v1';
 const backupKey=storeKey+'-last-good';
-const baseDate='2026-10-04';
+let baseDate='2026-10-04';
 const key=g=>g[0]+'|'+g[1];
 const valid=g=>Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&g.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=30);
 function readConfirmed() {
@@ -41,6 +41,37 @@ function clubStats(club='北九州') {
   s.points=3*s.wins+s.draws;
   return {...data,stats:s};
 }
-global.J3Results=Object.freeze({storeKey,backupKey,baseDate,initialGames:Object.freeze(completed.map(g=>Object.freeze(g.slice()))),readConfirmed,clubStats});
+let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
+function applyOfficialFeed(feed){
+  if(!feed||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
+  if(typeof feed.asOfDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(feed.asOfDate))throw new Error('Invalid official date');
+  const rows=feed.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.id).localeCompare(String(b.id))),seen=new Set(),counts=new Map(teams.map(t=>[t,0]));
+  for(const r of rows){
+    if(!valid(r.game)||!/^\d{4}-\d{2}-\d{2}$/.test(r.date)||r.date<'2026-08-08'||r.date>feed.asOfDate||seen.has(key(r.game)))throw new Error('Invalid official match');
+    seen.add(key(r.game));for(const t of r.game.slice(0,2)){counts.set(t,counts.get(t)+1);if(counts.get(t)>38)throw new Error('Invalid official club count');}
+  }
+  if(completed.some(g=>!seen.has(key(g))))throw new Error('Incomplete official feed');
+  const games=rows.map(r=>r.game.slice()),changed=JSON.stringify(games)!==JSON.stringify(completed);
+  if(changed)completed.splice(0,completed.length,...games);
+  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt};
+  return changed;
+}
+async function refreshOfficial(force=false){
+  if(fetching)return fetching;
+  if(!force&&Date.now()-lastFetch<60000)return false;
+  if(typeof global.fetch!=='function')return false;
+  lastFetch=Date.now();
+  fetching=(async()=>{
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+    try{
+      const url='https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Math.floor(Date.now()/60000);
+      const response=await global.fetch(url,{cache:'no-store',signal:controller.signal});
+      if(!response.ok)throw new Error('Feed download failed');
+      return applyOfficialFeed(await response.json());
+    }catch{feedState={...feedState,state:'unavailable'};return false;}
+    finally{clearTimeout(timer);fetching=null;}
+  })();
+  return fetching;
+}
+global.J3Results=Object.freeze({storeKey,backupKey,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
-
