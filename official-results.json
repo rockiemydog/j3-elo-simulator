@@ -1,9 +1,10 @@
 {
+  "verified": true,
   "schemaVersion": 1,
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
   "asOfDate": "2026-10-04",
-  "updatedAt": "2026-10-05T13:30:53.775348+00:00",
+  "updatedAt": "2026-10-05T13:36:30.743525+00:00",
   "matches": [
     {
       "id": "2026080815",
