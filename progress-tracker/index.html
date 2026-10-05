@@ -39,7 +39,7 @@
       <p class="input-note">同じブラウザ・同じサイトで保存した実際の結果を集計します。仮定結果は含みません。手入力の成績は残しておけます。</p>
     </section>
     <section class="panel inputs" aria-labelledby="input-title">
-      <div class="section-head"><h2 id="input-title">手入力（連動を使わない場合）</h2><span class="hint">確定前に内容を確認できます</span></div>
+      <div class="section-head"><h2 id="input-title">実績の入力欄（連動中は最新結果を表示）</h2><span class="hint">確定前に内容を確認できます</span></div>
       <div class="input-grid" id="main-fields"></div>
       <div class="validation" id="main-validation" role="status" aria-live="polite"></div>
       <div class="input-actions"><button class="action" id="confirm-main" type="button">本入力を確認して確定</button></div>
@@ -129,6 +129,7 @@
       const actual=linked?data.stats:mainStats;
       const signature=JSON.stringify([sourceMode,actual,healthy?data.games:null]);
       if(force||signature!==actualSignature){
+        if(linked){makeFields('main',actual);paint('main',[]);pendingMain=null;$('confirm-dialog').close();}
         makeFields('test',actual);paint('test',[]);activeView='main';
       }
       actualSignature=signature;
