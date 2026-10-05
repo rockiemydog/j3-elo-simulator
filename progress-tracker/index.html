@@ -99,14 +99,15 @@
     try {const mode=localStorage.getItem(syncModeKey);if(['auto','manual'].includes(mode))sourceMode=mode;}catch{}
     let activeStats=mainStats, activeView='main', pendingMain=null, syncHasExtras=false, actualSignature=null;
     function readSavedProgress() {
-      try {
+      let next={...defaults};
+      try{
         const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
-        const next=saved&&typeof saved.asofDate==='string'&&!validate(saved).length?saved:defaults;
-        if(JSON.stringify(next)!==JSON.stringify(mainStats)){
-          mainStats={...next};makeFields('main',mainStats);paint('main',[]);
-          pendingMain=null;$('confirm-dialog').close();
-        }
+        if(saved&&!validate(saved).length)next=saved;
       }catch{}
+      if(JSON.stringify(next)!==JSON.stringify(mainStats)){
+        mainStats={...next};makeFields('main',mainStats);paint('main',[]);
+        pendingMain=null;$('confirm-dialog').close();
+      }
       try{const mode=localStorage.getItem(syncModeKey);sourceMode=['auto','manual'].includes(mode)?mode:'waiting';}catch{}
     }
     function setSourceMode(mode){sourceMode=mode;try{localStorage.setItem(syncModeKey,mode);return true;}catch{return false;}}
@@ -140,11 +141,11 @@
       const date=`<div class="field"><label for="${prefix}-asofDate">入力成績の基準日</label><input id="${prefix}-asofDate" type="date" value="${values.asofDate||defaults.asofDate}"></div>`;
       $(prefix+'-fields').innerHTML=date+fields.map(([id,label,max])=>`<div class="field"><label for="${prefix}-${id}">${label}</label><input id="${prefix}-${id}" type="number" min="0"${max===null?'':` max="${max}"`} value="${values[id]}"></div>`).join('');
     }
-    function readStats(prefix){return {asofDate:$(`${prefix}-asofDate`).value,...Object.fromEntries(fields.map(([id])=>[id,Number($(`${prefix}-${id}`).value)]))};}
+    function readStats(prefix){return {asofDate:$(`${prefix}-asofDate`).value,...Object.fromEntries(fields.map(([id])=>[id,$(`${prefix}-${id}`).value.trim()===''?NaN:Number($(`${prefix}-${id}`).value)]))};}
     function validate(s){
       const problems=[];
       if(fields.some(([id])=>!Number.isFinite(s[id])||!Number.isInteger(s[id])||s[id]<0)) problems.push('すべて0以上の整数で入力してください。');
-      if(!s.asofDate) problems.push('入力成績の基準日を入力してください。');
+      if(typeof s.asofDate!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(s.asofDate)||!Number.isFinite(Date.parse(s.asofDate))||new Date(s.asofDate).toISOString().slice(0,10)!==s.asofDate) problems.push('入力成績の基準日を正しい日付で入力してください。');
       if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
       if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
       if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
