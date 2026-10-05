@@ -25,10 +25,21 @@ check('selection updates probability without registration',()=>{
  assert(elo.node('prematch').innerHTML.includes('北九州 vs 愛媛'));assert.equal(elo.eval('confirmed().length'),90);assert.equal(values.get('j3-elo-simulator-confirmed-v1'),saved);
  elo.node('away').value='北九州';elo.node('away').onchange();assert(elo.node('prematch').innerHTML.includes('異なるクラブ'));assert(elo.node('submitGame').disabled);
 });
-check('registration and deletion reach another open tracker',()=>{
- elo.node('home').value='北九州';elo.node('away').value='奈良';elo.node('hg').value='2';elo.node('ag').value='1';elo.node('confirm').onclick();flush();
- assert.equal(tracker.eval('activeStats.played'),10);assert.equal(tracker.eval('activeStats.points'),13);
- elo.eval('confirmedExtra=[];save()');flush();assert.equal(tracker.eval('activeStats.played'),9);assert.equal(tracker.eval('activeStats.points'),10);
+check('trial changes simulator only, supports edits and reset',()=>{
+ const saved=values.get('j3-elo-simulator-confirmed-v1');
+ elo.node('home').value='北九州';elo.node('away').value='奈良';elo.node('hg').value='2';elo.node('ag').value='1';elo.node('submitGame').onclick();flush();
+ assert.equal(elo.eval('scenarios.length'),1);assert.equal(elo.eval('stateWithScenario().pts[ix["北九州"]]'),13);
+ assert.equal(tracker.eval('activeStats.played'),9);assert.equal(tracker.eval('activeStats.points'),10);assert.equal(values.get('j3-elo-simulator-confirmed-v1'),saved);
+ elo.node('hg').value='0';elo.node('ag').value='0';elo.node('submitGame').onclick();
+ assert.equal(elo.eval('scenarios.length'),1);assert.equal(elo.eval('stateWithScenario().pts[ix["北九州"]]'),11);
+ elo.node('resetScenario').onclick();assert.equal(elo.eval('scenarios.length'),0);assert.equal(elo.eval('stateWithScenario().pts[ix["北九州"]]'),10);
+});
+check('manual controls removed and trial input always visible',()=>{
+ for(const id of ['modeConfirmed','modeScenario','confirm','batch','batchAdd','resetCurrent','importCsv'])assert(!main.includes('id="'+id+'"'));
+ const trial=main.indexOf('id="trialInput"');assert(trial>0);assert(!main.slice(0,trial).match(/<details[^>]*>(?:(?!<\/details>)[\s\S])*$/));
+ elo.node('home').value='北九州';elo.node('away').value='高知';elo.node('away').onchange();assert(elo.node('submitGame').disabled);assert(elo.node('hg').disabled);
+ const count=elo.eval('scenarios.length');elo.node('submitGame').onclick();assert.equal(elo.eval('scenarios.length'),count);
+ elo.node('away').value='奈良';elo.node('away').onchange();assert(!elo.node('submitGame').disabled);assert(!elo.node('hg').disabled);
 });
 const feed=JSON.parse(fs.readFileSync('official-results.json','utf8'));
 feed.matches.push({id:'2026101101',date:'2026-10-11',game:['北九州','奈良',2,1]});feed.asOfDate='2026-10-11';
