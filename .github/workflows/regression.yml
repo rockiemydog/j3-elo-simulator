@@ -13,4 +13,5 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/regression.cjs
+      - run: node tests/result-sync.test.cjs
       - run: python tests/test_official_results.py
