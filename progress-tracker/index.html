@@ -145,7 +145,7 @@
     function validate(s){
       const problems=[];
       if(fields.some(([id])=>!Number.isFinite(s[id])||!Number.isInteger(s[id])||s[id]<0)) problems.push('すべて0以上の整数で入力してください。');
-      if(typeof s.asofDate!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(s.asofDate)||!Number.isFinite(Date.parse(s.asofDate))||new Date(s.asofDate).toISOString().slice(0,10)!==s.asofDate) problems.push('入力成績の基準日を正しい日付で入力してください。');
+      if(typeof s.asofDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s.asofDate)||!Number.isFinite(Date.parse(s.asofDate))||new Date(s.asofDate).toISOString().slice(0,10)!==s.asofDate) problems.push('入力成績の基準日を正しい日付で入力してください。');
       if(s.played>TOTAL) problems.push('消化試合は38以下で入力してください。');
       if(s.wins+s.draws+s.losses!==s.played) problems.push('勝・分・敗の合計を消化試合数に合わせてください。');
       if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
