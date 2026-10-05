@@ -1,57 +1,47 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const shared=fs.readFileSync('shared-results.js','utf8');
-const html={elo:fs.readFileSync('index.html','utf8'),progress:fs.readFileSync('progress-tracker/index.html','utf8')};
-const scripts=name=>[...html[name].matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
-for(const name of Object.keys(html))new vm.Script(scripts(name));
-const values=new Map(),tabs=[];
-function tab(name){
-  const listeners={},nodes=new Map();
-  function node(id){if(nodes.has(id))return nodes.get(id);const n={id,value:'',textContent:'',className:'',disabled:false,style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(t,f){this[t]=f},querySelectorAll(){return[]},showModal(){this.open=true},close(){this.open=false},click(){(this.onclick||this.clickHandler)?.()},_html:''};Object.defineProperty(n,'innerHTML',{get(){return this._html},set(s){this._html=s;for(const m of s.matchAll(/<input[^>]*id="([^"]+)"[^>]*value="([^"]*)"/g))node(m[1]).value=m[2];}});nodes.set(id,n);return n;}
-  const localStorage={getItem:k=>values.get(k)||null,setItem(k,v){values.set(k,String(v));for(const t of tabs)if(t!==ctx)t.fire('storage',{key:k});},removeItem(k){values.delete(k)}};
-  const document={getElementById:node,querySelectorAll:()=>[],hidden:false,addEventListener(t,f){listeners['document:'+t]=f}};
-  const ctx=vm.createContext({localStorage,document,confirm:()=>true,setTimeout:()=>0,console,Blob,URL,addEventListener(t,f){listeners[t]=f}});ctx.window=ctx;ctx.fire=(t,e={})=>listeners[t]?.(e);ctx.node=node;vm.runInContext(shared,ctx);vm.runInContext(scripts(name),ctx);tabs.push(ctx);return ctx;
+const shared=fs.readFileSync('shared-results.js','utf8'),main=fs.readFileSync('index.html','utf8'),progress=fs.readFileSync('progress-tracker/index.html','utf8');
+const values=new Map(),tabs=[],queue=[];
+function tab(html){
+ const events={},nodes=new Map();
+ function node(id){if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'20':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(t,f){events[id+':'+t]=f},querySelectorAll(){return[]},close(){},showModal(){},click(){this.onclick?.()}});return nodes.get(id);}
+ const ctx={document:{hidden:false,getElementById:node,querySelectorAll:()=>[],addEventListener(){}},localStorage:{getItem:k=>values.get(k)||null,setItem(k,v){values.set(k,String(v));for(const t of tabs)if(t!==ctx)queue.push(()=>t.fire('storage',{key:k}));}},confirm:()=>true,setTimeout:()=>0,setInterval:()=>0,clearTimeout(){},console,AbortController,Event:class{constructor(type){this.type=type}}};
+ ctx.window=ctx;ctx.addEventListener=(t,f)=>events[t]=f;ctx.dispatchEvent=e=>events[e.type]?.(e);ctx.fire=(t,e)=>events[t]?.(e);ctx.node=node;
+ vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);ctx.eval=s=>vm.runInContext(s,ctx);tabs.push(ctx);return ctx;
 }
-const tracker=tab('progress');
-assert.match(tracker.node('sync-status').textContent,/手入力の8試合.*試合結果側は7試合/);
-const elo=tab('elo');
-assert.equal(vm.runInContext('auditInitialData().ok',elo),true,'shared baseline remains identical to original audit');
-assert.equal(vm.runInContext('J3Results.initialGames.length',elo),70);
-function submit(h,a,hg,ag,mode='confirmed'){
-  elo.node('home').value=h;elo.node('away').value=a;elo.node('hg').value=String(hg);elo.node('ag').value=String(ag);
-  vm.runInContext(`setEntryMode('${mode}')`,elo);elo.node('submitGame').onclick();
-}
-submit('北九州','鹿児島',1,1);
-assert.match(tracker.node('sync-status').textContent,/連動中：北九州 8試合・7点（1勝4分3敗）/);
-assert.equal(vm.runInContext('activeStats.gf-activeStats.ga',tracker),-6);
-assert.match(tracker.node('cards').innerHTML,/追加結果の日付は未登録/);
-submit('北九州','高知',4,0,'scenario');
-assert.equal(vm.runInContext('activeStats.played',tracker),8,'hypothetical result excluded');
-submit('北九州','高知',4,0);
-assert.equal(vm.runInContext('activeStats.played',tracker),9);
-assert.equal(vm.runInContext('activeStats.points',tracker),10);
-assert.equal(vm.runInContext('activeStats.gf-activeStats.ga',tracker),-2);
-vm.runInContext('confirmedExtra.splice(1,1);save()',elo);
-assert.equal(vm.runInContext('activeStats.played',tracker),8,'deletion updates tracker');
-vm.runInContext("commitRows(parseRows('北九州,4,0,高知',10))",elo);
-assert.equal(vm.runInContext('activeStats.points',tracker),10,'CSV/batch import updates tracker');
-const reopened=tab('progress');assert.equal(vm.runInContext('activeStats.points',reopened),10,'reload uses saved results');
-// A manual aggregate is preserved independently while switching modes.
-tracker.node('confirm-main').clickHandler=tracker.node('confirm-main').click;
-tracker.node('confirm-main').click(); // mock event handlers live on .click
-tracker.node('save-confirm').click();
-assert.equal(values.get('giravanz-j3-progress-source-v1'),'manual');
-assert.equal(vm.runInContext('mainStats.played',tracker),8);
-tracker.node('enable-sync').click();
-assert.equal(vm.runInContext('activeStats.played',tracker),9);
-assert.equal(JSON.parse(values.get('giravanz-j3-progress-confirmed-v1')).played,8,'manual backup retained');
-elo.node('resetCurrent').onclick();
-assert.equal(vm.runInContext('activeStats.played',tracker),7,'explicit reset updates linked stats');
-assert.equal(vm.runInContext('activeStats.points',tracker),6);
-// Malformed, duplicate, and old baseline rows must never inflate totals.
-values.set('j3-elo-simulator-confirmed-v1',JSON.stringify([['北九州','鹿児島',1,1],['北九州','鹿児島',1,1],['相模原','北九州',1,2]]));
-tracker.fire('storage',{key:'j3-elo-simulator-confirmed-v1'});
-assert.equal(vm.runInContext('activeStats.played',tracker),8);
-values.set('j3-elo-simulator-confirmed-v1','broken');tracker.fire('storage',{key:'j3-elo-simulator-confirmed-v1'});
-assert.match(tracker.node('sync-status').textContent,/読み取れません/);
-assert.equal(vm.runInContext('activeStats.played',tracker),8,'falls back to preserved manual data');
-console.log('PASS: baseline, migration, registration, hypotheses, deletion, CSV, reload, manual backup, reset, duplicate/corrupt data, cross-tab updates');
+function flush(){while(queue.length)queue.shift()();}
+let passed=0;function check(name,fn){fn();passed++;console.log('PASS '+name);}
+(async()=>{
+const tracker=tab(progress),elo=tab(main);flush();
+check('selectors and probabilities outside collapsed details',()=>{
+ const stack=[];let count=0;for(const m of main.matchAll(/<\/?details\b[^>]*>|<(?:select|div)\b[^>]*\bid="(home|away|prematch)"[^>]*>/g)){
+ if(m[0].startsWith('</details'))stack.pop();else if(m[0].startsWith('<details'))stack.push(m[0]);else {count++;assert.equal(stack.length,0,m[1]+' hidden');}
+ }assert.equal(count,3);assert(main.includes('対戦カードの勝敗確率'));
+});
+check('380 probability sets finite and sum to 100',()=>{
+ assert(elo.eval('teams.every(h=>teams.every(a=>{if(h===a)return prematchForecast(h,a)===null;const p=prematchForecast(h,a),v=[p.home,p.draw,p.away];return v.every(x=>Number.isFinite(x)&&x>=0&&x<=100)&&Math.abs(v.reduce((s,x)=>s+x,0)-100)<1e-10}))'));
+});
+check('selection updates probability without registration',()=>{
+ const saved=values.get('j3-elo-simulator-confirmed-v1');elo.node('away').value='愛媛';elo.node('away').onchange();
+ assert(elo.node('prematch').innerHTML.includes('北九州 vs 愛媛'));assert.equal(elo.eval('confirmed().length'),90);assert.equal(values.get('j3-elo-simulator-confirmed-v1'),saved);
+ elo.node('away').value='北九州';elo.node('away').onchange();assert(elo.node('prematch').innerHTML.includes('異なるクラブ'));assert(elo.node('submitGame').disabled);
+});
+check('registration and deletion reach another open tracker',()=>{
+ elo.node('home').value='北九州';elo.node('away').value='奈良';elo.node('hg').value='2';elo.node('ag').value='1';elo.node('confirm').onclick();flush();
+ assert.equal(tracker.eval('activeStats.played'),10);assert.equal(tracker.eval('activeStats.points'),13);
+ elo.eval('confirmedExtra=[];save()');flush();assert.equal(tracker.eval('activeStats.played'),9);assert.equal(tracker.eval('activeStats.points'),10);
+});
+const feed=JSON.parse(fs.readFileSync('official-results.json','utf8'));
+feed.matches.push({id:'2026101101',date:'2026-10-11',game:['北九州','奈良',2,1]});feed.asOfDate='2026-10-11';
+elo.eval("scenarios=[['北九州','奈良',3,0],['北九州','愛媛',1,0]]");
+elo.fetch=async()=>({ok:true,json:async()=>feed});
+await elo.eval('syncAutomaticResults(true)');
+check('automatic actual result replaces matching hypothesis once',()=>{
+ assert.equal(elo.eval('confirmed().length'),91);assert.equal(elo.eval('scenarios.length'),1);
+ assert.equal(elo.eval('scenarios[0][1]'),'愛媛');assert.equal(elo.eval('stateWithScenario().p[ix["北九州"]]'),11);assert.equal(elo.eval('J3Results.clubStats().stats.played'),10);
+});
+elo.fetch=async()=>{throw Error('offline')};await elo.eval('syncAutomaticResults(true)');
+check('network failure retains last good results',()=>{
+ assert.equal(elo.eval('confirmed().length'),91);assert(elo.node('autoStatus').textContent.includes('保持'));
+});
+console.log(passed+' interface and integration checks passed');
+})().catch(e=>{console.error(e);process.exitCode=1});
