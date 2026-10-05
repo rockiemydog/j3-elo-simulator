@@ -50,6 +50,11 @@ class NotificationTests(unittest.TestCase):
         self.assertIn('試合結果の変更はありません', message.get_content())
         self.assertEqual(message['To'], 'sender@example.com')
 
+    def test_recipient_can_differ_from_gmail_sender(self):
+        message = notify.compose(self.before, self.after, 'sender@gmail.com', 'recipient@me.com', test=True)
+        self.assertEqual(message['From'], 'sender@gmail.com')
+        self.assertEqual(message['To'], 'recipient@me.com')
+
 
 if __name__ == '__main__':
     unittest.main()

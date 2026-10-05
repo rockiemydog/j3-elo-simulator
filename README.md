@@ -3,14 +3,15 @@ J3順位シュミレーターELO版
 
 ## 公式結果のメール通知
 
-公式結果に試合の追加・得点訂正があり、GitHubへの保存が成功すると、送信元のGmailアドレス自身へ通知します。変更なし・メタデータのみの更新では通知しません。端末画面への反映完了を確認する通知ではありません。
+公式結果に試合の追加・得点訂正があり、GitHubへの保存が成功すると、指定した通知先へGmailから通知します。通知先未指定の場合は送信元自身へ送ります。変更なし・メタデータのみの更新では通知しません。端末画面への反映完了を確認する通知ではありません。
 
 GitHubの Settings → Secrets and variables → Actions に次の Repository secrets を登録します。メールアドレス・認証情報はコードに記載しません。
 
 | Secret | 値 |
 | --- | --- |
-| `J3_SMTP_USERNAME` | 通知を受け取るGmailアドレス（送信元も同じ） |
+| `J3_SMTP_USERNAME` | 送信元のGmailアドレス |
 | `J3_SMTP_PASSWORD` | この通知専用のGoogleアプリパスワード |
+| `J3_NOTIFICATION_EMAIL` | 通知先メールアドレス（任意。iCloudなどGmail以外も可） |
 
 Googleアプリパスワードは2段階認証が必要です。通常のGoogleログインパスワードは使用しません。作成・利用条件は https://support.google.com/accounts/answer/185833?hl=ja を参照してください。
 

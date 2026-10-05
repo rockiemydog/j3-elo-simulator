@@ -48,6 +48,7 @@ jobs:
         env:
           SMTP_USERNAME: ${{ secrets.J3_SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.J3_SMTP_PASSWORD }}
+          NOTIFICATION_EMAIL: ${{ secrets.J3_NOTIFICATION_EMAIL }}
           NOTIFICATION_COMMIT: ${{ steps.publish.outputs.commit || github.sha }}
           TEST_EMAIL: ${{ inputs.test_email }}
         run: |

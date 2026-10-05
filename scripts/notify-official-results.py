@@ -78,7 +78,8 @@ def main():
         return 0
     before = json.loads(Path(args.before).read_text())
     after = json.loads(Path(args.after).read_text())
-    message = compose(before, after, username, username,
+    recipient = os.environ.get('NOTIFICATION_EMAIL', '').strip() or username
+    message = compose(before, after, username, recipient,
                       os.environ.get('NOTIFICATION_COMMIT', ''), args.test)
     if message is None:
         print('No score changes; no email sent.')
