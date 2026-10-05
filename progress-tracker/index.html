@@ -29,7 +29,7 @@
   <header>
     <div class="brand">GIRAVANZ KITAKYUSHU · J3</div>
     <h1 class="title">上位6位ラインへの現在地</h1>
-    <div class="asof">初期の手入力成績：2026年10月3日・第9節終了時点</div>
+    <div class="asof">初期の手入力成績：2026年10月4日・第9節終了時点</div>
   </header>
   <main>
     <section class="panel inputs" aria-labelledby="sync-title">
@@ -74,7 +74,7 @@
     <div class="confirm-grid" id="confirm-summary"></div>
     <div class="input-actions"><button class="action secondary" id="cancel-confirm" type="button">戻って修正</button><button class="action" id="save-confirm" type="button">この内容で確定</button></div>
   </dialog>
-  <script src="../shared-results.js?v=20261005-results"></script>
+  <script src="../shared-results.js?v=operation-20261005-1"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -89,11 +89,11 @@
     const ceil=x=>Math.ceil(x-1e-10);
     const $=id=>document.getElementById(id);
     const fields=[['played','消化試合',38],['points','勝点',114],['wins','勝',38],['draws','分',38],['losses','敗',38],['gf','得点',null],['ga','失点',null]];
-    const defaults={asofDate:'2026-10-03',played:9,points:10,wins:2,draws:4,losses:3,gf:12,ga:16};
+    const defaults={asofDate:'2026-10-04',played:9,points:10,wins:2,draws:4,losses:3,gf:12,ga:16};
     const storageKey='giravanz-j3-progress-confirmed-v1';
     const previousDefaults={asofDate:'2026-09-26',played:8,points:7,wins:1,draws:4,losses:3,gf:10,ga:16};
     let mainStats={...defaults};
-    try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&typeof saved.asofDate==='string'&&!validate(saved).length)mainStats={...defaults,...saved};if(JSON.stringify(mainStats)===JSON.stringify(previousDefaults)){mainStats={...defaults};localStorage.setItem(storageKey,JSON.stringify(mainStats));localStorage.removeItem('giravanz-j3-progress-source-v1');}}catch{}
+    try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved&&typeof saved.asofDate==='string'&&!validate(saved).length)mainStats={...defaults,...saved};if(Object.keys(previousDefaults).every(k=>mainStats[k]===previousDefaults[k])){mainStats={...defaults};localStorage.setItem(storageKey,JSON.stringify(mainStats));localStorage.removeItem('giravanz-j3-progress-source-v1');}}catch{}
     const syncModeKey='giravanz-j3-progress-source-v1';
     let sourceMode='waiting';
     try {const mode=localStorage.getItem(syncModeKey);if(['auto','manual'].includes(mode))sourceMode=mode;}catch{}
@@ -125,7 +125,7 @@
       syncHasExtras=data.extraCount>0;
       $('enable-sync').disabled=linked;
       $('enable-sync').textContent=linked?'試合結果と連動中':'確定した試合結果と連動する';
-      $('sync-status').textContent=!healthy?'保存済みの試合結果を読み取れません。手入力の成績を表示できます。':linked?`連動中：北九州 ${data.stats.played}試合・${data.stats.points}点（${data.stats.wins}勝${data.stats.draws}分${data.stats.losses}敗）／リーグ確定${data.games.length}試合`:
+      $('sync-status').textContent=!healthy?'保存済みの試合結果を読み取れません。手入力の成績を表示できます。':linked?`${data.recovered?'バックアップから復元して表示中。結果登録画面を開くと保存を復旧します。 ':''}連動中：北九州 ${data.stats.played}試合・${data.stats.points}点（${data.stats.wins}勝${data.stats.draws}分${data.stats.losses}敗）／リーグ確定${data.games.length}試合`:
         sourceMode==='waiting'?`手入力の${mainStats.played}試合を保持しています。試合結果側は${data.stats.played}試合です。不足する結果を登録すると自動連動に切り替わります。`:'手入力モードです。保存済みの試合結果へ切り替えられます。';
       const actual=linked?data.stats:mainStats;
       const signature=JSON.stringify([sourceMode,actual,healthy?data.games:null]);
@@ -186,7 +186,7 @@
         const ppgText=left===0?(needPts===0?'到達済':'到達困難'):reqPpg.toFixed(2)+'点';
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
-          <div class="target">${activeView==='linked'?(syncHasExtras?'試合結果から集計（追加結果の日付は未登録）':'内蔵試合結果の基準日：2026-10-03'):'入力成績の基準日：'+asofDate}</div>
+          <div class="target">${activeView==='linked'?(syncHasExtras?'試合結果から集計（追加結果の日付は未登録）':'内蔵試合結果の基準日：'+J3Results.baseDate):'入力成績の基準日：'+asofDate}</div>
           <div class="target">目標は2023〜2025年のJ3同順位平均勝点（切り上げ）</div>
           <div class="progress-head"><span>現在 ${s.points}点／目標 ${target}点</span><b>達成率 ${Math.round(achievementRate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
@@ -207,12 +207,12 @@
     makeFields('main',mainStats);makeFields('test',mainStats);
     $('confirm-main').addEventListener('click',()=>{
       const s=readStats('main');if(!paint('main',validate(s)))return;
-      pendingMain=s;$('confirm-summary').innerHTML=summary(s);$('confirm-dialog').showModal();
+      $('confirm-title').textContent='本入力の確定確認';pendingMain=s;$('confirm-summary').innerHTML=summary(s);$('confirm-dialog').showModal();
     });
     $('cancel-confirm').addEventListener('click',()=>{$('confirm-dialog').close();pendingMain=null;});
     $('save-confirm').addEventListener('click',()=>{
       if(!pendingMain)return;
-      try{localStorage.setItem(storageKey,JSON.stringify(pendingMain));}catch{$('confirm-title').textContent='保存できませんでした';return;}mainStats={...pendingMain};setSourceMode('manual');
+      let previousMode;try{previousMode=localStorage.getItem(syncModeKey);localStorage.setItem(syncModeKey,'manual');localStorage.setItem(storageKey,JSON.stringify(pendingMain));}catch{try{if(previousMode===null)localStorage.removeItem(syncModeKey);else if(previousMode!==undefined)localStorage.setItem(syncModeKey,previousMode);}catch{}$('confirm-title').textContent='保存できませんでした。確定値は更新していません';return;}mainStats={...pendingMain};sourceMode='manual';
       makeFields('main',mainStats);makeFields('test',mainStats);paint('test',[]);$('confirm-dialog').close();pendingMain=null;activeView='main';refreshLinkedResults();
     });
     $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
@@ -224,6 +224,7 @@
     });
     window.addEventListener('focus',()=>refreshLinkedResults());
     window.addEventListener('pageshow',()=>refreshLinkedResults());
+    window.addEventListener('j3-results-changed',()=>refreshLinkedResults());
     // Same-tab writes do not emit a storage event; also catch iPad page restoration.
     setInterval(()=>{if(!document.hidden)refreshLinkedResults();},2000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshLinkedResults();});
@@ -231,4 +232,5 @@
   </script>
 </body>
 </html>
+
 

@@ -48,12 +48,12 @@
     </section>
   </div>
 </main>
-<script src="shared-results.js?v=20261005-results"></script>
+<script src="shared-results.js?v=operation-20261005-1"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
 const completed=J3Results.initialGames.map(g=>g.slice());
-const DATA_AS_OF='2026年10月3日（北九州の2試合を追加。他クラブは9月20日まで）';
+const DATA_AS_OF='2026年10月4日・第9節終了';
 const ELO_START=1500, ELO_K=20, ELO_HOME=60;
 const EXPECTED_ROUND_7_CARDS=['FC大阪|福島','熊本|松本','愛媛|讃岐','群馬|高知','鳥取|奈良','鹿児島|栃木SC','金沢|山口','相模原|北九州','長野|岐阜','滋賀|琉球'];
 const OFFICIAL_CHECK={'岐阜':[10,7,3,1,3,15,5],'愛媛':[16,7,5,1,1,18,8],'鹿児島':[19,7,6,1,0,15,7],'相模原':[11,7,3,2,2,12,8],'鳥取':[10,7,3,1,3,10,14],'FC大阪':[13,7,3,4,0,13,7],'長野':[11,7,3,2,2,8,8],'滋賀':[12,7,4,0,3,13,10],'熊本':[10,7,2,4,1,6,4],'栃木SC':[9,7,2,3,2,10,12],'琉球':[10,7,3,1,3,9,9],'讃岐':[4,7,1,1,5,7,13],'山口':[13,7,4,1,2,9,5],'奈良':[11,7,3,2,2,14,15],'高知':[5,7,1,2,4,3,14],'北九州':[6,7,1,3,3,9,15],'松本':[5,7,0,5,2,6,9],'金沢':[7,7,2,1,4,10,12],'群馬':[6,7,2,0,5,7,14],'福島':[4,7,1,1,5,12,17]};
@@ -64,8 +64,9 @@ function validStored(g){return Array.isArray(g)&&g.length===4&&teams.includes(g[
 function loadStored(){
   try{
     localStorage.setItem(STORE+'-probe','1');localStorage.removeItem(STORE+'-probe');
-    const raw=localStorage.getItem(STORE),rows=JSON.parse(raw||'[]');
-    if(!Array.isArray(rows))throw new Error('Invalid saved results');
+    let raw=localStorage.getItem(STORE),rows;
+    try{rows=JSON.parse(raw||'[]');if(!Array.isArray(rows))throw new Error('Invalid saved results');}
+    catch{const backup=localStorage.getItem(J3Results.backupKey);rows=JSON.parse(backup||'null');if(!Array.isArray(rows))throw new Error('No valid backup');localStorage.setItem(STORE+'-recovery',raw||'');localStorage.setItem(STORE,backup);raw=backup;storageState.repaired++;}
     const used=new Set(completed.map(key)),clean=[];let repaired=0,migrated=0;
     for(const g of rows){
       if(!validStored(g)){repaired++;continue}
@@ -77,12 +78,14 @@ function loadStored(){
       localStorage.setItem(STORE,JSON.stringify(clean));
       storageState.repaired+=repaired;storageState.migrated+=migrated;
     }
+    try{localStorage.setItem(J3Results.backupKey,JSON.stringify(clean));}catch{}
     storageState.available=true;return clean;
   }catch{storageState.available=false;return null}
 }
 let confirmedExtra=loadStored()||[];
+let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
-function initSelects(){for(const id of ['home','away'])$(id).innerHTML=teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value='鹿児島'}
+function initSelects(){for(const id of ['home','away'])$(id).innerHTML=teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value='奈良'}
 function applyGame(s,g){const [h,a,hg,ag]=g,i=ix[h],j=ix[a];s.gf[i]+=hg;s.ga[i]+=ag;s.gf[j]+=ag;s.ga[j]+=hg;s.p[i]++;s.p[j]++;if(hg>ag){s.pts[i]+=3;s.w[i]++;s.l[j]++}else if(hg<ag){s.pts[j]+=3;s.w[j]++;s.l[i]++}else{s.pts[i]++;s.pts[j]++;s.d[i]++;s.d[j]++}}
 const confirmed=()=>[...completed,...confirmedExtra];
 function stateWithScenario(what=scenarios){const s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};[...confirmed(),...what].forEach(g=>applyGame(s,g));return s}
@@ -101,7 +104,25 @@ function setEntryMode(mode){entryMode=mode;const actual=mode==='confirmed';$('mo
 function h2h(games){const p=new Int16Array(400),gd=new Int16Array(400),go=new Int16Array(400);for(const [H,A,hg,ag] of games){const h=ix[H],a=ix[A],ha=h*20+a,ah=a*20+h;gd[ha]+=hg-ag;gd[ah]+=ag-hg;go[ha]+=hg;go[ah]+=ag;if(hg>ag)p[ha]+=3;else if(hg<ag)p[ah]+=3;else{p[ha]++;p[ah]++}}return{p,gd,go}}
 function sortOrder(pts,gf,ga,games,rng){const order=[...Array(20).keys()].sort((a,b)=>pts[b]-pts[a]||(gf[b]-ga[b])-(gf[a]-ga[a])||gf[b]-gf[a]||a-b),hh=h2h(games),tie=Object.fromEntries([...Array(20).keys()].map(t=>[t,rng?rng():t]));for(let s=0;s<20;){let e=s+1;while(e<20&&pts[order[e]]===pts[order[s]]&&gf[order[e]]-ga[order[e]]===gf[order[s]]-ga[order[s]]&&gf[order[e]]===gf[order[s]])e++;if(e-s>1){const group=order.slice(s,e),set=new Set(group),mini=t=>{let p=0,gd=0,go=0;for(const u of set)if(u!==t){const k=t*20+u;p+=hh.p[k];gd+=hh.gd[k];go+=hh.go[k]}return[p,gd,go]};const m=Object.fromEntries(group.map(t=>[t,mini(t)]));group.sort((a,b)=>m[b][0]-m[a][0]||m[b][1]-m[a][1]||m[b][2]-m[a][2]||tie[a]-tie[b]);order.splice(s,e-s,...group)}s=e}return order}
 function simulate(n,what=scenarios){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=[];for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a] of allFixtures){if(used.has(`${teams[h]}|${teams[a]}`))continue;const p=eloProb(model.R,h,a,model.nu),u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;if(r<2)top2[t]++;if(r<6)top6[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n})).sort((a,b)=>a.rank-b.rank)}
-function save(){try{localStorage.setItem(STORE,JSON.stringify(confirmedExtra));storageState.available=true}catch{storageState.available=false}$('error').textContent=storageState.available?'':'この環境では自動保存できません。CSVを保存してください。';baseline=null}
+function save(){
+  try{
+    const current=J3Results.readConfirmed();
+    if(!current.available||current.rejected)throw new Error('保存済み結果を読み取れません。CSVを保存して確認してください。');
+    if(JSON.stringify(current.extras)!==JSON.stringify(lastSavedExtras)){
+      confirmedExtra=current.extras.map(g=>g.slice());lastSavedExtras=confirmedExtra.map(g=>g.slice());
+      throw new Error('別の画面で結果が更新されました。最新結果を読み直しました。もう一度操作してください。');
+    }
+    localStorage.setItem(STORE,JSON.stringify(confirmedExtra));
+    lastSavedExtras=confirmedExtra.map(g=>g.slice());storageState.available=true;
+    try{localStorage.setItem(J3Results.backupKey,JSON.stringify(confirmedExtra));}catch{}
+    window.dispatchEvent(new Event('j3-results-changed'));
+    $('error').textContent='';baseline=null;return true;
+  }catch(e){
+    confirmedExtra=lastSavedExtras.map(g=>g.slice());baseline=null;
+    $('error').textContent=e.message.includes('別の画面')?e.message:'保存できなかったため変更を取り消しました。元の確定結果を保持しています。';
+    return false;
+  }
+}
 function renderScenarios(){const box=$('scenarios'),rows=[...confirmedExtra.map((g,i)=>({g,i,type:'確定'})),...scenarios.map((g,i)=>({g,i,type:'仮定'}))],real=380-confirmed().length,sim=remainingFixtures().length,store=storageState.available?'自動保存ON':'自動保存不可・CSV推奨',migration=storageState.migrated?` ｜ 既存${storageState.migrated}件を初期データへ統合`:'';$('stampData').textContent=`Elo版・確定 ${confirmed().length}試合`;$('statusline').textContent=`Elo K=${ELO_K}・ホーム+${ELO_HOME} ｜ 確定 ${confirmed().length}/380 ｜ 未消化 ${real} ｜ 仮定 ${scenarios.length} ｜ 計算対象 ${sim} ｜ ${store}${migration}${storageState.repaired?` ｜ 不正データ${storageState.repaired}件を除外`:''}`;$('resetScenario').style.display=scenarios.length?'inline-block':'none';$('resetCurrent').disabled=!auditInitialData().ok||(!confirmedExtra.length&&!scenarios.length);if(!rows.length){box.innerHTML='<div class="empty">追加データはありません</div>';return}box.innerHTML=rows.map(r=>`<div class="scenario"><span><span class="tag">${r.type}</span> ${r.g[0]} <strong>${r.g[2]}–${r.g[3]}</strong> ${r.g[1]}</span><button class="remove" data-type="${r.type}" data-i="${r.i}" aria-label="削除">×</button></div>`).join('');box.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{if(b.dataset.type==='確定'){if(!confirm('この確定結果を削除しますか？'))return;confirmedExtra.splice(+b.dataset.i,1);save()}else{scenarios.splice(+b.dataset.i,1)}renderScenarios();run()})}
 function renderHero(){const f=lastForecast.find(x=>x.club==='北九州'),b=baseline?.find(x=>x.club==='北九州'),live=liveRows().find(x=>x.club==='北九州');const delta=(v,bv,s='')=>b?`${v-bv>=0?'+':''}${(v-bv).toFixed(1)}${s} vs 現在`:'';$('hero').innerHTML=`<div class="metric"><div class="label">北九州 現在Elo</div><div class="value">${f.elo.toFixed(0)}</div><div class="delta">暫定勝点 ${live.pts}</div></div><div class="metric"><div class="label">最終予想勝点</div><div class="value">${f.points.toFixed(1)}</div><div class="delta">${delta(f.points,b?.points)}</div></div><div class="metric"><div class="label">平均最終順位</div><div class="value">${f.rank.toFixed(1)}位</div><div class="delta">${b?`${(b.rank-f.rank)>=0?'+':''}${(b.rank-f.rank).toFixed(1)}順位改善`:''}</div></div><div class="metric"><div class="label">6位以内確率</div><div class="value">${f.top6.toFixed(1)}%</div><div class="delta">${delta(f.top6,b?.top6,'pt')}</div></div>`}
 function liveRows(){const s=stateWithScenario(),games=[...confirmed(),...scenarios],order=sortOrder(s.pts,s.gf,s.ga,games),hh=h2h(games),sig=i=>{const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i]}})}
@@ -116,28 +137,30 @@ function stepScore(id,delta){const e=$(id);e.value=Math.max(0,Math.min(30,(+e.va
 $('hgMinus').onclick=()=>stepScore('hg',-1);$('hgPlus').onclick=()=>stepScore('hg',1);$('agMinus').onclick=()=>stepScore('ag',-1);$('agPlus').onclick=()=>stepScore('ag',1);$('hg').oninput=syncForm;$('ag').oninput=syncForm;
 $('modeConfirmed').onclick=()=>{setEntryMode('confirmed');syncForm()};$('modeScenario').onclick=()=>{setEntryMode('scenario');syncForm()};$('submitGame').onclick=()=>$(entryMode==='confirmed'?'confirm':'add').click();$('home').onchange=syncForm;$('away').onchange=syncForm;
 $('add').onclick=()=>{const g=formGame(),e=validate(g);$('error').textContent=e;if(e)return;scenarios.push(g);renderScenarios();run()};
-$('confirm').onclick=()=>{const g=formGame(),e=validate(g,false);$('error').textContent=e;if(e)return;if(!confirm(`${g[0]} ${g[2]}–${g[3]} ${g[1]}を確定結果として登録しますか？`))return;scenarios=scenarios.filter(x=>key(x)!==key(g));confirmedExtra.push(g);save();renderScenarios();run()};
+$('confirm').onclick=()=>{const g=formGame(),e=validate(g,false);$('error').textContent=e;if(e)return;if(!confirm(`${g[0]} ${g[2]}–${g[3]} ${g[1]}を確定結果として登録しますか？`))return;confirmedExtra.push(g);if(save())scenarios=scenarios.filter(x=>key(x)!==key(g));renderScenarios();run()};
 $('resetScenario').onclick=()=>{scenarios=[];renderScenarios();run()};
-$('resetCurrent').onclick=()=>{const a=auditInitialData();if(!a.ok){$('error').textContent='内蔵データに不整合があるため復帰できません。';return}if(!confirmedExtra.length&&!scenarios.length){$('error').textContent='すでに初期状態です。';return}if(!confirm(`${DATA_AS_OF}更新・確定${a.count}試合の内蔵状態へ戻します。\n手入力した確定結果と仮定結果はすべて削除されます。よろしいですか？`))return;try{localStorage.setItem(STORE+'-before-current-reset',JSON.stringify({savedAt:new Date().toISOString(),confirmedExtra,scenarios,dataAsOf:DATA_AS_OF}))}catch{}confirmedExtra=[];scenarios=[];save();initSelects();$('hg').value='0';$('ag').value='0';setEntryMode('confirmed');baseline=null;syncForm();renderInitialAudit();renderScenarios();$('error').textContent=`${DATA_AS_OF}更新の内蔵状態へ戻しました。`;run()};
-function parseRows(text,max){const lines=text.replace(/^\ufeff/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(lines[0]?.startsWith('ホーム,'))lines.shift();if(!lines.length||lines.length>max)return{error:`1～${max}試合を入力してください。`};const add=[],keys=new Set(confirmed().map(key));for(let n=0;n<lines.length;n++){const p=lines[n].split(/[,，\t]/).map(x=>x.trim()),blank=p.length===4&&(!p[0]||!p[1]||!p[2]||!p[3]),g=[p[0],p[3],blank?NaN:Number(p[1]),blank?NaN:Number(p[2])],e=p.length===4?validate(g,false):'4項目で入力してください。';if(e||keys.has(key(g)))return{error:`${n+1}行目：${e||'同じカードが重複しています。'}`};keys.add(key(g));add.push(g)}return{add,keys}}
-function commitRows(parsed){if(parsed.error){$('error').textContent=parsed.error;return false}confirmedExtra.push(...parsed.add);scenarios=scenarios.filter(x=>!parsed.keys.has(key(x)));save();$('error').textContent=storageState.available?`${parsed.add.length}試合を確定しました。`:`${parsed.add.length}試合を反映しましたが自動保存できません。CSVを保存してください。`;renderScenarios();run();return true}
+$('resetCurrent').onclick=()=>{const a=auditInitialData();if(!a.ok){$('error').textContent='内蔵データに不整合があるため復帰できません。';return}if(!confirmedExtra.length&&!scenarios.length){$('error').textContent='すでに初期状態です。';return}if(!confirm(`${DATA_AS_OF}更新・確定${a.count}試合の内蔵状態へ戻します。\n手入力した確定結果と仮定結果はすべて削除されます。よろしいですか？`))return;try{localStorage.setItem(STORE+'-before-current-reset',JSON.stringify({savedAt:new Date().toISOString(),confirmedExtra,scenarios,dataAsOf:DATA_AS_OF}))}catch{}confirmedExtra=[];if(!save()){renderScenarios();run();return;}scenarios=[];initSelects();$('hg').value='0';$('ag').value='0';setEntryMode('confirmed');baseline=null;syncForm();renderInitialAudit();renderScenarios();$('error').textContent=`${DATA_AS_OF}更新の内蔵状態へ戻しました。`;run()};
+function parseRows(text,max){const lines=text.replace(/^\ufeff/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(lines[0]?.startsWith('ホーム,'))lines.shift();if(!lines.length||lines.length>max)return{error:`1～${max}試合を入力してください。`};const add=[],known=new Map(confirmed().map(g=>[key(g),g])),keys=new Set(known.keys()),inputKeys=new Set();for(let n=0;n<lines.length;n++){const p=lines[n].split(/[,，\t]/).map(x=>x.trim()),blank=p.length===4&&(!p[0]||!p[1]||!p[2]||!p[3]),g=[p[0],p[3],blank?NaN:Number(p[1]),blank?NaN:Number(p[2])],e=p.length===4?(!validStored(g)?'クラブ名と得点（0～30の整数）を確認してください。':''):'4項目で入力してください。';if(e)return{error:`${n+1}行目：${e}`};if(inputKeys.has(key(g)))return{error:`${n+1}行目：同じカードが重複しています。`};inputKeys.add(key(g));const existing=known.get(key(g));if(existing){if(existing[2]!==g[2]||existing[3]!==g[3])return{error:`${n+1}行目：登録済み結果と得点が異なります。`};continue;}keys.add(key(g));add.push(g)}return{add,keys}}
+function commitRows(parsed){if(parsed.error){$('error').textContent=parsed.error;return false}if(!parsed.add.length){$('error').textContent='すべて登録済みです。結果は変更していません。';return true;}confirmedExtra.push(...parsed.add);if(!save()){renderScenarios();run();return false;}scenarios=scenarios.filter(x=>!parsed.keys.has(key(x)));$('error').textContent=storageState.available?`${parsed.add.length}試合を確定しました。`:`${parsed.add.length}試合を反映しましたが自動保存できません。CSVを保存してください。`;renderScenarios();run();return true}
 $('batchAdd').onclick=()=>{if(commitRows(parseRows($('batch').value,10)))$('batch').value=''};
-$('exportCsv').onclick=()=>{const rows=['ホーム,ホーム得点,アウェー得点,アウェー',...confirmedExtra.map(g=>`${g[0]},${g[2]},${g[3]},${g[1]}`)],blob=new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='j3-elo-confirmed-results.csv';a.click();URL.revokeObjectURL(a.href)};
-$('importCsv').onchange=async e=>{const text=await e.target.files[0]?.text();if(!text)return;commitRows(parseRows(text,380-confirmed().length));e.target.value=''};
+$('exportCsv').onclick=()=>{const rows=['ホーム,ホーム得点,アウェー得点,アウェー',...confirmed().map(g=>`${g[0]},${g[2]},${g[3]},${g[1]}`)],blob=new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='j3-elo-confirmed-results.csv';a.click();URL.revokeObjectURL(a.href)};
+$('importCsv').onchange=async e=>{const text=await e.target.files[0]?.text();if(!text)return;commitRows(parseRows(text,380));e.target.value=''};
 $('acceptInitial').onclick=()=>{if(!auditInitialData().ok)return;try{localStorage.setItem(SETUP_STORE,DATA_AS_OF)}catch{}$('dataReady').style.display='none'};$('recheckData').onclick=()=>{const a=renderInitialAudit();$('dataReady').style.display='flex';$('error').textContent=a.ok?'初期データは正常です。':'初期データに不整合があります。'};
 $('rerun').onclick=()=>{baseline=null;run()};$('runs').onchange=()=>{baseline=null;run()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeTab=b.dataset.tab;renderTable()});
 function refreshSavedResults(){
   const saved=loadStored();
   if(saved===null){$('error').textContent='保存済み結果を読み取れません。画面の結果を保持しています。CSVを保存して確認してください。';return;}
   if(JSON.stringify(saved)===JSON.stringify(confirmedExtra))return;
-  confirmedExtra=saved;const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderScenarios();run();
+  confirmedExtra=saved;lastSavedExtras=confirmedExtra.map(g=>g.slice());const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderScenarios();run();
 }
 window.addEventListener('storage',e=>{if(e.key===STORE||e.key===null)refreshSavedResults();});
 window.addEventListener('focus',refreshSavedResults);
 window.addEventListener('pageshow',refreshSavedResults);
+window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSavedResults();});
 initSelects();setEntryMode('confirmed');updateSubmitLabel();renderInitialAudit();renderPrematch();renderScenarios();run();
 </script>
 </body>
 </html>
+
 
