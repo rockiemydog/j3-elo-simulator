@@ -43,7 +43,7 @@
       <div class="input-grid" id="main-fields"></div>
       <div class="validation" id="main-validation" role="status" aria-live="polite"></div>
       <div class="input-actions"><button class="action" id="confirm-main" type="button">本入力を確認して確定</button></div>
-      <p class="input-note">手入力を確定すると手入力モードに切り替わります。連動中も保存済みの手入力は保持します。</p>
+      <p class="input-note">手入力を確定すると手入力モードに切り替わります。確定試合結果の消化試合数が手入力を上回ると、自動で試合結果との連動に戻ります。保存済みの手入力は保持します。</p>
     </section>
 
     <section class="panel inputs input-panel test" aria-labelledby="test-title">
@@ -74,7 +74,7 @@
     <div class="confirm-grid" id="confirm-summary"></div>
     <div class="input-actions"><button class="action secondary" id="cancel-confirm" type="button">戻って修正</button><button class="action" id="save-confirm" type="button">この内容で確定</button></div>
   </dialog>
-  <script src="../shared-results.js"></script>
+  <script src="../shared-results.js?v=20261005-results"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -119,7 +119,7 @@
         if(data.stats.played<mainStats.played&&!confirm(`試合結果からの集計は${data.stats.played}試合、保存済みの手入力は${mainStats.played}試合です。手入力を保持したまま、試合結果の集計を表示しますか？`))return;
         setSourceMode('auto');activeView='main';
       }
-      if(sourceMode==='waiting'&&healthy&&data.stats.played>=mainStats.played)setSourceMode('auto');
+      if(healthy&&((sourceMode==='waiting'&&data.stats.played>=mainStats.played)||(sourceMode==='manual'&&data.stats.played>mainStats.played)))setSourceMode('auto');
       const linked=sourceMode==='auto'&&healthy;
       syncHasExtras=data.extraCount>0;
       $('enable-sync').disabled=linked;
@@ -221,6 +221,9 @@
       if([J3Results.storeKey,storageKey,syncModeKey].includes(e.key)||e.key===null)refreshLinkedResults();
     });
     window.addEventListener('focus',()=>refreshLinkedResults());
+    window.addEventListener('pageshow',()=>refreshLinkedResults());
+    // Same-tab writes do not emit a storage event; also catch iPad page restoration.
+    setInterval(()=>{if(!document.hidden)refreshLinkedResults();},2000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshLinkedResults();});
     refreshLinkedResults();
   </script>
