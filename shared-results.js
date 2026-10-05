@@ -8,6 +8,8 @@ const groupedCompleted=completed.slice();
 const chronologicalIndexes=[0,4,8,11,18,24,31,34,38,1,5,9,12,16,19,21,25,26,37,2,6,13,17,20,22,27,29,32,35,3,7,10,14,15,23,28,30,33,36,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59];
 completed.splice(0,completed.length,...chronologicalIndexes.map(i=>groupedCompleted[i]),['FC大阪','福島',4,1],['熊本','松本',0,0],['愛媛','讃岐',2,1],['群馬','高知',1,0],['鳥取','奈良',2,3],['鹿児島','栃木SC',3,1],['金沢','山口',1,2],['相模原','北九州',1,2],['長野','岐阜',1,0],['滋賀','琉球',3,0]);
 
+completed.push(['北九州','鹿児島',1,1],['北九州','高知',2,0]);
+
 const storeKey='j3-elo-simulator-confirmed-v1';
 const key=g=>g[0]+'|'+g[1];
 const valid=g=>Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&g.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=30);
@@ -26,7 +28,7 @@ function readConfirmed() {
   return {games:[...completed.map(g=>g.slice()),...extras],available,rejected,extraCount:extras.length};
 }
 function clubStats(club='北九州') {
-  const data=readConfirmed(), s={asofDate:'2026-09-20',played:0,points:0,wins:0,draws:0,losses:0,gf:0,ga:0};
+  const data=readConfirmed(), s={asofDate:'2026-10-03',played:0,points:0,wins:0,draws:0,losses:0,gf:0,ga:0};
   for(const [h,a,hg,ag] of data.games) {
     if(h!==club&&a!==club) continue;
     const gf=h===club?hg:ag, ga=h===club?ag:hg;
