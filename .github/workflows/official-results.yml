@@ -42,6 +42,7 @@ jobs:
           git commit -m 'Update official J3 finished results'
           git push origin HEAD:main
           echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "公式データのGitHub保存：完了（$(git rev-parse HEAD)）。端末表示は未確認です。" >> "$GITHUB_STEP_SUMMARY"
       - name: Email successful official result changes
         if: steps.fetch.outputs.changed == 'true' || inputs.test_email == true
         continue-on-error: true

@@ -20,6 +20,14 @@ def changed_matches(before, after):
             if old.get(tuple(row['game'][:2])) != row['game']]
 
 
+def result_id(matches):
+    text = '\n'.join(sorted('|'.join(map(str, row['game'])) for row in matches))
+    value = 2166136261
+    for char in text:
+        value = ((value ^ ord(char)) * 16777619) & 0xffffffff
+    return f'{value:08x}'
+
+
 def compose(before, after, sender, recipient, commit='', test=False):
     changes = changed_matches(before, after)
     if not changes and not test:
@@ -45,7 +53,9 @@ def compose(before, after, sender, recipient, commit='', test=False):
         draws += gf == ga
         losses += gf < ga
     now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
-    lines.extend([f"リーグ確定：{len(after['matches'])}試合", 
+    lines.extend([f"結果ID：{result_id(after['matches'])}",
+                  '両画面の確認欄で、同じ結果IDと集計一致の表示を確認してください。',
+                  f"リーグ確定：{len(after['matches'])}試合",
                   f'北九州：{played}試合・勝点{3 * wins + draws}（{wins}勝{draws}分{losses}敗）',
                   f"結果の対象日：{after['asOfDate']}まで",
                   f"通知作成日時：{now:%Y-%m-%d %H:%M:%S} 日本時間",
@@ -65,6 +75,13 @@ def compose(before, after, sender, recipient, commit='', test=False):
     return message
 
 
+def delivery_status(label):
+    summary = os.environ.get('GITHUB_STEP_SUMMARY')
+    if summary:
+        with open(summary, 'a', encoding='utf-8') as handle:
+            handle.write(f'\n### メール通知\n\n{label}\n\nSMTP受付は受信箱への到着・端末表示の確認とは別です。\n')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--before', required=True)
@@ -74,6 +91,7 @@ def main():
     username = os.environ.get('SMTP_USERNAME', '').strip()
     password = os.environ.get('SMTP_PASSWORD', '').replace(' ', '')
     if not username or not password:
+        delivery_status('未送信：メール認証設定がありません。')
         print('::warning::Email is not configured. Add J3_SMTP_USERNAME and J3_SMTP_PASSWORD in Actions secrets. Official results remain published.')
         return 0
     before = json.loads(Path(args.before).read_text())
@@ -82,6 +100,7 @@ def main():
     message = compose(before, after, username, recipient,
                       os.environ.get('NOTIFICATION_COMMIT', ''), args.test)
     if message is None:
+        delivery_status('送信対象なし：試合結果に変更がありません。')
         print('No score changes; no email sent.')
         return 0
     try:
@@ -92,8 +111,10 @@ def main():
                 raise smtplib.SMTPRecipientsRefused(refused)
     except (smtplib.SMTPException, OSError):
         # Never log server replies or credentials. No retry: acceptance may be ambiguous.
+        delivery_status('送信失敗：SMTP受付を確認できませんでした。')
         print('::warning::Email delivery failed. Official results remain published. Check credentials and use the test_email manual workflow input.')
         return 1
+    delivery_status('SMTP受付済：受信箱への到着は未確認です。')
     print('Email accepted by SMTP server.')
     return 0
 

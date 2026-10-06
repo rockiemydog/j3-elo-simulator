@@ -41,6 +41,22 @@ function clubStats(club='北九州') {
   s.points=3*s.wins+s.draws;
   return {...data,stats:s};
 }
+// Compact result identifier for comparing email and each device (not a security hash).
+function resultId(games=completed){
+  const text=games.map(g=>g.join('|')).sort().join('\n');let hash=2166136261;
+  for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619)>>>0;
+  return hash.toString(16).padStart(8,'0');
+}
+function verification(displayed,eligible=true){
+  const official={played:0,points:0,wins:0,draws:0,losses:0,gf:0,ga:0};
+  for(const [h,a,hg,ag] of completed){if(h!=='北九州'&&a!=='北九州')continue;const gf=h==='北九州'?hg:ag,ga=h==='北九州'?ag:hg;official.played++;official.gf+=gf;official.ga+=ga;if(gf>ga)official.wins++;else if(gf===ga)official.draws++;else official.losses++;}
+  official.points=3*official.wins+official.draws;
+  const matches=eligible&&displayed&&Object.keys(official).every(k=>displayed[k]===official[k]);
+  const ready=feedState.state==='ready',ok=ready&&matches;
+  const label=ok?'公式データと画面集計の一致を確認':!ready?'最新データの取得未確認': '公式データとの一致は未確認（試し入力・手入力・旧保存値を確認）';
+  const checked=feedState.checkedAt?new Date(feedState.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未取得';
+  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n取得確認：${checked} 日本時間\nメールと両画面の結果IDが一致するか確認してください。`};
+}
 let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
 function applyOfficialFeed(feed){
   if(!feed||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
@@ -53,7 +69,7 @@ function applyOfficialFeed(feed){
   if(completed.some(g=>!seen.has(key(g))))throw new Error('Incomplete official feed');
   const games=rows.map(r=>r.game.slice()),changed=JSON.stringify(games)!==JSON.stringify(completed);
   if(changed)completed.splice(0,completed.length,...games);
-  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt};
+  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt,checkedAt:new Date().toISOString()};
   return changed;
 }
 async function refreshOfficial(force=false){
@@ -73,5 +89,5 @@ async function refreshOfficial(force=false){
   })();
   return fetching;
 }
-global.J3Results=Object.freeze({storeKey,backupKey,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
+global.J3Results=Object.freeze({storeKey,backupKey,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);

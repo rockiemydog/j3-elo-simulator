@@ -52,7 +52,16 @@ check('automatic actual result replaces matching hypothesis once',()=>{
 });
 elo.fetch=async()=>{throw Error('offline')};await elo.eval('syncAutomaticResults(true)');
 check('network failure retains last good results',()=>{
- assert.equal(elo.eval('confirmed().length'),91);assert(elo.node('autoStatus').textContent.includes('保持'));
+ assert.equal(elo.eval('confirmed().length'),91);assert(elo.node('autoStatus').textContent.includes('保持'));assert.equal(elo.node('verification').dataset.verified,'false');
 });
+tracker.fetch=async()=>({ok:true,json:async()=>feed});await tracker.eval('syncAutomaticResults(true)');
+check('tracker fetch independently verifies new actual result and trial invalidates completion',()=>{
+ assert.equal(tracker.eval('activeStats.points'),13);assert.equal(tracker.node('verification').dataset.verified,'true');
+ assert.equal(tracker.eval('J3Results.resultId()'),elo.eval('J3Results.resultId()'));
+ tracker.eval("showResults({...activeStats,points:16,wins:4,played:11},'test')");assert.equal(tracker.node('verification').dataset.verified,'false');
+ tracker.fetch=async()=>{throw Error('offline')};
+});
+await tracker.eval('syncAutomaticResults(true)');
+check('tracker failure never reports verified even when previous result is retained',()=>{assert.equal(tracker.node('verification').dataset.verified,'false');assert.equal(tracker.eval('J3Results.clubStats().stats.points'),13);});
 console.log(passed+' interface and integration checks passed');
 })().catch(e=>{console.error(e);process.exitCode=1});
