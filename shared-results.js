@@ -16,19 +16,8 @@ let baseDate='2026-10-04';
 const key=g=>g[0]+'|'+g[1];
 const valid=g=>Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&g.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=30);
 function readConfirmed() {
-  const seen=new Set(completed.map(key)), extras=[];
-  let available=true, rejected=0, recovered=false;
-  try {
-    let rows;
-    try{rows=JSON.parse(global.localStorage.getItem(storeKey)||'[]');if(!Array.isArray(rows))throw new Error('Invalid saved results');}
-    catch{rows=JSON.parse(global.localStorage.getItem(backupKey)||'null');if(!Array.isArray(rows))throw new Error('No valid backup');recovered=true;}
-    for(const g of rows) {
-      if(!valid(g)){rejected++;continue;}
-      if(seen.has(key(g))) continue;
-      seen.add(key(g));extras.push(g.slice());
-    }
-  } catch {available=false;}
-  return {games:[...completed.map(g=>g.slice()),...extras],available,rejected,recovered,extras:extras.map(g=>g.slice()),extraCount:extras.length};
+  // Legacy manual data stays on disk for recovery, but never enters official totals.
+  return {games:completed.map(g=>g.slice()),available:true,rejected:0,recovered:false,extras:[],extraCount:0};
 }
 function clubStats(club='北九州') {
   const data=readConfirmed(), s={asofDate:baseDate,played:0,points:0,wins:0,draws:0,losses:0,gf:0,ga:0};
@@ -91,3 +80,4 @@ async function refreshOfficial(force=false){
 }
 global.J3Results=Object.freeze({storeKey,backupKey,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
+

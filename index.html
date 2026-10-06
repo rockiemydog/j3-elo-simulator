@@ -50,7 +50,7 @@
     </section>
   </div>
 </main>
-<script src="shared-results.js?v=verification-20261006-1"></script>
+<script src="shared-results.js?v=official-only-20261006-2"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
@@ -65,25 +65,8 @@ const STORE=J3Results.storeKey;
 const SETUP_STORE='j3-elo-simulator-initial-accepted-v2';
 function validStored(g){return Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&Number.isInteger(g[2])&&Number.isInteger(g[3])&&g[2]>=0&&g[3]>=0&&g[2]<=30&&g[3]<=30}
 function loadStored(){
-  try{
-    localStorage.setItem(STORE+'-probe','1');localStorage.removeItem(STORE+'-probe');
-    let raw=localStorage.getItem(STORE),rows;
-    try{rows=JSON.parse(raw||'[]');if(!Array.isArray(rows))throw new Error('Invalid saved results');}
-    catch{const backup=localStorage.getItem(J3Results.backupKey);rows=JSON.parse(backup||'null');if(!Array.isArray(rows))throw new Error('No valid backup');localStorage.setItem(STORE+'-recovery',raw||'');localStorage.setItem(STORE,backup);raw=backup;storageState.repaired++;}
-    const used=new Set(completed.map(key)),clean=[];let repaired=0,migrated=0;
-    for(const g of rows){
-      if(!validStored(g)){repaired++;continue}
-      if(used.has(key(g))){migrated++;continue}
-      used.add(key(g));clean.push(g);
-    }
-    if(repaired||migrated){
-      localStorage.setItem(STORE+'-recovery',raw||'[]');
-      localStorage.setItem(STORE,JSON.stringify(clean));
-      storageState.repaired+=repaired;storageState.migrated+=migrated;
-    }
-    try{localStorage.setItem(J3Results.backupKey,JSON.stringify(clean));}catch{}
-    storageState.available=true;return clean;
-  }catch{storageState.available=false;return null}
+  // Official results are the only source of actual standings.
+  storageState.available=true;return [];
 }
 let confirmedExtra=loadStored()||[];
 let lastSavedExtras=confirmedExtra.map(g=>g.slice());
@@ -169,4 +152,5 @@ initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios()
 </script>
 </body>
 </html>
+
 
