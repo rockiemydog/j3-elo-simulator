@@ -2,10 +2,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const shared=fs.readFileSync('shared-results.js','utf8'),main=fs.readFileSync('index.html','utf8'),progress=fs.readFileSync('progress-tracker/index.html','utf8');
 const values=new Map(),tabs=[],queue=[];
 function tab(html){
- const events={},nodes=new Map();
+ const events={},nodes=new Map(),renderTimers=[];
  function node(id){if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'20':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(t,f){events[id+':'+t]=f},querySelectorAll(){return[]},close(){},showModal(){},click(){this.onclick?.()}});return nodes.get(id);}
- const ctx={document:{hidden:false,getElementById:node,querySelectorAll:()=>[],addEventListener(){}},localStorage:{getItem:k=>values.get(k)||null,setItem(k,v){values.set(k,String(v));for(const t of tabs)if(t!==ctx)queue.push(()=>t.fire('storage',{key:k}));}},confirm:()=>true,setTimeout:()=>0,setInterval:()=>0,clearTimeout(){},console,AbortController,Event:class{constructor(type){this.type=type}}};
+ const ctx={document:{hidden:false,getElementById:node,querySelectorAll:()=>[],addEventListener(){}},localStorage:{getItem:k=>values.get(k)||null,setItem(k,v){values.set(k,String(v));for(const t of tabs)if(t!==ctx)queue.push(()=>t.fire('storage',{key:k}));}},confirm:()=>true,setTimeout:(f,ms)=>{if(ms===20)renderTimers.push(f);return 0},setInterval:()=>0,clearTimeout(){},console,AbortController,Event:class{constructor(type){this.type=type}}};
  ctx.window=ctx;ctx.addEventListener=(t,f)=>events[t]=f;ctx.dispatchEvent=e=>events[e.type]?.(e);ctx.fire=(t,e)=>events[t]?.(e);ctx.node=node;
+ ctx.flushRender=()=>{while(renderTimers.length)renderTimers.shift()();};
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);ctx.eval=s=>vm.runInContext(s,ctx);tabs.push(ctx);return ctx;
 }
 function flush(){while(queue.length)queue.shift()();}
@@ -64,5 +65,50 @@ check('tracker fetch independently verifies new actual result and trial invalida
 });
 await tracker.eval('syncAutomaticResults(true)');
 check('tracker failure never reports verified even when previous result is retained',()=>{assert.equal(tracker.node('verification').dataset.verified,'false');assert.equal(tracker.eval('J3Results.clubStats().stats.points'),13);});
+const published=JSON.parse(fs.readFileSync('official-results.json','utf8'));
+values.clear(); // A fresh session without the previous checks' saved trial inputs.
+const currentMain=tab(main),currentTracker=tab(progress);
+for(const t of [currentMain,currentTracker])t.fetch=async()=>({ok:true,json:async()=>published});
+await currentMain.eval('syncAutomaticResults(true)');await currentTracker.eval('syncAutomaticResults(true)');
+currentMain.flushRender();
+check('latest feed reaches both pages with identical result IDs and no duplicate matches',()=>{
+ assert.equal(currentMain.eval('confirmed().length'),published.matches.length);
+ assert.equal(currentMain.eval('J3Results.resultId()'),currentTracker.eval('J3Results.resultId()'));
+ assert.equal(currentMain.node('verification').dataset.verified,'true');
+ assert.equal(currentTracker.node('verification').dataset.verified,'true');
+});
+check('all club standings equal an independent tally of the latest feed',()=>{
+ const expected=new Map();
+ for(const {game:[h,a,hg,ag]} of published.matches){
+  for(const [team,gf,ga] of [[h,hg,ag],[a,ag,hg]]){
+   if(!expected.has(team))expected.set(team,{played:0,points:0,wins:0,draws:0,losses:0,gf:0,ga:0});
+   const s=expected.get(team);s.played++;s.gf+=gf;s.ga+=ga;
+   if(gf>ga){s.wins++;s.points+=3;}else if(gf===ga){s.draws++;s.points++;}else s.losses++;
+  }
+ }
+ for(const [team,s] of expected){
+  const actual=currentMain.eval('J3Results.clubStats('+JSON.stringify(team)+').stats');
+  for(const k of Object.keys(s))assert.equal(actual[k],s[k],team+' '+k);
+  assert.equal(currentMain.eval('stateWithScenario().pts[ix['+JSON.stringify(team)+']]'),s.points);
+ }
+ for(const k of Object.keys(expected.get('北九州')))assert.equal(currentTracker.eval('activeStats.'+k),expected.get('北九州')[k]);
+});
+check('verification distinguishes result update time from page retrieval time',()=>{
+ for(const t of [currentMain,currentTracker]){
+  const text=t.node('verification').textContent;
+  assert(text.includes('保存済み公式データ'));assert(text.includes('結果データ更新：'));assert(text.includes('画面取得：'));assert(text.includes('公式サイトの確認時刻ではありません'));
+ }
+ assert(!currentMain.node('autoStatus').textContent.includes('約30分'));
+});
+for(const t of [currentMain,currentTracker]){t.fetch=async()=>{throw Error('offline')};await t.eval('syncAutomaticResults(true)');}
+check('latest results survive failure and recover without inflating standings',()=>{
+ for(const t of [currentMain,currentTracker])assert.equal(t.eval('J3Results.initialGames.length'),published.matches.length);
+});
+for(const t of [currentMain,currentTracker]){t.fetch=async()=>({ok:true,json:async()=>published});await t.eval('syncAutomaticResults(true)');}
+check('retry restores verified state for both pages with unchanged results',()=>{
+ for(const t of [currentMain,currentTracker])assert.equal(t.node('verification').dataset.verified,'true');
+ assert.equal(currentMain.eval('confirmed().length'),published.matches.length);
+ assert.equal(currentMain.eval('J3Results.resultId()'),currentTracker.eval('J3Results.resultId()'));
+});
 console.log(passed+' interface and integration checks passed');
 })().catch(e=>{console.error(e);process.exitCode=1});
