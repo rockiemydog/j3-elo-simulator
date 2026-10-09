@@ -13,6 +13,9 @@ spec.loader.exec_module(notify)
 class NotificationTests(unittest.TestCase):
     def setUp(self):
         self.before = json.loads((ROOT / 'official-results.json').read_text())
+        # Stable baseline for synthetic score changes; the production feed keeps growing.
+        self.before['matches'] = [r for r in self.before['matches'] if r['date'] <= '2026-10-04']
+        self.before['asOfDate'] = '2026-10-04'
         self.after = copy.deepcopy(self.before)
 
     def message(self, test=False):
