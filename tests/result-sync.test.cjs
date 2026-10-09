@@ -42,6 +42,7 @@ check('manual controls removed and trial input always visible',()=>{
  elo.node('away').value='奈良';elo.node('away').onchange();assert(!elo.node('submitGame').disabled);assert(!elo.node('hg').disabled);
 });
 const feed=JSON.parse(fs.readFileSync('official-results.json','utf8'));
+feed.matches=feed.matches.filter(r=>r.date<='2026-10-04');
 feed.matches.push({id:'2026101101',date:'2026-10-11',game:['北九州','奈良',2,1]});feed.asOfDate='2026-10-11';
 elo.eval("scenarios=[['北九州','奈良',3,0],['北九州','愛媛',1,0]]");
 elo.fetch=async()=>({ok:true,json:async()=>feed});

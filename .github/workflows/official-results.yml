@@ -24,6 +24,9 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Reruns must use today's feed, not the original run's old commit.
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
