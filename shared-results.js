@@ -42,9 +42,10 @@ function verification(displayed,eligible=true){
   official.points=3*official.wins+official.draws;
   const matches=eligible&&displayed&&Object.keys(official).every(k=>displayed[k]===official[k]);
   const ready=feedState.state==='ready',ok=ready&&matches;
-  const label=ok?'公式データと画面集計の一致を確認':!ready?'最新データの取得未確認': '公式データとの一致は未確認（試し入力・手入力・旧保存値を確認）';
+  const label=ok?'保存済み公式データと画面集計の一致を確認':!ready?'保存済み公式データの取得未確認': '公式データとの一致は未確認（試し入力・手入力・旧保存値を確認）';
   const checked=feedState.checkedAt?new Date(feedState.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未取得';
-  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n取得確認：${checked} 日本時間\nメールと両画面の結果IDが一致するか確認してください。`};
+  const updated=feedState.updatedAt?new Date(feedState.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未確認';
+  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nメールと両画面の結果IDが一致するか確認してください。`};
 }
 let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
 function applyOfficialFeed(feed){
