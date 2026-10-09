@@ -165,7 +165,7 @@
     $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
     async function syncAutomaticResults(force=false){
       await J3Results.refreshOfficial(force);const state=J3Results.feedState;
-      $('auto-status').textContent=state.state==='ready'?`公式結果を自動取得：${state.asOfDate}まで・${state.count}試合`:state.state==='unavailable'?'公式結果を取得できませんでした。直前の正常な成績を保持しています。':'公式結果の自動取得を確認中です。';
+      $('auto-status').textContent=state.state==='ready'?`保存済み公式結果：${state.asOfDate}まで・${state.count}試合。公式データの収集が遅れると、新しい試合結果の反映も遅れます。`:state.state==='unavailable'?'公式結果を取得できませんでした。直前の正常な成績を保持しています。':'公式結果の自動取得を確認中です。';
       refreshLinkedResults();renderVerification();
     }
     $('refresh-official').onclick=()=>syncAutomaticResults(true);

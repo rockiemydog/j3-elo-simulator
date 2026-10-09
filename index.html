@@ -131,7 +131,7 @@ $('acceptInitial').onclick=()=>{if(!auditInitialData().ok)return;try{localStorag
 $('rerun').onclick=()=>{baseline=null;run()};$('runs').onchange=()=>{baseline=null;run()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeTab=b.dataset.tab;renderTable()});
 async function syncAutomaticResults(force=false){
   const changed=await J3Results.refreshOfficial(force),state=J3Results.feedState;
-  $('autoStatus').textContent=state.state==='ready'?`自動取得済：${state.asOfDate}まで・確定${state.count}試合。画面は約5分ごと、公式データの収集は約30分ごとに確認します。`:state.state==='unavailable'?'自動取得できませんでした。直前の正常な結果を保持しています。時間をおいて再確認してください。':'自動取得を確認中です。';
+  $('autoStatus').textContent=state.state==='ready'?`保存済み公式結果：${state.asOfDate}まで・確定${state.count}試合。画面は約5分ごとに確認します。公式データの収集が遅れると、新しい試合結果の反映も遅れます。`:state.state==='unavailable'?'自動取得できませんでした。直前の正常な結果を保持しています。時間をおいて再確認してください。':'自動取得を確認中です。';
   $('verification').textContent='画面集計を照合中です…';
   if(changed){completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=state.asOfDate;refreshSavedResults();const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderInitialAudit();renderScenarios();run();}else renderVerification();
 }
