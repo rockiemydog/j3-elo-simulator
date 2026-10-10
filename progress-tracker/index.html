@@ -62,7 +62,8 @@
       <p><strong>得失点差：</strong>得点−失点。あと改善は、2023〜2025年のJ3順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
-  <script src="../shared-results.js?v=3ff7766e3c4c"></script>
+  <script src="../official-api-config.js?v=2abf363444e1"></script>
+  <script src="../shared-results.js?v=4bb4c3d90fb6"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -116,7 +117,7 @@
       $('view-label').className='view-label'+(view==='test'?' test-view':'');
       render();renderVerification();
     }
-    function renderVerification(){const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);}
+    function renderVerification(){const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('auto-status').textContent=J3Results.statusText(report.ok);}
     function render(){
       const s=activeStats;
       const problems=validate(s);
@@ -163,10 +164,17 @@
     $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
     $('show-main').textContent='実際の成績に戻る';
     $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
+    let syncingOfficial=false;
     async function syncAutomaticResults(force=false){
+      if(syncingOfficial)return;syncingOfficial=true;
+      $('refresh-official').disabled=true;$('refresh-official').textContent=J3Results.canRefreshOfficial?'公式確認中…':'読込中…';
+      $('auto-status').textContent=J3Results.canRefreshOfficial?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
+      $('verification').dataset.verified='false';
+      try{
       await J3Results.refreshOfficial(force);const state=J3Results.feedState;
-      $('auto-status').textContent=state.state==='ready'?`保存済み公式結果：${state.asOfDate}まで・${state.count}試合。公式データの収集が遅れると、新しい試合結果の反映も遅れます。`:state.state==='unavailable'?'公式結果を取得できませんでした。直前の正常な成績を保持しています。':'公式結果の自動取得を確認中です。';
+      $('auto-status').textContent=J3Results.statusText();
       refreshLinkedResults();renderVerification();
+      }finally{syncingOfficial=false;$('refresh-official').disabled=false;$('refresh-official').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
     }
     $('refresh-official').onclick=()=>syncAutomaticResults(true);
     setInterval(()=>{if(!document.hidden)syncAutomaticResults();},300000);

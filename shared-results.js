@@ -45,9 +45,23 @@ function verification(displayed,eligible=true){
   const label=ok?'保存済み公式データと画面集計の一致を確認':!ready?'保存済み公式データの取得未確認': '公式データとの一致は未確認（試し入力・手入力・旧保存値を確認）';
   const checked=feedState.checkedAt?new Date(feedState.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未取得';
   const updated=feedState.updatedAt?new Date(feedState.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未確認';
-  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nメールと両画面の結果IDが一致するか確認してください。`};
+  const sourceChecked=feedState.officialCheckedAt?new Date(feedState.officialCheckedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未確認';
+  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n公式サイト確認：${sourceChecked} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nメールと両画面の結果IDが一致するか確認してください。`};
 }
+const apiBase=typeof global.J3OfficialApi?.baseUrl==='string'&&/^https:\/\/[a-z0-9.-]+\.chatgpt\.site$/.test(global.J3OfficialApi.baseUrl)?global.J3OfficialApi.baseUrl:null;
 let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
+function statusText(verified=false){
+ const s=feedState;
+ if(s.state==='refreshing')return apiBase?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
+ if(s.state==='unavailable')return '公式結果を更新できませんでした。直前の正常な結果を保持しています。時間をおいて再確認してください。';
+ if(s.state!=='ready')return '公式結果を確認中です。';
+ const base=`${s.asOfDate}まで・確定${s.count}試合。`;
+ if(s.refreshStatus==='busy')return `別の更新が進行中です。${s.retryAfter}秒後に再確認してください。保存済み結果：${base}`;
+ if(s.refreshStatus==='cooldown')return `直前に取得を実行済みです。${s.retryAfter}秒後に再確認できます。保存済み結果：${base}`;
+ if(s.refreshStatus==='fallback')return `公式更新サービスに接続できません。保存済み公式結果を表示：${base}`;
+ if(apiBase&&['updated','unchanged'].includes(s.refreshStatus))return `${verified?'反映確認完了':'取得・保存完了（画面集計の一致は未確認）'}：${base}追加${s.added}試合・訂正${s.corrected}試合。${s.refreshStatus==='unchanged'?'公式サイトを確認しましたが、結果の変更はありません。':''}`;
+ return `保存済み公式結果：${base}画面は表示中、約5分ごとに確認します。${apiBase?'公式データが古い場合は再取得します。':'公式データの収集が遅れると、新しい結果の反映も遅れます。'}`;
+}
 function applyOfficialFeed(feed){
   if(!feed||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
   if(typeof feed.asOfDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(feed.asOfDate))throw new Error('Invalid official date');
@@ -59,7 +73,7 @@ function applyOfficialFeed(feed){
   if(completed.some(g=>!seen.has(key(g))))throw new Error('Incomplete official feed');
   const games=rows.map(r=>r.game.slice()),changed=JSON.stringify(games)!==JSON.stringify(completed);
   if(changed)completed.splice(0,completed.length,...games);
-  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt,checkedAt:new Date().toISOString()};
+  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
   return changed;
 }
 async function refreshOfficial(force=false){
@@ -67,18 +81,29 @@ async function refreshOfficial(force=false){
   if(!force&&Date.now()-lastFetch<60000)return false;
   if(typeof global.fetch!=='function')return false;
   lastFetch=Date.now();
+  feedState={...feedState,state:'refreshing'};
   fetching=(async()=>{
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),apiBase?65000:12000);
     try{
-      const url='https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Math.floor(Date.now()/60000);
-      const response=await global.fetch(url,{cache:'no-store',signal:controller.signal});
-      if(!response.ok)throw new Error('Feed download failed');
-      return applyOfficialFeed(await response.json());
-    }catch{feedState={...feedState,state:'unavailable'};return false;}
+      const url=apiBase?apiBase+(force?'/api/refresh':'/api/results'):'https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now();
+      const options={cache:'no-store',signal:controller.signal,credentials:'omit'};
+      if(apiBase&&force){options.method='POST';options.headers={'Content-Type':'application/json'};options.body='{}';}
+      const response=await global.fetch(url,options),body=await response.json();
+      if(!apiBase){if(!response.ok)throw new Error('Feed download failed');return applyOfficialFeed(body);}
+      if(!response.ok&&![409,429].includes(response.status))throw new Error('Official update failed');
+      if(!['ready','updated','unchanged','busy','cooldown'].includes(body.status)||!body.feed?.verified||body.resultId!==resultId(body.feed.matches.map(r=>r.game)))throw new Error('Invalid update response');
+      if(['updated','unchanged','ready'].includes(body.status)&&!Number.isFinite(Date.parse(body.feed.officialCheckedAt)))throw new Error('Missing official confirmation');
+      const changed=applyOfficialFeed(body.feed);
+      feedState={...feedState,refreshStatus:body.status,added:Number.isInteger(body.added)?body.added:0,corrected:Number.isInteger(body.corrected)?body.corrected:0,retryAfter:Number.isInteger(body.retryAfter)?body.retryAfter:60};
+      return changed;
+    }catch{
+      if(apiBase&&!force){try{const r=await global.fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});if(!r.ok)throw Error('offline');const changed=applyOfficialFeed(await r.json());feedState={...feedState,officialCheckedAt:null,refreshStatus:'fallback'};return changed;}catch{}}
+      feedState={...feedState,state:'unavailable'};return false;
+    }
     finally{clearTimeout(timer);fetching=null;}
   })();
   return fetching;
 }
-global.J3Results=Object.freeze({storeKey,backupKey,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
+global.J3Results=Object.freeze({storeKey,backupKey,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
 
