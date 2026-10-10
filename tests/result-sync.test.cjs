@@ -1,10 +1,11 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const shared=fs.readFileSync('shared-results.js','utf8'),main=fs.readFileSync('index.html','utf8'),progress=fs.readFileSync('progress-tracker/index.html','utf8');
 const values=new Map(),tabs=[],queue=[];
-function tab(html){
+function tab(html,api=false,fetcher){
  const events={},nodes=new Map(),renderTimers=[];
  function node(id){if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'20':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(t,f){events[id+':'+t]=f},querySelectorAll(){return[]},close(){},showModal(){},click(){this.onclick?.()}});return nodes.get(id);}
  const ctx={document:{hidden:false,getElementById:node,querySelectorAll:()=>[],addEventListener(){}},localStorage:{getItem:k=>values.get(k)||null,setItem(k,v){values.set(k,String(v));for(const t of tabs)if(t!==ctx)queue.push(()=>t.fire('storage',{key:k}));}},confirm:()=>true,setTimeout:(f,ms)=>{if(ms===20)renderTimers.push(f);return 0},setInterval:()=>0,clearTimeout(){},console,AbortController,Event:class{constructor(type){this.type=type}}};
+ if(api)ctx.J3OfficialApi={baseUrl:'https://j3-official-refresh.hideakiito382.chatgpt.site'};if(fetcher)ctx.fetch=fetcher;
  ctx.window=ctx;ctx.addEventListener=(t,f)=>events[t]=f;ctx.dispatchEvent=e=>events[e.type]?.(e);ctx.fire=(t,e)=>events[t]?.(e);ctx.node=node;
  ctx.flushRender=()=>{while(renderTimers.length)renderTimers.shift()();};
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);ctx.eval=s=>vm.runInContext(s,ctx);tabs.push(ctx);return ctx;
@@ -12,7 +13,7 @@ function tab(html){
 function flush(){while(queue.length)queue.shift()();}
 let passed=0;function check(name,fn){fn();passed++;console.log('PASS '+name);}
 (async()=>{
-const tracker=tab(progress),elo=tab(main);flush();
+const tracker=tab(progress),elo=tab(main);flush();await new Promise(setImmediate);
 check('selectors and probabilities outside collapsed details',()=>{
  const stack=[];let count=0;for(const m of main.matchAll(/<\/?details\b[^>]*>|<(?:select|div)\b[^>]*\bid="(home|away|prematch)"[^>]*>/g)){
  if(m[0].startsWith('</details'))stack.pop();else if(m[0].startsWith('<details'))stack.push(m[0]);else {count++;assert.equal(stack.length,0,m[1]+' hidden');}
@@ -67,7 +68,7 @@ await tracker.eval('syncAutomaticResults(true)');
 check('tracker failure never reports verified even when previous result is retained',()=>{assert.equal(tracker.node('verification').dataset.verified,'false');assert.equal(tracker.eval('J3Results.clubStats().stats.points'),13);});
 const published=JSON.parse(fs.readFileSync('official-results.json','utf8'));
 values.clear(); // A fresh session without the previous checks' saved trial inputs.
-const currentMain=tab(main),currentTracker=tab(progress);
+const currentMain=tab(main),currentTracker=tab(progress);await new Promise(setImmediate);
 for(const t of [currentMain,currentTracker])t.fetch=async()=>({ok:true,json:async()=>published});
 await currentMain.eval('syncAutomaticResults(true)');await currentTracker.eval('syncAutomaticResults(true)');
 currentMain.flushRender();
@@ -110,5 +111,37 @@ check('retry restores verified state for both pages with unchanged results',()=>
  assert.equal(currentMain.eval('confirmed().length'),published.matches.length);
  assert.equal(currentMain.eval('J3Results.resultId()'),currentTracker.eval('J3Results.resultId()'));
 });
+
+values.clear();
+const apiFeed={...published,officialCheckedAt:'2026-10-10T08:00:00Z'};
+const apiReply=(t,status='unchanged',feed=apiFeed)=>({status,feed,resultId:t.eval('J3Results.resultId('+JSON.stringify(feed.matches.map(r=>r.game))+')'),added:0,corrected:0,retryAfter:60});
+const response=(body,status=200)=>({ok:status===200,status,json:async()=>body});
+const apiMain=tab(main,true),apiTracker=tab(progress,true);await new Promise(setImmediate);
+for(const t of [apiMain,apiTracker]){t.fetch=async()=>response(apiReply(t));await t.eval('syncAutomaticResults(true)');t.flushRender();}
+check('official API data reaches both pages and confirms source time',()=>{
+ for(const t of [apiMain,apiTracker]){assert.equal(t.eval('J3Results.resultId()'),'8fe75ce8');assert.equal(t.node('verification').dataset.verified,'true');assert(t.node('verification').textContent.includes('公式サイト確認：'));}
+ assert(apiMain.node('autoStatus').textContent.includes('反映確認完了'));assert(apiTracker.node('auto-status').textContent.includes('結果の変更はありません'));
+});
+for(const [t,button,statusNode] of [[apiMain,'refreshOfficial','autoStatus'],[apiTracker,'refresh-official','auto-status']]){
+ let release,calls=0;const pending=new Promise(r=>release=r);
+ t.fetch=async(url,options)=>{calls++;assert(url.endsWith('/api/refresh'));assert.equal(options.method,'POST');assert.equal(options.body,'{}');assert.equal(options.credentials,'omit');return pending;};
+ const action=t.eval('syncAutomaticResults(true)');
+ check('button is disabled while official fetch is pending',()=>{assert(t.node(button).disabled);assert.equal(t.node('verification').dataset.verified,'false');});
+ await t.eval('syncAutomaticResults(true)');assert.equal(calls,1);
+ release(response(apiReply(t)));await action;t.flushRender();
+ assert(!t.node(button).disabled);assert(t.node(statusNode).textContent.includes('反映確認完了'));
+ for(const [status,http] of [['busy',409],['cooldown',429]]){t.fetch=async()=>response(apiReply(t,status),http);await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),95);assert(!t.node(statusNode).textContent.includes('反映確認完了'));assert(t.node(statusNode).textContent.includes('秒後'));}
+ for(const bad of [response({status:'failed'},502),response({...apiReply(t),resultId:'bad-id'})]){t.fetch=async()=>bad;await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),95);assert.equal(t.node('verification').dataset.verified,'false');assert(t.node(statusNode).textContent.includes('保持'));assert(!t.node(button).disabled);}
+}
+check('busy, cooldown and invalid responses do not announce update completion',()=>{assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));});
+const corrected=JSON.parse(JSON.stringify(apiFeed));const game=corrected.matches.find(r=>r.game[0]==='奈良'&&r.game[1]==='北九州');game.game[2]=3;
+for(const t of [apiMain,apiTracker]){t.fetch=async()=>response({...apiReply(t,'updated',corrected),corrected:1});await t.eval('syncAutomaticResults(true)');t.flushRender();}
+check('a score correction updates both models without duplicating the fixture',()=>{
+ assert.equal(apiMain.eval('confirmed().length'),95);assert.equal(apiMain.eval('stateWithScenario().ga[ix["北九州"]]'),19);assert.equal(apiTracker.eval('activeStats.ga'),19);assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));assert.equal(apiMain.node('verification').dataset.verified,'true');assert.equal(apiTracker.node('verification').dataset.verified,'true');
+});
+// Automatic API failure may display a saved feed, but must disclose that the source was not confirmed.
+apiMain.eval('Date.now=()=>9999999999999');apiMain.fetch=async url=>{if(url.includes('/api/'))throw Error('offline');return response(corrected);};await apiMain.eval('syncAutomaticResults()');
+check('automatic fallback never claims a fresh official-site check',()=>{assert(apiMain.node('autoStatus').textContent.includes('接続できません'));assert.equal(apiMain.eval('J3Results.feedState.officialCheckedAt'),null);assert(!apiMain.node('autoStatus').textContent.includes('反映確認完了'));});
+
 console.log(passed+' interface and integration checks passed');
 })().catch(e=>{console.error(e);process.exitCode=1});
