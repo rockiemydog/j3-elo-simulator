@@ -12,6 +12,8 @@ completed.push(...[["山口", "相模原", 2, 2], ["金沢", "鳥取", 4, 1], ["
 
 const storeKey='j3-elo-simulator-confirmed-v1';
 const backupKey=storeKey+'-last-good';
+const feedKey='j3-official-feed-v1';
+const validDate=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d;
 let baseDate='2026-10-04';
 const key=g=>g[0]+'|'+g[1];
 const valid=g=>Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&g.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=30);
@@ -54,6 +56,7 @@ function statusText(verified=false){
  const s=feedState;
  if(s.state==='refreshing')return apiBase?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
  if(s.state==='unavailable')return '公式結果を更新できませんでした。直前の正常な結果を保持しています。時間をおいて再確認してください。';
+ if(s.state==='cached')return `この端末の保存済み結果：${s.asOfDate}まで・確定${s.count}試合。今回の通信確認はまだ完了していません。`;
  if(s.state!=='ready')return '公式結果を確認中です。';
  const base=`${s.asOfDate}まで・確定${s.count}試合。`;
  if(s.refreshStatus==='busy')return `別の更新が進行中です。${s.retryAfter}秒後に再確認してください。保存済み結果：${base}`;
@@ -62,20 +65,27 @@ function statusText(verified=false){
  if(apiBase&&['updated','unchanged'].includes(s.refreshStatus))return `${verified?'反映確認完了':'取得・保存完了（画面集計の一致は未確認）'}：${base}追加${s.added}試合・訂正${s.corrected}試合。${s.refreshStatus==='unchanged'?'公式サイトを確認しましたが、結果の変更はありません。':''}`;
  return `保存済み公式結果：${base}画面は表示中、約5分ごとに確認します。${apiBase?'公式データが古い場合は再取得します。':'公式データの収集が遅れると、新しい結果の反映も遅れます。'}`;
 }
-function applyOfficialFeed(feed){
-  if(!feed||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
-  if(typeof feed.asOfDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(feed.asOfDate))throw new Error('Invalid official date');
-  const rows=feed.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.id).localeCompare(String(b.id))),seen=new Set(),counts=new Map(teams.map(t=>[t,0]));
+function applyOfficialFeed(feed,persist=true){
+  if(!feed||feed.verified!==true||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
+  if(!validDate(feed.asOfDate)||feed.asOfDate<'2026-08-08'||feed.asOfDate>'2027-07-31'||!Number.isFinite(Date.parse(feed.updatedAt)))throw new Error('Invalid official date');
+  if(feedState.updatedAt&&Date.parse(feed.updatedAt)<Date.parse(feedState.updatedAt))throw new Error('Stale official feed');
+  const rows=feed.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.id).localeCompare(String(b.id))),seen=new Set(),ids=new Set(),counts=new Map(teams.map(t=>[t,0]));
   for(const r of rows){
-    if(!valid(r.game)||!/^\d{4}-\d{2}-\d{2}$/.test(r.date)||r.date<'2026-08-08'||r.date>feed.asOfDate||seen.has(key(r.game)))throw new Error('Invalid official match');
-    seen.add(key(r.game));for(const t of r.game.slice(0,2)){counts.set(t,counts.get(t)+1);if(counts.get(t)>38)throw new Error('Invalid official club count');}
+    if(!valid(r.game)||!validDate(r.date)||r.date<'2026-08-08'||r.date>feed.asOfDate||!/^\d{10}$/.test(r.id)||r.id.slice(0,8)!==r.date.replaceAll('-','')||ids.has(r.id)||seen.has(key(r.game)))throw new Error('Invalid official match');
+    seen.add(key(r.game));ids.add(r.id);for(const t of r.game.slice(0,2)){counts.set(t,counts.get(t)+1);if(counts.get(t)>38)throw new Error('Invalid official club count');}
   }
+  if(rows.at(-1).date!==feed.asOfDate)throw new Error('Feed date does not match fixtures');
   if(completed.some(g=>!seen.has(key(g))))throw new Error('Incomplete official feed');
   const games=rows.map(r=>r.game.slice()),changed=JSON.stringify(games)!==JSON.stringify(completed);
   if(changed)completed.splice(0,completed.length,...games);
   baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
+  if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify(feed));}catch{}
   return changed;
 }
+function restoreCachedFeed(){
+ try{const raw=global.localStorage?.getItem(feedKey);if(!raw||raw.length>300000)return false;const feed=JSON.parse(raw);if(feedState.updatedAt&&Date.parse(feed.updatedAt)<=Date.parse(feedState.updatedAt))return false;const changed=applyOfficialFeed(feed,false);feedState={...feedState,state:'cached',checkedAt:null};return changed;}catch{return false;}
+}
+restoreCachedFeed();
 async function refreshOfficial(force=false){
   if(fetching)return fetching;
   if(!force&&Date.now()-lastFetch<60000)return false;
@@ -97,13 +107,13 @@ async function refreshOfficial(force=false){
       feedState={...feedState,refreshStatus:body.status,added:Number.isInteger(body.added)?body.added:0,corrected:Number.isInteger(body.corrected)?body.corrected:0,retryAfter:Number.isInteger(body.retryAfter)?body.retryAfter:60};
       return changed;
     }catch{
-      if(apiBase&&!force){try{const r=await global.fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});if(!r.ok)throw Error('offline');const changed=applyOfficialFeed(await r.json());feedState={...feedState,officialCheckedAt:null,refreshStatus:'fallback'};return changed;}catch{}}
+      if(apiBase&&!force){const backupController=new AbortController(),backupTimer=setTimeout(()=>backupController.abort(),12000);try{const r=await global.fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now(),{cache:'no-store',signal:backupController.signal,credentials:'omit'});if(!r.ok)throw Error('offline');const changed=applyOfficialFeed(await r.json());feedState={...feedState,officialCheckedAt:null,refreshStatus:'fallback'};return changed;}catch{}finally{clearTimeout(backupTimer);}}
       feedState={...feedState,state:'unavailable'};return false;
     }
     finally{clearTimeout(timer);fetching=null;}
   })();
   return fetching;
 }
-global.J3Results=Object.freeze({storeKey,backupKey,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
+global.J3Results=Object.freeze({storeKey,backupKey,feedKey,restoreCachedFeed,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
 
