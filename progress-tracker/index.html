@@ -63,7 +63,7 @@
     </section>
   </main>
   <script src="../official-api-config.js?v=2abf363444e1"></script>
-  <script src="../shared-results.js?v=4bb4c3d90fb6"></script>
+  <script src="../shared-results.js?v=ed28908e6ad4"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -181,6 +181,7 @@
     window.addEventListener('focus',()=>{refreshLinkedResults();syncAutomaticResults();});
     window.addEventListener('pageshow',()=>{refreshLinkedResults();syncAutomaticResults();});
     window.addEventListener('j3-results-changed',()=>refreshLinkedResults());
+    window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();refreshLinkedResults();syncAutomaticResults();}});
     // Same-tab writes do not emit a storage event; also catch iPad page restoration.
     setInterval(()=>{if(!document.hidden)refreshLinkedResults();},2000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshLinkedResults();syncAutomaticResults();}});
