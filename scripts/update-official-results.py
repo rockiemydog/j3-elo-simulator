@@ -36,8 +36,16 @@ def parse_html(html):
 
 def validate(rows,previous):
     if not 90<=len(rows)<=380:raise ValueError(f'Unexpected completed count: {len(rows)}')
-    keys=set();counts={t:0 for t in TEAMS}
+    keys=set();ids=set();counts={t:0 for t in TEAMS}
     for r in rows:
+        ident=r.get('id');date=r.get('date');g=r.get('game')
+        if not isinstance(ident,str) or not re.fullmatch(r'\d{10}',ident) or ident in ids:raise ValueError('Invalid or duplicate fixture ID')
+        try:day=dt.date.fromisoformat(date)
+        except (ValueError,TypeError):raise ValueError('Invalid fixture date')
+        if date!=day.isoformat() or not START<=day<=dt.date(2027,7,31) or ident[:8]!=day.strftime('%Y%m%d'):raise ValueError('Fixture date outside season or mismatched ID')
+        if not isinstance(g,list) or len(g)!=4 or g[0]not in TEAMS or g[1]not in TEAMS or g[0]==g[1]:raise ValueError('Invalid clubs')
+        if any(type(score)is not int or not 0<=score<=30 for score in g[2:]):raise ValueError('Invalid finished score')
+        ids.add(ident)
         g=r['game'];key=tuple(g[:2])
         if key in keys:raise ValueError('Repeated home/away fixture')
         keys.add(key);counts[g[0]]+=1;counts[g[1]]+=1

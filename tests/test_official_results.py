@@ -1,4 +1,4 @@
-import importlib.util,json,unittest
+import copy,importlib.util,json,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('sync',ROOT/'scripts/update-official-results.py');sync=importlib.util.module_from_spec(spec);spec.loader.exec_module(sync)
@@ -26,4 +26,13 @@ class OfficialParserTests(unittest.TestCase):
   with self.assertRaises(ValueError):sync.validate(rows[:-1],data)
  def test_current_feed_is_valid(self):
   data=json.loads((ROOT/'official-results.json').read_text());sync.validate(data['matches'],data)
+ def test_invalid_rows_rejected_before_publication(self):
+  data=json.loads((ROOT/'official-results.json').read_text())
+  for field,value in [('id','bad'),('date','2026-02-30'),('date','2028-01-01'),('date','2026-08-08'),('game',['北九州','高知',True,0]),('game',['未知','高知',0,0]),('game',['北九州','北九州',0,0])]:
+   with self.subTest(field=field,value=value):
+    rows=copy.deepcopy(data['matches']);rows[-1][field]=value
+    with self.assertRaises(ValueError):sync.validate(rows,data)
+ def test_duplicate_id_rejected_even_for_different_card(self):
+  data=json.loads((ROOT/'official-results.json').read_text());rows=copy.deepcopy(data['matches']);rows[1]['id']=rows[0]['id'];rows[1]['date']=rows[0]['date']
+  with self.assertRaises(ValueError):sync.validate(rows,data)
 if __name__=='__main__':unittest.main()
