@@ -119,7 +119,7 @@ const response=(body,status=200)=>({ok:status===200,status,json:async()=>body});
 const apiMain=tab(main,true),apiTracker=tab(progress,true);await new Promise(setImmediate);
 for(const t of [apiMain,apiTracker]){t.fetch=async()=>response(apiReply(t));await t.eval('syncAutomaticResults(true)');t.flushRender();}
 check('official API data reaches both pages and confirms source time',()=>{
- for(const t of [apiMain,apiTracker]){assert.equal(t.eval('J3Results.resultId()'),'8fe75ce8');assert.equal(t.node('verification').dataset.verified,'true');assert(t.node('verification').textContent.includes('公式サイト確認：'));}
+ for(const t of [apiMain,apiTracker]){assert.equal(t.eval('J3Results.resultId()'),currentMain.eval('J3Results.resultId()'));assert.equal(t.node('verification').dataset.verified,'true');assert(t.node('verification').textContent.includes('公式サイト確認：'));}
  assert(apiMain.node('autoStatus').textContent.includes('反映確認完了'));assert(apiTracker.node('auto-status').textContent.includes('結果の変更はありません'));
 });
 for(const [t,button,statusNode] of [[apiMain,'refreshOfficial','autoStatus'],[apiTracker,'refresh-official','auto-status']]){
@@ -130,14 +130,23 @@ for(const [t,button,statusNode] of [[apiMain,'refreshOfficial','autoStatus'],[ap
  await t.eval('syncAutomaticResults(true)');assert.equal(calls,1);
  release(response(apiReply(t)));await action;t.flushRender();
  assert(!t.node(button).disabled);assert(t.node(statusNode).textContent.includes('反映確認完了'));
- for(const [status,http] of [['busy',409],['cooldown',429]]){t.fetch=async()=>response(apiReply(t,status),http);await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),95);assert(!t.node(statusNode).textContent.includes('反映確認完了'));assert(t.node(statusNode).textContent.includes('秒後'));}
- for(const bad of [response({status:'failed'},502),response({...apiReply(t),resultId:'bad-id'})]){t.fetch=async()=>bad;await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),95);assert.equal(t.node('verification').dataset.verified,'false');assert(t.node(statusNode).textContent.includes('保持'));assert(!t.node(button).disabled);}
+ for(const [status,http] of [['busy',409],['cooldown',429]]){t.fetch=async()=>response(apiReply(t,status),http);await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),published.matches.length);assert(!t.node(statusNode).textContent.includes('反映確認完了'));assert(t.node(statusNode).textContent.includes('秒後'));}
+ for(const bad of [response({status:'failed'},502),response({...apiReply(t),resultId:'bad-id'})]){t.fetch=async()=>bad;await t.eval('syncAutomaticResults(true)');assert.equal(t.eval('J3Results.initialGames.length'),published.matches.length);assert.equal(t.node('verification').dataset.verified,'false');assert(t.node(statusNode).textContent.includes('保持'));assert(!t.node(button).disabled);}
 }
 check('busy, cooldown and invalid responses do not announce update completion',()=>{assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));});
+// An explicit official refresh must leave trial mode even when the source is unchanged.
+apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test')");
+apiTracker.fetch=async()=>response(apiReply(apiTracker));await apiTracker.eval('syncAutomaticResults(true)');
+check('manual official refresh replaces old trial display with current actual stats',()=>{
+ assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),10);assert.equal(apiTracker.eval('activeStats.losses'),4);assert.equal(apiTracker.eval('activeStats.ga'),18);assert(apiTracker.node('cards').innerHTML.includes('28<small>試合'));assert(!apiTracker.node('cards').innerHTML.includes('29<small>試合'));assert.equal(apiTracker.node('verification').dataset.verified,'true');assert(apiTracker.node('test-fields').innerHTML.includes('id="test-played" type="number" min="0" max="38" value="10"'));
+});
+apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test');Date.now=()=>9999999999999");
+await apiTracker.eval('syncAutomaticResults()');
+check('automatic unchanged check preserves deliberate trial inputs',()=>{assert.equal(apiTracker.eval('activeView'),'test');assert.equal(apiTracker.eval('activeStats.played'),9);assert.equal(apiTracker.node('verification').dataset.verified,'false');});
 const corrected=JSON.parse(JSON.stringify(apiFeed));const game=corrected.matches.find(r=>r.game[0]==='奈良'&&r.game[1]==='北九州');game.game[2]=3;
 for(const t of [apiMain,apiTracker]){t.fetch=async()=>response({...apiReply(t,'updated',corrected),corrected:1});await t.eval('syncAutomaticResults(true)');t.flushRender();}
 check('a score correction updates both models without duplicating the fixture',()=>{
- assert.equal(apiMain.eval('confirmed().length'),95);assert.equal(apiMain.eval('stateWithScenario().ga[ix["北九州"]]'),19);assert.equal(apiTracker.eval('activeStats.ga'),19);assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));assert.equal(apiMain.node('verification').dataset.verified,'true');assert.equal(apiTracker.node('verification').dataset.verified,'true');
+ assert.equal(apiMain.eval('confirmed().length'),published.matches.length);assert.equal(apiMain.eval('stateWithScenario().ga[ix["北九州"]]'),19);assert.equal(apiTracker.eval('activeStats.ga'),19);assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));assert.equal(apiMain.node('verification').dataset.verified,'true');assert.equal(apiTracker.node('verification').dataset.verified,'true');
 });
 // Automatic API failure may display a saved feed, but must disclose that the source was not confirmed.
 apiMain.eval('Date.now=()=>9999999999999');apiMain.fetch=async url=>{if(url.includes('/api/'))throw Error('offline');return response(corrected);};await apiMain.eval('syncAutomaticResults()');
