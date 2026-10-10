@@ -173,7 +173,7 @@
       try{
       await J3Results.refreshOfficial(force);const state=J3Results.feedState;
       $('auto-status').textContent=J3Results.statusText();
-      refreshLinkedResults();renderVerification();
+      refreshLinkedResults(force&&state.state==='ready');renderVerification();
       }finally{syncingOfficial=false;$('refresh-official').disabled=false;$('refresh-official').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
     }
     $('refresh-official').onclick=()=>syncAutomaticResults(true);
