@@ -17,3 +17,4 @@ jobs:
       - run: node --test tests/feed-resilience.test.cjs
       - run: python tests/test_official_results.py
       - run: python tests/test_result_notification.py
+      - run: python tests/test_result_publication.py
