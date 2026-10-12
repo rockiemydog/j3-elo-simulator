@@ -34,7 +34,8 @@ def parse_html(html):
         rows.append({'id':ident,'date':date.isoformat(),'game':[h['name'],a['name'],hg,ag]})
     return rows
 
-def validate(rows,previous):
+def validate(rows,previous,today=None):
+    today=today or dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
     if not 90<=len(rows)<=380:raise ValueError(f'Unexpected completed count: {len(rows)}')
     keys=set();ids=set();counts={t:0 for t in TEAMS}
     for r in rows:
@@ -43,6 +44,7 @@ def validate(rows,previous):
         try:day=dt.date.fromisoformat(date)
         except (ValueError,TypeError):raise ValueError('Invalid fixture date')
         if date!=day.isoformat() or not START<=day<=dt.date(2027,7,31) or ident[:8]!=day.strftime('%Y%m%d'):raise ValueError('Fixture date outside season or mismatched ID')
+        if day>today:raise ValueError('Future fixture cannot be a finished result')
         if not isinstance(g,list) or len(g)!=4 or g[0]not in TEAMS or g[1]not in TEAMS or g[0]==g[1]:raise ValueError('Invalid clubs')
         if any(type(score)is not int or not 0<=score<=30 for score in g[2:]):raise ValueError('Invalid finished score')
         ids.add(ident)
