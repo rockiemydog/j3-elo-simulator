@@ -35,4 +35,9 @@ class OfficialParserTests(unittest.TestCase):
  def test_duplicate_id_rejected_even_for_different_card(self):
   data=json.loads((ROOT/'official-results.json').read_text());rows=copy.deepcopy(data['matches']);rows[1]['id']=rows[0]['id'];rows[1]['date']=rows[0]['date']
   with self.assertRaises(ValueError):sync.validate(rows,data)
+ def test_future_finished_fixture_rejected(self):
+  data=json.loads((ROOT/'official-results.json').read_text());rows=copy.deepcopy(data['matches'])
+  rows[-1]['date']='2027-01-01';rows[-1]['id']='2027010101'
+  with self.assertRaisesRegex(ValueError,'Future'):
+   sync.validate(rows,data,sync.dt.date(2026,10,12))
 if __name__=='__main__':unittest.main()
