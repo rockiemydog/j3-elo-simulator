@@ -4,6 +4,7 @@ on:
     paths:
       - scripts/update-official-results.py
       - scripts/notify-official-results.py
+      - scripts/publish-official-results.py
       - .github/workflows/official-results.yml
   workflow_dispatch:
     inputs:
@@ -30,6 +31,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Record the actual checkout for test notifications
+        run: echo "NOTIFICATION_CHECKOUT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Fetch and validate finished official matches
         id: fetch
         run: |
@@ -41,11 +44,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add official-results.json
-          git commit -m 'Update official J3 finished results'
-          git push origin HEAD:main
-          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "公式データのGitHub保存：完了（$(git rev-parse HEAD)）。端末表示は未確認です。" >> "$GITHUB_STEP_SUMMARY"
+          python scripts/publish-official-results.py
       - name: Email successful official result changes
         if: steps.fetch.outputs.changed == 'true' || inputs.test_email == true
         continue-on-error: true
@@ -53,7 +52,7 @@ jobs:
           SMTP_USERNAME: ${{ secrets.J3_SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.J3_SMTP_PASSWORD }}
           NOTIFICATION_EMAIL: ${{ secrets.J3_NOTIFICATION_EMAIL }}
-          NOTIFICATION_COMMIT: ${{ steps.publish.outputs.commit || github.sha }}
+          NOTIFICATION_COMMIT: ${{ steps.publish.outputs.commit || env.NOTIFICATION_CHECKOUT }}
           TEST_EMAIL: ${{ inputs.test_email }}
         run: |
           if [ "$TEST_EMAIL" = "true" ]; then
