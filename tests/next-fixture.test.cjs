@@ -20,8 +20,9 @@ test('manual selection survives result updates and return button resets it',()=>
  const a=app();a.node('away').value='愛媛';a.node('away').onchange();a.eval("completed.push(['北九州','FC大阪',2,0]);updateNextFixture()");assert.equal(a.node('away').value,'愛媛');
  a.node('showNextFixture').onclick();assert.equal(a.node('home').value,'福島');assert.equal(a.node('away').value,'北九州');
 });
-test('postponement, cancellation, unknown status excluded; re-dated fixture follows chronology',()=>{
- for(const status of ['postponed','cancelled','unconfirmed','finished']){const a=app();a.ctx.status=status;a.eval("fixtureCalendar.matches.find(r=>r.away==='FC大阪').status=status;updateNextFixture()");assert.equal(a.node('home').value,'福島');}
+test('postponement, cancellation and unknown state hold the card until official completion',()=>{
+ for(const status of ['postponed','cancelled','unconfirmed']){const a=app();a.ctx.status=status;a.eval("fixtureCalendar.matches.find(r=>r.away==='FC大阪').status=status;updateNextFixture()");assert.equal(a.node('home').value,'北九州');assert.equal(a.node('away').value,'FC大阪');assert.match(a.node('nextFixtureStatus').textContent,/自動切り替え停止/);}
+ const finished=app();finished.eval("fixtureCalendar.matches.find(r=>r.away==='FC大阪').status='finished';updateNextFixture()");assert.equal(finished.node('home').value,'福島');assert.equal(finished.node('away').value,'北九州');
  const a=app();a.eval("fixtureCalendar.matches.find(r=>r.away==='FC大阪').date='2026-10-30';updateNextFixture()");assert.equal(a.node('home').value,'福島');
 });
 test('no remaining calendar does not invent a card and invalid payload is rejected',()=>{
