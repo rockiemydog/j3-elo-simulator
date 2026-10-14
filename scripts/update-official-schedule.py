@@ -41,7 +41,9 @@ def parse_schedule(html):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--fixture');ap.add_argument('--output',default='official-schedule.json');args=ap.parse_args()
     today=dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
-    lo=max(dt.date(2026,8,8),today.replace(day=1));hi=min(dt.date(2027,7,31),today+dt.timedelta(days=100))
+    # Include past dates so an unresolved cancelled card cannot disappear just
+    # because the calendar month changes.
+    lo=dt.date(2026,8,8);hi=min(dt.date(2027,7,31),today+dt.timedelta(days=100))
     if lo>hi: raise ValueError('Season has ended')
     if args.fixture: html=Path(args.fixture).read_text()
     else:
@@ -51,9 +53,23 @@ def main():
         if len(raw)>12_000_000: raise ValueError('Schedule too large')
         html=raw.decode('utf-8')
     rows=parse_schedule(html)
+    path=Path(args.output)
+    if path.exists():
+        previous=json.loads(path.read_text())
+        rows=preserve_unresolved(rows,previous.get('matches',[]))
     data=dict(verified=True,season='2026/27',source='https://www.jleague.jp/j3/match/',checkedAt=dt.datetime.now(dt.timezone.utc).isoformat(),matches=rows)
-    path=Path(args.output);tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');tmp.replace(path)
+    tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');tmp.replace(path)
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('changed=true\n')
     print(f'Official schedule: {len(rows)} Kitakyushu fixtures')
+def preserve_unresolved(rows,previous):
+    # Match on official home/away, not the date-based ID which can change when
+    # rescheduled. A vanished uncompleted card is unknown, never completed.
+    present={(r['home'],r['away']) for r in rows}
+    for row in previous:
+        if row['status']!='finished' and (row['home'],row['away']) not in present:
+            held=dict(row)
+            if held['status'] not in ('cancelled','postponed'): held['status']='unconfirmed'
+            rows.append(held)
+    return sorted(rows,key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
 if __name__=='__main__': main()

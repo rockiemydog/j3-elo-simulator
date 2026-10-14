@@ -86,7 +86,9 @@ function validateCalendar(data){
 }
 function chooseNextFixture(calendar,games=confirmed()){
   const used=new Set(games.map(key));
-  return calendar.matches.filter(r=>(r.home==='北九州'||r.away==='北九州')&&r.status==='scheduled'&&!used.has(r.home+'|'+r.away))
+  // Only official completion releases the card. Cancellation/postponement or
+  // an unknown/in-progress state must NOT skip ahead to a later fixture.
+  return calendar.matches.filter(r=>(r.home==='北九州'||r.away==='北九州')&&r.status!=='finished'&&!used.has(r.home+'|'+r.away))
     .sort((a,b)=>(a.date+'T'+(a.time||'23:59')).localeCompare(b.date+'T'+(b.time||'23:59'))||a.id.localeCompare(b.id))[0]||null;
 }
 function updateNextFixture(force=false){
@@ -99,7 +101,8 @@ function updateNextFixture(force=false){
   const kickoff=next.date+' '+(next.time||'時刻未定')+' 日本時間';
   const overdue=Date.now()>Date.parse(next.date+'T'+(next.time||'23:59')+':00+09:00')+3*3600000;
   const stale=Date.now()-Date.parse(fixtureCalendar.checkedAt)>24*3600000;
-  label.textContent=`${manualFixture?'手動選択中／北九州の次戦：':'北九州の次戦：'}${next.home} 対 ${next.away} ／ ${kickoff}${overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}`;
+  const hold=next.status==='cancelled'?'中止：自動切り替え停止':next.status==='postponed'?'延期：自動切り替え停止':next.status==='unconfirmed'?'開催・終了状況未確認：自動切り替え停止':'';
+  label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}`;
 }
 async function refreshFixtureCalendar(){
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;

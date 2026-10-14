@@ -17,4 +17,11 @@ class Tests(unittest.TestCase):
   row=self.row();other=self.row();other['id']='2026101828'
   for rows in [[],[row,other]]:
    with self.assertRaises(ValueError):module.parse_schedule(self.html(rows))
+ def test_missing_cancelled_card_is_preserved_until_official_completion(self):
+  old=dict(id='2026101728',date='2026-10-17',time='14:00',home='北九州',away='FC大阪',status='cancelled')
+  self.assertEqual(module.preserve_unresolved([],[old]),[old])
+  rescheduled=dict(old,date='2026-11-01',id='2026110128',status='scheduled')
+  self.assertEqual(module.preserve_unresolved([rescheduled],[old]),[rescheduled])
+  finished=dict(old,status='finished')
+  self.assertEqual(module.preserve_unresolved([finished],[old]),[finished])
 if __name__=='__main__':unittest.main()
