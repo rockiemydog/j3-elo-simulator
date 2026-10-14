@@ -70,7 +70,6 @@ function applyOfficialFeed(feed,persist=true){
   if(!feed||feed.verified!==true||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
   if(!validDate(feed.asOfDate)||feed.asOfDate<'2026-08-08'||feed.asOfDate>'2027-07-31'||feed.asOfDate>todayJst||typeof feed.updatedAt!=='string'||!Number.isFinite(Date.parse(feed.updatedAt))||Date.parse(feed.updatedAt)>now+300000)throw new Error('Invalid official date');
   if(feed.officialCheckedAt!=null&&(typeof feed.officialCheckedAt!=='string'||!Number.isFinite(Date.parse(feed.officialCheckedAt))||Date.parse(feed.officialCheckedAt)>now+300000))throw new Error('Invalid official confirmation');
-  if(feedState.updatedAt&&Date.parse(feed.updatedAt)<Date.parse(feedState.updatedAt))throw new Error('Stale official feed');
   const rows=feed.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.id).localeCompare(String(b.id))),seen=new Set(),ids=new Set(),counts=new Map(teams.map(t=>[t,0]));
   for(const r of rows){
     if(!valid(r.game)||!validDate(r.date)||r.date<'2026-08-08'||r.date>feed.asOfDate||!/^\d{10}$/.test(r.id)||r.id.slice(0,8)!==r.date.replaceAll('-','')||ids.has(r.id)||seen.has(key(r.game)))throw new Error('Invalid official match');
@@ -79,9 +78,15 @@ function applyOfficialFeed(feed,persist=true){
   if(rows.at(-1).date!==feed.asOfDate)throw new Error('Feed date does not match fixtures');
   if(completed.some(g=>!seen.has(key(g))))throw new Error('Incomplete official feed');
   const games=rows.map(r=>r.game.slice()),changed=JSON.stringify(games)!==JSON.stringify(completed);
+  const older=feedState.updatedAt&&Date.parse(feed.updatedAt)<Date.parse(feedState.updatedAt);
+  if(older&&changed)throw new Error('Stale official feed');
+  // The API and repository may timestamp the same result set independently.
+  // A fresh API check may verify identical scores, but cannot undo a correction
+  // or move the saved result-update timestamp backwards.
+  const updatedAt=older?feedState.updatedAt:feed.updatedAt;
   if(changed)completed.splice(0,completed.length,...games);
-  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt:feed.updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
-  if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify(feed));}catch{}
+  baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
+  if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify({...feed,updatedAt}));}catch{}
   return changed;
 }
 function restoreCachedFeed(){

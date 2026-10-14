@@ -17,3 +17,6 @@ test('future update and confirmation timestamps cannot poison later valid refres
 test('a future fixture cannot be accepted as an official finished result',()=>{
  const t=tab(),bad=structuredClone(feed),day=new Date(Date.now()+33*3600000).toISOString().slice(0,10);bad.asOfDate=day;bad.matches.at(-1).date=day;bad.matches.at(-1).id=day.replaceAll('-','')+'01';assert.throws(()=>t.api.applyOfficialFeed(bad));assert.equal(t.api.initialGames.length,90);
 });
+test('API recovery can verify identical results with an older source update time without regressing cached metadata',async()=>{
+ const newer=structuredClone(feed);newer.updatedAt=newerTimestamp;const recovered={...structuredClone(feed),officialCheckedAt:new Date().toISOString()};let t;t=tab(new Map(),async()=>({ok:true,json:async()=>({status:'unchanged',feed:recovered,resultId:t.api.resultId(),added:0,corrected:0})}));t.api.applyOfficialFeed(newer);const id=t.api.resultId();await t.api.refreshOfficial(true);assert.equal(t.api.feedState.state,'ready');assert.equal(t.api.feedState.refreshStatus,'unchanged');assert.equal(t.api.feedState.updatedAt,newerTimestamp);assert.equal(t.api.resultId(),id);assert.equal(JSON.parse(t.storage.get(t.api.feedKey)).updatedAt,newerTimestamp);
+});
