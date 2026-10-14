@@ -4,6 +4,7 @@ on:
     paths:
       - scripts/update-official-results.py
       - scripts/publish-official-results.py
+      - scripts/update-official-schedule.py
       - .github/workflows/official-results.yml
   workflow_dispatch:
   schedule:
@@ -33,6 +34,17 @@ jobs:
       - name: Publish updated feed
         id: publish
         if: steps.fetch.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python scripts/publish-official-results.py
+      - name: Fetch official Kitakyushu schedule
+        id: schedule
+        run: python scripts/update-official-schedule.py
+      - name: Publish updated schedule
+        if: steps.schedule.outputs.changed == 'true'
+        env:
+          PUBLISH_SCHEDULE: 'true'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
