@@ -92,11 +92,12 @@ class PublicationTests(unittest.TestCase):
                 publisher.publish()
         self.assertEqual(len(pushes), 1)
 
-    def test_test_mail_uses_actual_checkout_not_original_run(self):
+    def test_mail_is_disabled_and_schedule_publication_is_enabled(self):
         workflow = (ROOT/'.github/workflows/official-results.yml').read_text()
-        self.assertIn('NOTIFICATION_CHECKOUT=$(git rev-parse HEAD)', workflow)
-        self.assertIn('steps.publish.outputs.commit || env.NOTIFICATION_CHECKOUT', workflow)
-        self.assertNotIn('steps.publish.outputs.commit || github.sha', workflow)
+        self.assertNotIn('SMTP_PASSWORD', workflow)
+        self.assertNotIn('notify-official-results.py', workflow)
+        self.assertIn('python scripts/update-official-schedule.py', workflow)
+        self.assertIn("PUBLISH_SCHEDULE: 'true'", workflow)
 
 
 if __name__ == '__main__':

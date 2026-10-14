@@ -8,10 +8,12 @@ def git(*args, check=True):
 
 
 def publish():
-    git('add', '--', 'official-results.json')
-    if git('diff', '--cached', '--quiet', '--', 'official-results.json', check=False).returncode == 0:
+    files=['official-results.json']
+    if os.environ.get('PUBLISH_SCHEDULE')=='true': files.append('official-schedule.json')
+    git('add', '--', *files)
+    if git('diff', '--cached', '--quiet', '--', *files, check=False).returncode == 0:
         return git('rev-parse', 'HEAD').stdout.strip()
-    git('commit', '-m', 'Update official J3 finished results', '--', 'official-results.json')
+    git('commit', '-m', 'Update official J3 finished results and schedule', '--', *files)
     for attempt in range(3):
         pushed = git('push', 'origin', 'HEAD:main', check=False)
         if pushed.returncode == 0:

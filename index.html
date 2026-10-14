@@ -29,6 +29,7 @@
       <p><a href="progress-tracker/">北九州の進捗トラッカーを見る →</a></p>
       <h2>公式結果の自動更新</h2><p id="autoStatus" class="sub" aria-live="polite">公式の終了試合を自動取得しています…</p><p id="verification" class="sub" aria-live="polite" style="white-space:pre-line"></p><button class="btn" id="refreshOfficial" type="button">最新結果を確認する</button><h2>対戦カードの勝敗確率</h2><div class="sub">ホーム・アウェーを選ぶと勝利・引き分け・敗戦の確率を表示します。</div>
       <div class="team-pickers"><div class="field"><label for="home">ホーム</label><select id="home"><option>岐阜</option><option selected>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div><div class="versus">対</div><div class="field"><label for="away">アウェー</label><select id="away"><option>岐阜</option><option>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option selected>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div></div>
+      <p class="sub" id="nextFixtureStatus" aria-live="polite">北九州の公式日程を確認中…</p><button class="btn" id="showNextFixture" type="button">北九州の次戦に戻る</button>
       <div class="prematch" id="prematch" aria-live="polite"></div>
       <section class="advanced" id="trialInput"><h2>試し入力</h2><div class="sub" id="trialHelp" aria-live="polite">未消化試合の得点を＋／−で合わせて、順位の変化を試せます。</div>
       <div class="score-pickers"><div class="score-box"><span>ホーム得点</span><div class="stepper"><button type="button" id="hgMinus" aria-label="ホーム得点を1減らす">−</button><input id="hg" type="number" min="0" max="30" value="0" inputmode="numeric"><button type="button" id="hgPlus" aria-label="ホーム得点を1増やす">＋</button></div></div><div class="score-sep">―</div><div class="score-box"><span>アウェー得点</span><div class="stepper"><button type="button" id="agMinus" aria-label="アウェー得点を1減らす">−</button><input id="ag" type="number" min="0" max="30" value="0" inputmode="numeric"><button type="button" id="agPlus" aria-label="アウェー得点を1増やす">＋</button></div></div></div>
@@ -72,7 +73,42 @@ function loadStored(){
 let confirmedExtra=loadStored()||[];
 let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
-function initSelects(){for(const id of ['home','away'])$(id).innerHTML=teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value='奈良'}
+function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
+let fixtureCalendar=null,manualFixture=false,loadingCalendar=false;
+function validateCalendar(data){
+  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||!Number.isFinite(Date.parse(data.checkedAt)))throw Error('Invalid calendar');
+  const seen=new Set();
+  for(const row of data.matches){
+    if(!row||!/^\d{10}$/.test(row.id)||seen.has(row.id)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||new Date(row.date+'T00:00:00Z').toISOString().slice(0,10)!==row.date||!teams.includes(row.home)||!teams.includes(row.away)||row.home===row.away||!['scheduled','finished','postponed','cancelled','unconfirmed'].includes(row.status)||!(row.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time)))throw Error('Invalid fixture');
+    seen.add(row.id);
+  }
+  return data;
+}
+function chooseNextFixture(calendar,games=confirmed()){
+  const used=new Set(games.map(key));
+  return calendar.matches.filter(r=>(r.home==='北九州'||r.away==='北九州')&&r.status==='scheduled'&&!used.has(r.home+'|'+r.away))
+    .sort((a,b)=>(a.date+'T'+(a.time||'23:59')).localeCompare(b.date+'T'+(b.time||'23:59'))||a.id.localeCompare(b.id))[0]||null;
+}
+function updateNextFixture(force=false){
+  const label=$('nextFixtureStatus');
+  if(!fixtureCalendar){label.textContent='公式日程の取得未確認です。対戦カードは手動で選択できます。';return;}
+  const next=chooseNextFixture(fixtureCalendar);
+  if(!next){label.textContent='取得済み日程に次戦を確認できません。公式日程をご確認ください。';return;}
+  if(force)manualFixture=false;
+  if(!manualFixture){const changed=$('home').value!==next.home||$('away').value!==next.away;$('home').value=next.home;$('away').value=next.away;if(changed){$('hg').value='0';$('ag').value='0';$('error').textContent='';}syncForm();}
+  const kickoff=next.date+' '+(next.time||'時刻未定')+' 日本時間';
+  const overdue=Date.now()>Date.parse(next.date+'T'+(next.time||'23:59')+':00+09:00')+3*3600000;
+  const stale=Date.now()-Date.parse(fixtureCalendar.checkedAt)>24*3600000;
+  label.textContent=`${manualFixture?'手動選択中／北九州の次戦：':'北九州の次戦：'}${next.home} 対 ${next.away} ／ ${kickoff}${overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}`;
+}
+async function refreshFixtureCalendar(){
+  if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{const r=await fetch('./official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(!fixtureCalendar||Date.parse(data.checkedAt)>=Date.parse(fixtureCalendar.checkedAt))fixtureCalendar=data;updateNextFixture();}
+  catch{if(fixtureCalendar){updateNextFixture();$('nextFixtureStatus').textContent+=' ／ 日程の再取得失敗';}else updateNextFixture();}
+  finally{clearTimeout(timer);loadingCalendar=false;}
+}
+$('showNextFixture').onclick=()=>{updateNextFixture(true);refreshFixtureCalendar();};
 function applyGame(s,g){const [h,a,hg,ag]=g,i=ix[h],j=ix[a];s.gf[i]+=hg;s.ga[i]+=ag;s.gf[j]+=ag;s.ga[j]+=hg;s.p[i]++;s.p[j]++;if(hg>ag){s.pts[i]+=3;s.w[i]++;s.l[j]++}else if(hg<ag){s.pts[j]+=3;s.w[j]++;s.l[i]++}else{s.pts[i]++;s.pts[j]++;s.d[i]++;s.d[j]++}}
 const confirmed=()=>[...completed,...confirmedExtra];
 function stateWithScenario(what=scenarios){const s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};[...confirmed(),...what].forEach(g=>applyGame(s,g));return s}
@@ -85,7 +121,7 @@ function poisson(lambda,rng){const L=Math.exp(-lambda);let k=0,p=1;do{k++;p*=rng
 function eloProb(R,h,a,nu){const ratio=10**(((R[h]+ELO_HOME)-R[a])/400),root=Math.sqrt(ratio),den=ratio+1+2*nu*root;return[ratio/den,2*nu*root/den,1/den]}
 function eloRatings(games=confirmed()){const R=Array(20).fill(ELO_START),rawDraw=games.length?games.filter(g=>g[2]===g[3]).length/games.length:.27,drawRate=Math.max(.18,Math.min(.34,rawDraw)),nu=drawRate/(1-drawRate);for(const [H,V,hg,ag] of games){const h=ix[H],a=ix[V],p=eloProb(R,h,a,nu),expected=p[0]+.5*p[1],actual=hg>ag?1:hg===ag?.5:0,delta=ELO_K*(actual-expected);R[h]+=delta;R[a]-=delta}return{R,drawRate,nu}}
 function representativeScore(outcome){return outcome===0?[1,0]:outcome===1?[1,1]:[0,1]}
-function prematchForecast(H,V){if(H===V)return null;const h=ix[H],v=ix[V],m=eloRatings(),p=eloProb(m.R,h,v,m.nu),out=p.indexOf(Math.max(...p)),score=representativeScore(out);return{home:p[0]*100,draw:p[1]*100,away:p[2]*100,score,ratings:[m.R[h],m.R[v]],drawRate:m.drawRate}}
+function prematchForecast(H,V){if(H===V||!teams.includes(H)||!teams.includes(V))return null;const h=ix[H],v=ix[V],m=eloRatings(),p=eloProb(m.R,h,v,m.nu),out=p.indexOf(Math.max(...p)),score=representativeScore(out);return{home:p[0]*100,draw:p[1]*100,away:p[2]*100,score,ratings:[m.R[h],m.R[v]],drawRate:m.drawRate}}
 function renderPrematch(){const H=$('home').value,V=$('away').value,r=prematchForecast(H,V);if(!r){$('prematch').innerHTML='<div class="prematch-title">異なるクラブを選んでください</div>';return}$('prematch').innerHTML=`<div class="prematch-title">Elo事前予想　${H} vs ${V}</div><div class="prob-grid"><div class="prob"><span>${H}勝利</span><strong>${r.home.toFixed(1)}%</strong></div><div class="prob"><span>引き分け</span><strong>${r.draw.toFixed(1)}%</strong></div><div class="prob"><span>${V}勝利</span><strong>${r.away.toFixed(1)}%</strong></div></div><div class="likely">Elo ${r.ratings[0].toFixed(0)}–${r.ratings[1].toFixed(0)}　｜　順位計算用 ${r.score[0]}–${r.score[1]}</div>`}
 function h2h(games){const p=new Int16Array(400),gd=new Int16Array(400),go=new Int16Array(400);for(const [H,A,hg,ag] of games){const h=ix[H],a=ix[A],ha=h*20+a,ah=a*20+h;gd[ha]+=hg-ag;gd[ah]+=ag-hg;go[ha]+=hg;go[ah]+=ag;if(hg>ag)p[ha]+=3;else if(hg<ag)p[ah]+=3;else{p[ha]++;p[ah]++}}return{p,gd,go}}
 function sortOrder(pts,gf,ga,games,rng){const order=[...Array(20).keys()].sort((a,b)=>pts[b]-pts[a]||(gf[b]-ga[b])-(gf[a]-ga[a])||gf[b]-gf[a]||a-b),hh=h2h(games),tie=Object.fromEntries([...Array(20).keys()].map(t=>[t,rng?rng():t]));for(let s=0;s<20;){let e=s+1;while(e<20&&pts[order[e]]===pts[order[s]]&&gf[order[e]]-ga[order[e]]===gf[order[s]]-ga[order[s]]&&gf[order[e]]===gf[order[s]])e++;if(e-s>1){const group=order.slice(s,e),set=new Set(group),mini=t=>{let p=0,gd=0,go=0;for(const u of set)if(u!==t){const k=t*20+u;p+=hh.p[k];gd+=hh.gd[k];go+=hh.go[k]}return[p,gd,go]};const m=Object.fromEntries(group.map(t=>[t,mini(t)]));group.sort((a,b)=>m[b][0]-m[a][0]||m[b][1]-m[a][1]||m[b][2]-m[a][2]||tie[a]-tie[b]);order.splice(s,e-s,...group)}s=e}return order}
@@ -119,10 +155,10 @@ function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').te
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
-function syncForm(){const g=formGame(),scoreOk=Number.isInteger(g[2])&&Number.isInteger(g[3])&&g[2]>=0&&g[3]>=0&&g[2]<=30&&g[3]<=30,finished=confirmed().some(x=>key(x)===key(g));renderPrematch();updateSubmitLabel();$('submitGame').disabled=g[0]===g[1]||!scoreOk||finished;$('trialHelp').textContent=finished?'この対戦は公式結果が確定済みです。試し入力は未消化試合を選んでください。':'未消化試合の得点を＋／−で合わせて、順位の変化を試せます。';for(const id of ['hg','ag','hgMinus','hgPlus','agMinus','agPlus'])$(id).disabled=finished}
+function syncForm(){const g=formGame(),scoreOk=Number.isInteger(g[2])&&Number.isInteger(g[3])&&g[2]>=0&&g[3]>=0&&g[2]<=30&&g[3]<=30,finished=confirmed().some(x=>key(x)===key(g));renderPrematch();updateSubmitLabel();$('submitGame').disabled=!teams.includes(g[0])||!teams.includes(g[1])||g[0]===g[1]||!scoreOk||finished;$('trialHelp').textContent=finished?'この対戦は公式結果が確定済みです。試し入力は未消化試合を選んでください。':'未消化試合の得点を＋／−で合わせて、順位の変化を試せます。';for(const id of ['hg','ag','hgMinus','hgPlus','agMinus','agPlus'])$(id).disabled=finished}
 function stepScore(id,delta){const e=$(id);e.value=Math.max(0,Math.min(30,(+e.value||0)+delta));syncForm()}
 $('hgMinus').onclick=()=>stepScore('hg',-1);$('hgPlus').onclick=()=>stepScore('hg',1);$('agMinus').onclick=()=>stepScore('ag',-1);$('agPlus').onclick=()=>stepScore('ag',1);$('hg').oninput=syncForm;$('ag').oninput=syncForm;
-$('submitGame').onclick=()=>$('add').click();$('home').onchange=()=>{$('error').textContent='';syncForm()};$('away').onchange=()=>{$('error').textContent='';syncForm()};
+$('submitGame').onclick=()=>$('add').click();$('home').onchange=()=>{manualFixture=true;$('error').textContent='';syncForm();updateNextFixture()};$('away').onchange=()=>{manualFixture=true;$('error').textContent='';syncForm();updateNextFixture()};
 $('add').onclick=()=>{const g=formGame(),e=validate(g,false);$('error').textContent=e;if(e)return;scenarios=scenarios.filter(x=>key(x)!==key(g));scenarios.push(g);renderScenarios();run()};
 $('resetScenario').onclick=()=>{scenarios=[];renderScenarios();run()};
 function parseRows(text,max){const lines=text.replace(/^\ufeff/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(lines[0]?.startsWith('ホーム,'))lines.shift();if(!lines.length||lines.length>max)return{error:`1～${max}試合を入力してください。`};const add=[],known=new Map(confirmed().map(g=>[key(g),g])),keys=new Set(known.keys()),inputKeys=new Set();for(let n=0;n<lines.length;n++){const p=lines[n].split(/[,，\t]/).map(x=>x.trim()),blank=p.length===4&&(!p[0]||!p[1]||!p[2]||!p[3]),g=[p[0],p[3],blank?NaN:Number(p[1]),blank?NaN:Number(p[2])],e=p.length===4?(!validStored(g)?'クラブ名と得点（0～30の整数）を確認してください。':''):'4項目で入力してください。';if(e)return{error:`${n+1}行目：${e}`};if(inputKeys.has(key(g)))return{error:`${n+1}行目：同じカードが重複しています。`};inputKeys.add(key(g));const existing=known.get(key(g));if(existing){if(existing[2]!==g[2]||existing[3]!==g[3])return{error:`${n+1}行目：登録済み結果と得点が異なります。`};continue;}keys.add(key(g));add.push(g)}return{add,keys}}
@@ -141,10 +177,10 @@ async function syncAutomaticResults(force=false){
   $('autoStatus').textContent=J3Results.statusText();
   $('verification').textContent='画面集計を照合中です…';
   if(changed||J3Results.resultId(completed)!==J3Results.resultId()||DATA_AS_OF!==state.asOfDate){completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=state.asOfDate;refreshSavedResults();const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderInitialAudit();renderScenarios();run();}else renderVerification();
-  }finally{syncingOfficial=false;$('refreshOfficial').disabled=false;$('refreshOfficial').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
+  }finally{updateNextFixture();syncingOfficial=false;$('refreshOfficial').disabled=false;$('refreshOfficial').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
 }
 $('refreshOfficial').onclick=()=>syncAutomaticResults(true);
-setInterval(()=>{if(!document.hidden)syncAutomaticResults();},300000);
+setInterval(()=>{if(!document.hidden){syncAutomaticResults();refreshFixtureCalendar();}},300000);
 function refreshSavedResults(){
   const saved=loadStored();
   if(saved===null){$('error').textContent='保存済み結果を読み取れません。画面の結果を保持しています。CSVを保存して確認してください。';return;}
@@ -152,11 +188,11 @@ function refreshSavedResults(){
   confirmedExtra=saved;lastSavedExtras=confirmedExtra.map(g=>g.slice());const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderScenarios();run();
 }
 window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();syncAutomaticResults();}if(e.key===STORE||e.key===null)refreshSavedResults();});
-window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults();});
+window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();}});
-initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();
+initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>
 </html>
