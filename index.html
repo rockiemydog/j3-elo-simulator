@@ -52,12 +52,12 @@
   </div>
 </main>
 <script src="official-api-config.js?v=2abf363444e1"></script>
-<script src="shared-results.js?v=ed28908e6ad4"></script>
+<script src="shared-results.js?v=866f7293db9e"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
 let completed=J3Results.initialGames.map(g=>g.slice());
-const historicalAuditGames=completed.slice(0,70).map(g=>g.slice());
+const historicalAuditGames=J3Results.historicalAuditGames.map(g=>g.slice());
 let DATA_AS_OF=J3Results.baseDate;
 const ELO_START=1500, ELO_K=20, ELO_HOME=60;
 const EXPECTED_ROUND_7_CARDS=['FC大阪|福島','熊本|松本','愛媛|讃岐','群馬|高知','鳥取|奈良','鹿児島|栃木SC','金沢|山口','相模原|北九州','長野|岐阜','滋賀|琉球'];
@@ -76,11 +76,11 @@ const $=id=>document.getElementById(id);
 function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
 let fixtureCalendar=null,manualFixture=false,loadingCalendar=false,calendarIssue='';
 function validateCalendar(data){
-  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
+  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||data.matches.length>38||typeof data.checkedAt!=='string'||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
   const seen=new Set(),cards=new Set();
   for(const row of data.matches){
     if(!row||!/^\d{10}$/.test(row.id)||seen.has(row.id)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||new Date(row.date+'T00:00:00Z').toISOString().slice(0,10)!==row.date||!teams.includes(row.home)||!teams.includes(row.away)||row.home===row.away||!['scheduled','finished','postponed','cancelled','unconfirmed'].includes(row.status)||!(row.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time)))throw Error('Invalid fixture');
-    if(row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
+    if(typeof row.id!=='string'||row.id.slice(0,8)!==row.date.replaceAll('-','')||(row.home!=='北九州'&&row.away!=='北九州')||row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
     seen.add(row.id);cards.add(row.home+'|'+row.away);
   }
   return data;
@@ -108,7 +108,7 @@ function updateNextFixture(force=false){
 async function refreshFixtureCalendar(){
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
-  try{const r=await fetch('./official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
+  try{const r=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
   catch{calendarIssue=' ／ 日程の再取得失敗（最新の開催状況は未確認）';updateNextFixture();}
   finally{clearTimeout(timer);loadingCalendar=false;}
 }
@@ -129,7 +129,7 @@ function prematchForecast(H,V){if(H===V||!teams.includes(H)||!teams.includes(V))
 function renderPrematch(){const H=$('home').value,V=$('away').value,r=prematchForecast(H,V);if(!r){$('prematch').innerHTML='<div class="prematch-title">異なるクラブを選んでください</div>';return}$('prematch').innerHTML=`<div class="prematch-title">Elo事前予想　${H} vs ${V}</div><div class="prob-grid"><div class="prob"><span>${H}勝利</span><strong>${r.home.toFixed(1)}%</strong></div><div class="prob"><span>引き分け</span><strong>${r.draw.toFixed(1)}%</strong></div><div class="prob"><span>${V}勝利</span><strong>${r.away.toFixed(1)}%</strong></div></div><div class="likely">Elo ${r.ratings[0].toFixed(0)}–${r.ratings[1].toFixed(0)}　｜　順位計算用 ${r.score[0]}–${r.score[1]}</div>`}
 function h2h(games){const p=new Int16Array(400),gd=new Int16Array(400),go=new Int16Array(400);for(const [H,A,hg,ag] of games){const h=ix[H],a=ix[A],ha=h*20+a,ah=a*20+h;gd[ha]+=hg-ag;gd[ah]+=ag-hg;go[ha]+=hg;go[ah]+=ag;if(hg>ag)p[ha]+=3;else if(hg<ag)p[ah]+=3;else{p[ha]++;p[ah]++}}return{p,gd,go}}
 function sortOrder(pts,gf,ga,games,rng){const order=[...Array(20).keys()].sort((a,b)=>pts[b]-pts[a]||(gf[b]-ga[b])-(gf[a]-ga[a])||gf[b]-gf[a]||a-b),hh=h2h(games),tie=Object.fromEntries([...Array(20).keys()].map(t=>[t,rng?rng():t]));for(let s=0;s<20;){let e=s+1;while(e<20&&pts[order[e]]===pts[order[s]]&&gf[order[e]]-ga[order[e]]===gf[order[s]]-ga[order[s]]&&gf[order[e]]===gf[order[s]])e++;if(e-s>1){const group=order.slice(s,e),set=new Set(group),mini=t=>{let p=0,gd=0,go=0;for(const u of set)if(u!==t){const k=t*20+u;p+=hh.p[k];gd+=hh.gd[k];go+=hh.go[k]}return[p,gd,go]};const m=Object.fromEntries(group.map(t=>[t,mini(t)]));group.sort((a,b)=>m[b][0]-m[a][0]||m[b][1]-m[a][1]||m[b][2]-m[a][2]||tie[a]-tie[b]);order.splice(s,e-s,...group)}s=e}return order}
-function simulate(n,what=scenarios){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=[];for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a] of allFixtures){if(used.has(`${teams[h]}|${teams[a]}`))continue;const p=eloProb(model.R,h,a,model.nu),u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;if(r<2)top2[t]++;if(r<6)top6[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n})).sort((a,b)=>a.rank-b.rank)}
+function simulate(n,what=scenarios){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=[];for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);const pending=allFixtures.filter(([h,a])=>!used.has(`${teams[h]}|${teams[a]}`)).map(([h,a])=>[h,a,eloProb(model.R,h,a,model.nu)]);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a,p] of pending){const u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;if(r<2)top2[t]++;if(r<6)top6[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n})).sort((a,b)=>a.rank-b.rank)}
 function save(){
   try{
     const current=J3Results.readConfirmed();
@@ -155,7 +155,8 @@ function liveRows(){const s=stateWithScenario(),games=[...confirmed(),...scenari
 function renderRankChart(){$('rankChart').innerHTML=lastForecast.map(r=>`<div class="rank-row ${r.club==='北九州'?'gira':''}"><div class="rank-club">${r.club}</div><div class="rank-track"><span class="rank-dot" style="left:${Math.max(0,Math.min(100,(r.rank-1)/19*100)).toFixed(1)}%"></span></div><div class="rank-value">${r.rank.toFixed(1)}位</div></div>`).join('')}
 function renderTable(){if(activeTab==='forecast'){$('thead').innerHTML='<tr><th>予測</th><th>クラブ</th><th>Elo</th><th>予想勝点</th><th>平均順位</th><th>2位以内</th><th>6位以内</th></tr>';$('tbody').innerHTML=lastForecast.map((r,i)=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank"><span class="zone ${i<2?'auto':i<6?'po':''}">${i+1}</span></td><td>${r.club}</td><td>${r.elo.toFixed(0)}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}</td><td>${r.top2.toFixed(1)}%</td><td>${r.top6.toFixed(1)}%</td></tr>`).join('')}else{$('thead').innerHTML='<tr><th>順位</th><th>クラブ</th><th>勝点</th><th>試合</th><th>勝</th><th>分</th><th>敗</th><th>得失</th></tr>';$('tbody').innerHTML=liveRows().map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank">${r.rank}${r.tied?'=':''}</td><td>${r.club}</td><td>${r.pts}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td></tr>`).join('')}}
 function renderVerification(){const s=stateWithScenario(),i=ix['北九州'];const displayed={played:s.p[i],points:s.pts[i],wins:s.w[i],draws:s.d[i],losses:s.l[i],gf:s.gf[i],ga:s.ga[i]};const report=J3Results.verification(displayed,scenarios.length===0&&J3Results.resultId(confirmed())===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('autoStatus').textContent=J3Results.statusText(report.ok);}
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;$('spinner').classList.add('on');setTimeout(()=>{if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
+let renderPending=false;
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
@@ -193,9 +194,9 @@ function refreshSavedResults(){
 }
 window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();syncAutomaticResults();}if(e.key===STORE||e.key===null)refreshSavedResults();});
 window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
-window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();});
+window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>

@@ -3,11 +3,12 @@ const main=fs.readFileSync('index.html','utf8'),shared=fs.readFileSync('shared-r
  {id:'2026101728',date:'2026-10-17',time:'14:00',home:'北九州',away:'FC大阪',status:'scheduled'},
  {id:'2026102127',date:'2026-10-21',time:'13:00',home:'福島',away:'北九州',status:'scheduled'}]};
 function app(){
+ const events={};
  const nodes=new Map();const node=id=>{if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'10':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},querySelectorAll:()=>[],click(){this.onclick?.()}});return nodes.get(id);};
- const ctx={document:{getElementById:node,querySelectorAll:()=>[],addEventListener(){},hidden:false},localStorage:{getItem(){return null;}},setTimeout(){return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=()=>{};ctx.dispatchEvent=()=>{};
+ const ctx={document:{getElementById:node,querySelectorAll:()=>[],addEventListener:(n,f)=>events[n]=f,hidden:false},localStorage:{getItem(){return null;}},setTimeout(){return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=(n,f)=>events[n]=f;ctx.dispatchEvent=()=>{};
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(main.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);
  ctx.calendar=structuredClone(calendar);vm.runInContext('fixtureCalendar=validateCalendar(calendar);updateNextFixture()',ctx);
- return {ctx,node,eval:s=>vm.runInContext(s,ctx)};
+ return {ctx,node,events,eval:s=>vm.runInContext(s,ctx)};
 }
 test('first display selects official next fixture with correct home/away and kickoff',()=>{
  const a=app();assert.equal(a.node('home').value,'北九州');assert.equal(a.node('away').value,'FC大阪');assert.match(a.node('nextFixtureStatus').textContent,/2026-10-17 14:00/);
@@ -48,4 +49,10 @@ test('duplicate cards, outside-season dates and future check timestamps rejected
 });
 test('older calendar cannot reverse official cancellation and reports unverified freshness',async()=>{
  const a=app();a.eval("fixtureCalendar.matches[0].status='cancelled'");a.ctx.fetch=async()=>({ok:true,json:async()=>({...structuredClone(calendar),checkedAt:'2026-10-13T11:00:00Z'})});await a.eval('refreshFixtureCalendar()');assert.match(a.node('nextFixtureStatus').textContent,/中止：自動切り替え停止/);assert.match(a.node('nextFixtureStatus').textContent,/再取得失敗/);assert.equal(a.node('away').value,'FC大阪');
+});
+test('mismatched IDs, other-club cards and non-string IDs are rejected',()=>{
+ for(const change of ["calendar.matches[0].id='2026101828'","calendar.matches[0].id=2026101728","calendar.matches[0].home='愛媛'"]){const a=app();a.eval(change);assert.throws(()=>a.eval('validateCalendar(calendar)'));}
+});
+test('iPad visibility and page restoration fetch the current published cancellation',async()=>{
+ for(const event of ['visibilitychange','pageshow']){const a=app();let calls=0;a.ctx.fetch=async url=>{if(url.includes('official-schedule.json')){calls++;assert(url.startsWith('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/'));const latest=structuredClone(calendar);latest.checkedAt=new Date().toISOString();latest.matches[0].status='cancelled';return {ok:true,json:async()=>latest};}throw Error('offline');};a.events[event]();await new Promise(setImmediate);assert.equal(calls,1);assert.match(a.node('nextFixtureStatus').textContent,/中止：自動切り替え停止/);assert.equal(a.node('away').value,'FC大阪');}
 });

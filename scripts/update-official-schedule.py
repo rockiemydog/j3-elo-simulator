@@ -54,14 +54,22 @@ def main():
         html=raw.decode('utf-8')
     rows=parse_schedule(html)
     path=Path(args.output)
-    if path.exists():
-        previous=json.loads(path.read_text())
+    previous=json.loads(path.read_text()) if path.exists() else None
+    if previous:
         rows=preserve_unresolved(rows,previous.get('matches',[]))
     data=dict(verified=True,season='2026/27',source='https://www.jleague.jp/j3/match/',checkedAt=dt.datetime.now(dt.timezone.utc).isoformat(),matches=rows)
-    tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');tmp.replace(path)
+    changed=not previous or any(previous.get(k)!=data[k] for k in ('verified','season','source','matches'))
+    # Publish actual fixture changes immediately. Checkpoint successful polls
+    # hourly so timestamp-only updates cannot create a deployment every poll.
+    try:
+        age=(dt.datetime.fromisoformat(data['checkedAt'])-dt.datetime.fromisoformat(previous['checkedAt'])).total_seconds()
+        changed=changed or age>=3600 or age<0
+    except (KeyError,TypeError,ValueError):changed=True
+    if changed:
+        tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');tmp.replace(path)
     if os.environ.get('GITHUB_OUTPUT'):
-        with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('changed=true\n')
-    print(f'Official schedule: {len(rows)} Kitakyushu fixtures')
+        with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write(f'changed={str(changed).lower()}\n')
+    print(f'Official schedule: {len(rows)} Kitakyushu fixtures; changed={changed}')
 def preserve_unresolved(rows,previous):
     # Match on official home/away, not the date-based ID which can change when
     # rescheduled. A vanished uncompleted card is unknown, never completed.

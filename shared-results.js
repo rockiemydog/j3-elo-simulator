@@ -32,7 +32,7 @@ function clubStats(club='北九州') {
   s.points=3*s.wins+s.draws;
   return {...data,stats:s};
 }
-// Compact result identifier for comparing email and each device (not a security hash).
+// Compact result identifier for comparing each device (not a security hash).
 function resultId(games=completed){
   const text=games.map(g=>g.join('|')).sort().join('\n');let hash=2166136261;
   for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619)>>>0;
@@ -48,7 +48,7 @@ function verification(displayed,eligible=true){
   const checked=feedState.checkedAt?new Date(feedState.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未取得';
   const updated=feedState.updatedAt?new Date(feedState.updatedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未確認';
   const sourceChecked=feedState.officialCheckedAt?new Date(feedState.officialCheckedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'未確認';
-  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n公式サイト確認：${sourceChecked} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nメールと両画面の結果IDが一致するか確認してください。`};
+  return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n公式サイト確認：${sourceChecked} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nシミュレーターと進捗トラッカーで、結果IDが一致するか確認してください。`};
 }
 const apiBase=typeof global.J3OfficialApi?.baseUrl==='string'&&/^https:\/\/[a-z0-9.-]+\.chatgpt\.site$/.test(global.J3OfficialApi.baseUrl)?global.J3OfficialApi.baseUrl:null;
 let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
@@ -66,8 +66,10 @@ function statusText(verified=false){
  return `保存済み公式結果：${base}画面は表示中、約5分ごとに確認します。${apiBase?'公式データが古い場合は再取得します。':'公式データの収集が遅れると、新しい結果の反映も遅れます。'}`;
 }
 function applyOfficialFeed(feed,persist=true){
+  const now=Date.now(),todayJst=new Date(now+9*3600000).toISOString().slice(0,10);
   if(!feed||feed.verified!==true||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
-  if(!validDate(feed.asOfDate)||feed.asOfDate<'2026-08-08'||feed.asOfDate>'2027-07-31'||!Number.isFinite(Date.parse(feed.updatedAt)))throw new Error('Invalid official date');
+  if(!validDate(feed.asOfDate)||feed.asOfDate<'2026-08-08'||feed.asOfDate>'2027-07-31'||feed.asOfDate>todayJst||typeof feed.updatedAt!=='string'||!Number.isFinite(Date.parse(feed.updatedAt))||Date.parse(feed.updatedAt)>now+300000)throw new Error('Invalid official date');
+  if(feed.officialCheckedAt!=null&&(typeof feed.officialCheckedAt!=='string'||!Number.isFinite(Date.parse(feed.officialCheckedAt))||Date.parse(feed.officialCheckedAt)>now+300000))throw new Error('Invalid official confirmation');
   if(feedState.updatedAt&&Date.parse(feed.updatedAt)<Date.parse(feedState.updatedAt))throw new Error('Stale official feed');
   const rows=feed.matches.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.id).localeCompare(String(b.id))),seen=new Set(),ids=new Set(),counts=new Map(teams.map(t=>[t,0]));
   for(const r of rows){
@@ -85,6 +87,7 @@ function applyOfficialFeed(feed,persist=true){
 function restoreCachedFeed(){
  try{const raw=global.localStorage?.getItem(feedKey);if(!raw||raw.length>300000)return false;const feed=JSON.parse(raw);if(feedState.updatedAt&&Date.parse(feed.updatedAt)<=Date.parse(feedState.updatedAt))return false;const changed=applyOfficialFeed(feed,false);feedState={...feedState,state:'cached',checkedAt:null};return changed;}catch{return false;}
 }
+const historicalAuditGames=Object.freeze(completed.slice(0,70).map(g=>Object.freeze(g.slice())));
 restoreCachedFeed();
 async function refreshOfficial(force=false){
   if(fetching)return fetching;
@@ -114,6 +117,6 @@ async function refreshOfficial(force=false){
   })();
   return fetching;
 }
-global.J3Results=Object.freeze({storeKey,backupKey,feedKey,restoreCachedFeed,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
+global.J3Results=Object.freeze({storeKey,backupKey,feedKey,historicalAuditGames,restoreCachedFeed,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
 

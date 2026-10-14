@@ -8,12 +8,16 @@ function tab(html,api=false,fetcher){
  if(api)ctx.J3OfficialApi={baseUrl:'https://j3-official-refresh.hideakiito382.chatgpt.site'};if(fetcher)ctx.fetch=fetcher;
  ctx.window=ctx;ctx.addEventListener=(t,f)=>events[t]=f;ctx.dispatchEvent=e=>events[e.type]?.(e);ctx.fire=(t,e)=>events[t]?.(e);ctx.node=node;
  ctx.flushRender=()=>{while(renderTimers.length)renderTimers.shift()();};
+ ctx.pendingRenders=()=>renderTimers.length;
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);ctx.eval=s=>vm.runInContext(s,ctx);tabs.push(ctx);return ctx;
 }
 function flush(){while(queue.length)queue.shift()();}
 let passed=0;function check(name,fn){fn();passed++;console.log('PASS '+name);}
 (async()=>{
 const tracker=tab(progress),elo=tab(main);flush();await new Promise(setImmediate);
+check('rapid input schedules only one forecast computation using the latest inputs',()=>{
+ elo.eval('run();run();run()');assert.equal(elo.pendingRenders(),1);elo.flushRender();assert.equal(elo.pendingRenders(),0);assert.equal(elo.eval('lastForecast.length'),20);
+});
 check('selectors and probabilities outside collapsed details',()=>{
  const stack=[];let count=0;for(const m of main.matchAll(/<\/?details\b[^>]*>|<(?:select|div)\b[^>]*\bid="(home|away|prematch)"[^>]*>/g)){
  if(m[0].startsWith('</details'))stack.pop();else if(m[0].startsWith('<details'))stack.push(m[0]);else {count++;assert.equal(stack.length,0,m[1]+' hidden');}

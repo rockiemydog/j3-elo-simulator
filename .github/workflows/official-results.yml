@@ -28,6 +28,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate collectors before publishing
+        run: |
+          python tests/test_official_results.py
+          python tests/test_official_schedule.py
+          python tests/test_result_publication.py
       - name: Fetch and validate finished official matches
         id: fetch
         run: |
