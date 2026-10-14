@@ -74,13 +74,14 @@ let confirmedExtra=loadStored()||[];
 let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
 function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
-let fixtureCalendar=null,manualFixture=false,loadingCalendar=false;
+let fixtureCalendar=null,manualFixture=false,loadingCalendar=false,calendarIssue='';
 function validateCalendar(data){
-  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||!Number.isFinite(Date.parse(data.checkedAt)))throw Error('Invalid calendar');
-  const seen=new Set();
+  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
+  const seen=new Set(),cards=new Set();
   for(const row of data.matches){
     if(!row||!/^\d{10}$/.test(row.id)||seen.has(row.id)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||new Date(row.date+'T00:00:00Z').toISOString().slice(0,10)!==row.date||!teams.includes(row.home)||!teams.includes(row.away)||row.home===row.away||!['scheduled','finished','postponed','cancelled','unconfirmed'].includes(row.status)||!(row.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time)))throw Error('Invalid fixture');
-    seen.add(row.id);
+    if(row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
+    seen.add(row.id);cards.add(row.home+'|'+row.away);
   }
   return data;
 }
@@ -93,22 +94,22 @@ function chooseNextFixture(calendar,games=confirmed()){
 }
 function updateNextFixture(force=false){
   const label=$('nextFixtureStatus');
-  if(!fixtureCalendar){label.textContent='公式日程の取得未確認です。対戦カードは手動で選択できます。';return;}
-  const next=chooseNextFixture(fixtureCalendar);
-  if(!next){label.textContent='取得済み日程に次戦を確認できません。公式日程をご確認ください。';return;}
   if(force)manualFixture=false;
+  if(!fixtureCalendar){if(force){$('home').value='北九州';$('away').value='';$('hg').value='0';$('ag').value='0';syncForm();}label.textContent='公式日程の取得未確認です。対戦カードは手動で選択できます。'+calendarIssue;return;}
+  const next=chooseNextFixture(fixtureCalendar);
+  if(!next){if(!manualFixture){$('home').value='北九州';$('away').value='';$('hg').value='0';$('ag').value='0';syncForm();}label.textContent='取得済み日程に次戦を確認できません。公式日程をご確認ください。'+calendarIssue;return;}
   if(!manualFixture){const changed=$('home').value!==next.home||$('away').value!==next.away;$('home').value=next.home;$('away').value=next.away;if(changed){$('hg').value='0';$('ag').value='0';$('error').textContent='';}syncForm();}
   const kickoff=next.date+' '+(next.time||'時刻未定')+' 日本時間';
   const overdue=Date.now()>Date.parse(next.date+'T'+(next.time||'23:59')+':00+09:00')+3*3600000;
   const stale=Date.now()-Date.parse(fixtureCalendar.checkedAt)>24*3600000;
   const hold=next.status==='cancelled'?'中止：自動切り替え停止':next.status==='postponed'?'延期：自動切り替え停止':next.status==='unconfirmed'?'開催・終了状況未確認：自動切り替え停止':'';
-  label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}`;
+  label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}${calendarIssue}`;
 }
 async function refreshFixtureCalendar(){
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
-  try{const r=await fetch('./official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(!fixtureCalendar||Date.parse(data.checkedAt)>=Date.parse(fixtureCalendar.checkedAt))fixtureCalendar=data;updateNextFixture();}
-  catch{if(fixtureCalendar){updateNextFixture();$('nextFixtureStatus').textContent+=' ／ 日程の再取得失敗';}else updateNextFixture();}
+  try{const r=await fetch('./official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
+  catch{calendarIssue=' ／ 日程の再取得失敗（最新の開催状況は未確認）';updateNextFixture();}
   finally{clearTimeout(timer);loadingCalendar=false;}
 }
 $('showNextFixture').onclick=()=>{updateNextFixture(true);refreshFixtureCalendar();};
