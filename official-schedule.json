@@ -1,0 +1,120 @@
+{
+  "verified": true,
+  "season": "2026/27",
+  "source": "https://www.jleague.jp/j3/match/",
+  "checkedAt": "2026-10-14T11:44:23.842356+00:00",
+  "matches": [
+    {
+      "id": "2026100319",
+      "date": "2026-10-03",
+      "time": "17:00",
+      "home": "北九州",
+      "away": "高知",
+      "status": "finished"
+    },
+    {
+      "id": "2026101020",
+      "date": "2026-10-10",
+      "time": "14:00",
+      "home": "奈良",
+      "away": "北九州",
+      "status": "finished"
+    },
+    {
+      "id": "2026101728",
+      "date": "2026-10-17",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026102127",
+      "date": "2026-10-21",
+      "time": "13:00",
+      "home": "福島",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026102519",
+      "date": "2026-10-25",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026103129",
+      "date": "2026-10-31",
+      "time": "15:05",
+      "home": "山口",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026110323",
+      "date": "2026-11-03",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026110720",
+      "date": "2026-11-07",
+      "time": "14:00",
+      "home": "岐阜",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026111408",
+      "date": "2026-11-14",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026112203",
+      "date": "2026-11-22",
+      "time": "13:00",
+      "home": "熊本",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026112519",
+      "date": "2026-11-25",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026112918",
+      "date": "2026-11-29",
+      "time": "14:00",
+      "home": "長野",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026120517",
+      "date": "2026-12-05",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2026121213",
+      "date": "2026-12-12",
+      "time": "14:00",
+      "home": "北九州",
+      "away": "福島",
+      "status": "scheduled"
+    }
+  ]
+}
