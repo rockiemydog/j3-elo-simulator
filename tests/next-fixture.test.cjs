@@ -35,3 +35,17 @@ test('automatic card change resets trial score without changing registered trial
 test('calendar failure preserves manual card and reports failure',async()=>{
  const a=app();a.node('away').value='愛媛';a.node('away').onchange();a.ctx.fetch=async()=>{throw Error('offline');};await a.eval('refreshFixtureCalendar()');assert.equal(a.node('away').value,'愛媛');assert.match(a.node('nextFixtureStatus').textContent,/再取得失敗/);
 });
+test('no next fixture clears automatic card but preserves deliberate manual selection',()=>{
+ const a=app();a.eval("fixtureCalendar.matches.forEach(r=>r.status='finished');updateNextFixture()");assert.equal(a.node('away').value,'');assert.equal(a.node('submitGame').disabled,true);assert.ok(!a.node('prematch').innerHTML.includes('NaN'));
+ const b=app();b.node('away').value='愛媛';b.node('away').onchange();b.eval("fixtureCalendar.matches=[];updateNextFixture()");assert.equal(b.node('away').value,'愛媛');b.node('showNextFixture').onclick();assert.equal(b.node('away').value,'');assert.equal(b.eval('manualFixture'),false);
+});
+test('failed calendar notice survives result updates and clears only after successful calendar retry',async()=>{
+ const a=app();a.ctx.fetch=async()=>{throw Error('offline');};await a.eval('refreshFixtureCalendar()');a.eval('updateNextFixture()');assert.match(a.node('nextFixtureStatus').textContent,/再取得失敗/);
+ a.ctx.fetch=async()=>({ok:true,json:async()=>structuredClone(calendar)});await a.eval('refreshFixtureCalendar()');assert.doesNotMatch(a.node('nextFixtureStatus').textContent,/再取得失敗/);
+});
+test('duplicate cards, outside-season dates and future check timestamps rejected',()=>{
+ for(const change of ["calendar.matches.push({...calendar.matches[0],id:'2026101828',date:'2026-10-18'})","calendar.matches[0].date='2030-10-17'","calendar.checkedAt=new Date(Date.now()+3600000).toISOString()"]){const a=app();a.eval(change);assert.throws(()=>a.eval('validateCalendar(calendar)'));}
+});
+test('older calendar cannot reverse official cancellation and reports unverified freshness',async()=>{
+ const a=app();a.eval("fixtureCalendar.matches[0].status='cancelled'");a.ctx.fetch=async()=>({ok:true,json:async()=>({...structuredClone(calendar),checkedAt:'2026-10-13T11:00:00Z'})});await a.eval('refreshFixtureCalendar()');assert.match(a.node('nextFixtureStatus').textContent,/中止：自動切り替え停止/);assert.match(a.node('nextFixtureStatus').textContent,/再取得失敗/);assert.equal(a.node('away').value,'FC大阪');
+});
