@@ -1,6 +1,8 @@
 name: Automatic official J3 results
 on:
   push:
+    branches:
+      - main
     paths:
       - scripts/update-official-results.py
       - scripts/publish-official-results.py
