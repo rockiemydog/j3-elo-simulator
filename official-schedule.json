@@ -2,8 +2,72 @@
   "verified": true,
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-14T11:56:26.467854+00:00",
+  "checkedAt": "2026-10-14T11:57:29.609334+00:00",
   "matches": [
+    {
+      "id": "2026081519",
+      "date": "2026-08-15",
+      "time": "18:00",
+      "home": "北九州",
+      "away": "讃岐",
+      "status": "finished"
+    },
+    {
+      "id": "2026082220",
+      "date": "2026-08-22",
+      "time": "19:00",
+      "home": "栃木SC",
+      "away": "北九州",
+      "status": "finished"
+    },
+    {
+      "id": "2026083002",
+      "date": "2026-08-30",
+      "time": "18:00",
+      "home": "北九州",
+      "away": "松本",
+      "status": "finished"
+    },
+    {
+      "id": "2026090514",
+      "date": "2026-09-05",
+      "time": "19:00",
+      "home": "愛媛",
+      "away": "北九州",
+      "status": "finished"
+    },
+    {
+      "id": "2026090908",
+      "date": "2026-09-09",
+      "time": "19:00",
+      "home": "琉球",
+      "away": "北九州",
+      "status": "finished"
+    },
+    {
+      "id": "2026091219",
+      "date": "2026-09-12",
+      "time": "18:00",
+      "home": "北九州",
+      "away": "鳥取",
+      "status": "finished"
+    },
+    {
+      "id": "2026092005",
+      "date": "2026-09-20",
+      "time": "17:00",
+      "home": "相模原",
+      "away": "北九州",
+      "status": "finished"
+    },
+    {
+      "id": "2026092625",
+      "date": "2026-09-26",
+      "time": "17:00",
+      "home": "北九州",
+      "away": "鹿児島",
+      "status": "finished"
+    },
     {
       "id": "2026100319",
       "date": "2026-10-03",
@@ -98,7 +162,7 @@
       "time": "14:00",
       "home": "長野",
       "away": "北九州",
-      "status": "scheduled"
+      "status": "unconfirmed"
     },
     {
       "id": "2026120517",
@@ -106,7 +170,7 @@
       "time": "14:00",
       "home": "北九州",
       "away": "栃木SC",
-      "status": "scheduled"
+      "status": "unconfirmed"
     },
     {
       "id": "2026121213",
@@ -114,7 +178,7 @@
       "time": "14:00",
       "home": "北九州",
       "away": "福島",
-      "status": "scheduled"
+      "status": "unconfirmed"
     }
   ]
 }
