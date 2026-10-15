@@ -63,7 +63,7 @@
     </section>
   </main>
   <script src="../official-api-config.js?v=2abf363444e1"></script>
-  <script src="../shared-results.js?v=b5977a3bc3d8"></script>
+  <script src="../shared-results.js?v=6ae690b7e162"></script>
   <script>
     const TOTAL=38;
     const history=[
@@ -81,6 +81,7 @@
     const defaults={asofDate:'2026-10-04',played:9,points:10,wins:2,draws:4,losses:3,gf:12,ga:16};
     let mainStats={...defaults}, activeStats=mainStats, activeView='main', syncHasExtras=false, actualSignature=null;
     function refreshLinkedResults(force=false) {
+      J3Results.restoreCachedFeed();
       const data=J3Results.clubStats();
       const actual=data.stats;
       mainStats={...actual};
@@ -166,6 +167,7 @@
     $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
     let syncingOfficial=false;
     async function syncAutomaticResults(force=false){
+      refreshLinkedResults();
       if(syncingOfficial)return;syncingOfficial=true;
       $('refresh-official').disabled=true;$('refresh-official').textContent=J3Results.canRefreshOfficial?'公式確認中…':'読込中…';
       $('auto-status').textContent=J3Results.canRefreshOfficial?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
@@ -181,7 +183,7 @@
     window.addEventListener('focus',()=>{refreshLinkedResults();syncAutomaticResults();});
     window.addEventListener('pageshow',()=>{refreshLinkedResults();syncAutomaticResults();});
     window.addEventListener('j3-results-changed',()=>refreshLinkedResults());
-    window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();refreshLinkedResults();syncAutomaticResults();}});
+    window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey||e.key===null){J3Results.restoreCachedFeed();refreshLinkedResults();syncAutomaticResults();}});
     // Same-tab writes do not emit a storage event; also catch iPad page restoration.
     setInterval(()=>{if(!document.hidden)refreshLinkedResults();},2000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshLinkedResults();syncAutomaticResults();}});

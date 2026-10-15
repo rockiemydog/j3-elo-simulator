@@ -27,6 +27,7 @@ jobs:
       - run: node tests/result-sync.test.cjs
       - run: node --test tests/feed-resilience.test.cjs
       - run: node --test tests/next-fixture.test.cjs
+      - run: node --test tests/private-build.test.cjs
       - run: python tests/test_official_schedule.py
       - run: python tests/test_official_results.py
       - run: python tests/test_result_notification.py

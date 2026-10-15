@@ -156,5 +156,30 @@ check('a score correction updates both models without duplicating the fixture',(
 apiMain.eval('Date.now=()=>9999999999999');apiMain.fetch=async url=>{if(url.includes('/api/'))throw Error('offline');return response(corrected);};await apiMain.eval('syncAutomaticResults()');
 check('automatic fallback never claims a fresh official-site check',()=>{assert(apiMain.node('autoStatus').textContent.includes('接続できません'));assert.equal(apiMain.eval('J3Results.feedState.officialCheckedAt'),null);assert(!apiMain.node('autoStatus').textContent.includes('反映確認完了'));});
 
+// Simulate missed iPad storage events and refreshes that are still in flight.
+for(const html of [main,progress]){
+ values.clear();const t=tab(html);t.fetch=async()=>({ok:true,json:async()=>published});await t.eval('syncAutomaticResults(true)');
+ const newer=structuredClone(published);newer.updatedAt=new Date().toISOString();newer.matches.find(r=>r.game.includes('北九州')).game[2]++;
+ values.set('j3-official-feed-v1',JSON.stringify(newer));t.fire('focus');await new Promise(setImmediate);
+ check('focus catches a missed cross-tab correction even within fetch cooldown',()=>{
+  assert.equal(t.eval('J3Results.resultId()'),t.eval('J3Results.resultId('+JSON.stringify(newer.matches.map(r=>r.game))+')'));
+  if(html===main)assert.equal(t.eval('J3Results.resultId(completed)'),t.eval('J3Results.resultId()'));
+  else assert.equal(t.eval('activeStats.gf'),t.eval('J3Results.clubStats().stats.gf'));
+ });
+ let release;let calls=0;t.fetch=async()=>{if(calls++===0)return new Promise(resolve=>release=resolve);throw Error('offline')};
+ const pending=t.eval('syncAutomaticResults(true)');const newest=structuredClone(newer);newest.updatedAt=new Date(Date.now()+1000).toISOString();newest.matches.find(r=>r.game.includes('北九州')).game[2]++;
+ values.set('j3-official-feed-v1',JSON.stringify(newest));t.fire('storage',{key:'j3-official-feed-v1'});
+ check('cross-tab scores reach the screen while a previous network request is pending',()=>{
+  if(html===main)assert.equal(t.eval('J3Results.resultId(completed)'),t.eval('J3Results.resultId()'));
+  else assert.equal(t.eval('activeStats.gf'),t.eval('J3Results.clubStats().stats.gf'));
+ });
+ release({ok:true,json:async()=>published});await pending;
+ for(const key of ['j3-official-feed-v1',null]){
+  values.clear();t.fire('storage',{key});await new Promise(setImmediate);
+  check('cache deletion and clear never erase official totals or retain fresh verification',()=>{
+   assert.equal(t.eval('J3Results.initialGames.length'),published.matches.length);assert.equal(t.node('verification').dataset.verified,'false');
+  });
+ }
+}
 console.log(passed+' interface and integration checks passed');
 })().catch(e=>{console.error(e);process.exitCode=1});

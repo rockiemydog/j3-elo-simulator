@@ -51,7 +51,7 @@ function verification(displayed,eligible=true){
   return {ok,id:resultId(),text:`${label}\n結果ID：${resultId()} ／ 対象日：${baseDate} ／ リーグ確定${completed.length}試合\n公式集計：北九州 ${official.played}試合・勝点${official.points}（${official.wins}勝${official.draws}分${official.losses}敗）\n結果データ更新：${updated} 日本時間\n公式サイト確認：${sourceChecked} 日本時間\n画面取得：${checked} 日本時間（公式サイトの確認時刻ではありません）\nシミュレーターと進捗トラッカーで、結果IDが一致するか確認してください。`};
 }
 const apiBase=typeof global.J3OfficialApi?.baseUrl==='string'&&/^https:\/\/[a-z0-9.-]+\.chatgpt\.site$/.test(global.J3OfficialApi.baseUrl)?global.J3OfficialApi.baseUrl:null;
-let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0;
+let feedState={state:'idle',asOfDate:baseDate,count:completed.length},fetching=null,lastFetch=0,hasPersistedFeed=false;
 function statusText(verified=false){
  const s=feedState;
  if(s.state==='refreshing')return apiBase?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
@@ -86,13 +86,23 @@ function applyOfficialFeed(feed,persist=true){
   const updatedAt=older?feedState.updatedAt:feed.updatedAt;
   if(changed)completed.splice(0,completed.length,...games);
   baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
-  if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify({...feed,updatedAt}));}catch{}
+  if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify({...feed,updatedAt}));hasPersistedFeed=true;}catch{}
   return changed;
 }
 function restoreCachedFeed(){
- try{const raw=global.localStorage?.getItem(feedKey);if(!raw||raw.length>300000)return false;const feed=JSON.parse(raw);if(feedState.updatedAt&&Date.parse(feed.updatedAt)<=Date.parse(feedState.updatedAt))return false;const changed=applyOfficialFeed(feed,false);feedState={...feedState,state:'cached',checkedAt:null};return changed;}catch{return false;}
+ try{
+  const raw=global.localStorage?.getItem(feedKey);
+  if(!raw){if(hasPersistedFeed){feedState={...feedState,state:'cached',checkedAt:null};hasPersistedFeed=false;}return false;}
+  if(raw.length>300000)return false;
+  const feed=JSON.parse(raw);
+  if(feedState.updatedAt&&Date.parse(feed.updatedAt)<=Date.parse(feedState.updatedAt))return false;
+  const changed=applyOfficialFeed(feed,false);hasPersistedFeed=true;
+  feedState={...feedState,state:'cached',checkedAt:null};return changed;
+ }catch{return false;}
 }
 const historicalAuditGames=Object.freeze(completed.slice(0,70).map(g=>Object.freeze(g.slice())));
+// A packaged deployment may carry a verified snapshot for immediate startup.
+try{if(global.J3OfficialSnapshot){applyOfficialFeed(global.J3OfficialSnapshot,false);feedState={...feedState,state:'cached',checkedAt:null};}}catch{}
 restoreCachedFeed();
 async function refreshOfficial(force=false){
   if(fetching)return fetching;
@@ -115,7 +125,7 @@ async function refreshOfficial(force=false){
       feedState={...feedState,refreshStatus:body.status,added:Number.isInteger(body.added)?body.added:0,corrected:Number.isInteger(body.corrected)?body.corrected:0,retryAfter:Number.isInteger(body.retryAfter)?body.retryAfter:60};
       return changed;
     }catch{
-      if(apiBase&&!force){const backupController=new AbortController(),backupTimer=setTimeout(()=>backupController.abort(),12000);try{const r=await global.fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now(),{cache:'no-store',signal:backupController.signal,credentials:'omit'});if(!r.ok)throw Error('offline');const changed=applyOfficialFeed(await r.json());feedState={...feedState,officialCheckedAt:null,refreshStatus:'fallback'};return changed;}catch{}finally{clearTimeout(backupTimer);}}
+      if(apiBase){const backupController=new AbortController(),backupTimer=setTimeout(()=>backupController.abort(),12000);try{const r=await global.fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-results.json?t='+Date.now(),{cache:'no-store',signal:backupController.signal,credentials:'omit'});if(!r.ok)throw Error('offline');const changed=applyOfficialFeed(await r.json());feedState={...feedState,officialCheckedAt:null,refreshStatus:'fallback'};return changed;}catch{}finally{clearTimeout(backupTimer);}}
       feedState={...feedState,state:'unavailable'};return false;
     }
     finally{clearTimeout(timer);fetching=null;}

@@ -52,7 +52,7 @@
   </div>
 </main>
 <script src="official-api-config.js?v=2abf363444e1"></script>
-<script src="shared-results.js?v=b5977a3bc3d8"></script>
+<script src="shared-results.js?v=6ae690b7e162"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
@@ -74,22 +74,42 @@ let confirmedExtra=loadStored()||[];
 let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
 function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
+const CALENDAR_STORE='j3-official-calendar-v1';
 let fixtureCalendar=null,manualFixture=false,loadingCalendar=false,calendarIssue='';
 function validateCalendar(data){
-  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||data.matches.length>38||typeof data.checkedAt!=='string'||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
+  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||!data.matches.length||data.matches.length>38||typeof data.checkedAt!=='string'||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
   const seen=new Set(),cards=new Set();
   for(const row of data.matches){
     if(!row||!/^\d{10}$/.test(row.id)||seen.has(row.id)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||new Date(row.date+'T00:00:00Z').toISOString().slice(0,10)!==row.date||!teams.includes(row.home)||!teams.includes(row.away)||row.home===row.away||!['scheduled','finished','postponed','cancelled','unconfirmed'].includes(row.status)||!(row.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time)))throw Error('Invalid fixture');
     if(typeof row.id!=='string'||row.id.slice(0,8)!==row.date.replaceAll('-','')||(row.home!=='北九州'&&row.away!=='北九州')||row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
+    if(row.status==='finished'&&Date.parse(row.date+'T'+(row.time||'00:00')+':00+09:00')>Date.now())throw Error('Future finished fixture');
     seen.add(row.id);cards.add(row.home+'|'+row.away);
   }
   return data;
+}
+function applyFixtureCalendar(data,persist=true){
+  data=validateCalendar(data);
+  if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');
+  const matches=data.matches.map(r=>({...r})),cards=new Set(matches.map(r=>r.home+'|'+r.away));
+  // A partial response cannot silently drop an unresolved or cancelled card.
+  for(const row of fixtureCalendar?.matches||[]){
+    if(row.status!=='finished'&&!cards.has(row.home+'|'+row.away))matches.push({...row,status:['cancelled','postponed'].includes(row.status)?row.status:'unconfirmed'});
+  }
+  fixtureCalendar=validateCalendar({...data,matches});
+  if(persist)try{localStorage.setItem(CALENDAR_STORE,JSON.stringify(fixtureCalendar));}catch{}
+  updateNextFixture();
+}
+function restoreFixtureCalendar(){
+  try{const raw=localStorage.getItem(CALENDAR_STORE);if(!raw||raw.length>30000)return;
+    const data=JSON.parse(raw);if(fixtureCalendar&&Date.parse(data.checkedAt)<=Date.parse(fixtureCalendar.checkedAt))return;
+    applyFixtureCalendar(data,false);
+  }catch{}
 }
 function chooseNextFixture(calendar,games=confirmed()){
   const used=new Set(games.map(key));
   // Only official completion releases the card. Cancellation/postponement or
   // an unknown/in-progress state must NOT skip ahead to a later fixture.
-  return calendar.matches.filter(r=>(r.home==='北九州'||r.away==='北九州')&&r.status!=='finished'&&!used.has(r.home+'|'+r.away))
+  return calendar.matches.filter(r=>(r.home==='北九州'||r.away==='北九州')&&(['cancelled','postponed'].includes(r.status)||(r.status!=='finished'&&!used.has(r.home+'|'+r.away))))
     .sort((a,b)=>(a.date+'T'+(a.time||'23:59')).localeCompare(b.date+'T'+(b.time||'23:59'))||a.id.localeCompare(b.id))[0]||null;
 }
 function updateNextFixture(force=false){
@@ -106,10 +126,15 @@ function updateNextFixture(force=false){
   label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}${calendarIssue}`;
 }
 async function refreshFixtureCalendar(){
+  restoreFixtureCalendar();
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
-  try{const r=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
-  catch{calendarIssue=' ／ 日程の再取得失敗（最新の開催状況は未確認）';updateNextFixture();}
+  try{const r=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=await r.json();applyFixtureCalendar(data);calendarIssue='';updateNextFixture();}
+  catch{
+    // A fresh private deployment includes the last official schedule snapshot.
+    if(!fixtureCalendar){const backup=new AbortController(),timeout=setTimeout(()=>backup.abort(),8000);try{const r=await fetch('official-schedule.json',{cache:'no-store',credentials:'same-origin',signal:backup.signal});if(r.ok)applyFixtureCalendar(await r.json());}catch{}finally{clearTimeout(timeout);}}
+    calendarIssue=' ／ 日程の再取得失敗（最新の開催状況は未確認）';updateNextFixture();
+  }
   finally{clearTimeout(timer);loadingCalendar=false;}
 }
 $('showNextFixture').onclick=()=>{updateNextFixture(true);refreshFixtureCalendar();};
@@ -173,26 +198,30 @@ $('acceptInitial').onclick=()=>{if(!auditInitialData().ok)return;try{localStorag
 $('rerun').onclick=()=>{baseline=null;run()};$('runs').onchange=()=>{baseline=null;run()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeTab=b.dataset.tab;renderTable()});
 let syncingOfficial=false;
 async function syncAutomaticResults(force=false){
+  refreshSavedResults();
   if(syncingOfficial)return;syncingOfficial=true;
   $('refreshOfficial').disabled=true;$('refreshOfficial').textContent=J3Results.canRefreshOfficial?'公式確認中…':'読込中…';
   $('autoStatus').textContent=J3Results.canRefreshOfficial?'公式サイトの終了試合を取得・検証しています…':'保存済み結果を読み込んでいます…';
   $('verification').dataset.verified='false';
   try{
-  const changed=await J3Results.refreshOfficial(force),state=J3Results.feedState;
+  await J3Results.refreshOfficial(force);
   $('autoStatus').textContent=J3Results.statusText();
   $('verification').textContent='画面集計を照合中です…';
-  if(changed||J3Results.resultId(completed)!==J3Results.resultId()||DATA_AS_OF!==state.asOfDate){completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=state.asOfDate;refreshSavedResults();const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderInitialAudit();renderScenarios();run();}else renderVerification();
+  refreshSavedResults();renderVerification();
   }finally{updateNextFixture();syncingOfficial=false;$('refreshOfficial').disabled=false;$('refreshOfficial').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
 }
 $('refreshOfficial').onclick=()=>syncAutomaticResults(true);
 setInterval(()=>{if(!document.hidden){syncAutomaticResults();refreshFixtureCalendar();}},300000);
 function refreshSavedResults(){
-  const saved=loadStored();
-  if(saved===null){$('error').textContent='保存済み結果を読み取れません。画面の結果を保持しています。CSVを保存して確認してください。';return;}
-  if(JSON.stringify(saved)===JSON.stringify(confirmedExtra))return;
-  confirmedExtra=saved;lastSavedExtras=confirmedExtra.map(g=>g.slice());const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderScenarios();run();
+  J3Results.restoreCachedFeed();
+  const saved=loadStored(),data=J3Results.initialGames;
+  if(JSON.stringify(saved)===JSON.stringify(confirmedExtra)&&J3Results.resultId(completed)===J3Results.resultId()&&DATA_AS_OF===J3Results.baseDate)return;
+  completed=data.map(g=>g.slice());DATA_AS_OF=J3Results.baseDate;
+  confirmedExtra=saved;lastSavedExtras=confirmedExtra.map(g=>g.slice());
+  const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));
+  baseline=null;renderInitialAudit();renderScenarios();updateNextFixture();run();
 }
-window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();syncAutomaticResults();}if(e.key===STORE||e.key===null)refreshSavedResults();});
+window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey||e.key===null){refreshSavedResults();syncAutomaticResults();}if(e.key===STORE)refreshSavedResults();if(e.key===CALENDAR_STORE||e.key===null){restoreFixtureCalendar();updateNextFixture();}});
 window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);

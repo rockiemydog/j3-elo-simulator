@@ -20,3 +20,16 @@ test('a future fixture cannot be accepted as an official finished result',()=>{
 test('API recovery can verify identical results with an older source update time without regressing cached metadata',async()=>{
  const newer=structuredClone(feed);newer.updatedAt=newerTimestamp;const recovered={...structuredClone(feed),officialCheckedAt:new Date().toISOString()};let t;t=tab(new Map(),async()=>({ok:true,json:async()=>({status:'unchanged',feed:recovered,resultId:t.api.resultId(),added:0,corrected:0})}));t.api.applyOfficialFeed(newer);const id=t.api.resultId();await t.api.refreshOfficial(true);assert.equal(t.api.feedState.state,'ready');assert.equal(t.api.feedState.refreshStatus,'unchanged');assert.equal(t.api.feedState.updatedAt,newerTimestamp);assert.equal(t.api.resultId(),id);assert.equal(JSON.parse(t.storage.get(t.api.feedKey)).updatedAt,newerTimestamp);
 });
+
+test('deleted cache retains official totals but clears the previous retrieval verification',()=>{
+ const t=tab();t.api.applyOfficialFeed(feed);const id=t.api.resultId();t.storage.delete(t.api.feedKey);t.api.restoreCachedFeed();assert.equal(t.api.resultId(),id);assert.equal(t.api.feedState.state,'cached');assert.equal(t.api.verification(t.api.clubStats().stats).ok,false);
+});
+test('storage denial still allows current network data to be verified after a cache recheck',()=>{
+ const t=tab();t.ctx.localStorage.setItem=()=>{throw Error('quota')};t.api.applyOfficialFeed(feed);t.api.restoreCachedFeed();assert.equal(t.api.feedState.state,'ready');assert.equal(t.api.verification(t.api.clubStats().stats).ok,true);
+});
+test('manual refresh falls back to saved official feed when the refresh service is forbidden',async()=>{
+ const t=tab(new Map(),async url=>{if(url.includes('/api/'))return {ok:false,status:403,json:async()=>({error:'forbidden'})};return {ok:true,json:async()=>feed};});await t.api.refreshOfficial(true);assert.equal(t.api.initialGames.length,feed.matches.length);assert.equal(t.api.feedState.refreshStatus,'fallback');assert.match(t.api.statusText(),/保存済み公式結果/);assert.doesNotMatch(t.api.statusText(),/反映確認完了/);
+});
+test('packaged official snapshot is available immediately without claiming a live check',()=>{
+ const t=tab();t.ctx.J3OfficialSnapshot=structuredClone(feed);vm.runInContext(shared,t.ctx);assert.equal(t.ctx.J3Results.initialGames.length,feed.matches.length);assert.equal(t.ctx.J3Results.feedState.state,'cached');assert.equal(t.ctx.J3Results.verification(t.ctx.J3Results.clubStats().stats).ok,false);
+});
