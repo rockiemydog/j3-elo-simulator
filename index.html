@@ -52,7 +52,7 @@
   </div>
 </main>
 <script src="official-api-config.js?v=2abf363444e1"></script>
-<script src="shared-results.js?v=6ae690b7e162"></script>
+<script src="shared-results.js?v=3c68c04029c4"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
@@ -88,6 +88,7 @@ function validateCalendar(data){
   return data;
 }
 function applyFixtureCalendar(data,persist=true){
+  if(persist)restoreFixtureCalendar();
   data=validateCalendar(data);
   if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');
   const matches=data.matches.map(r=>({...r})),cards=new Set(matches.map(r=>r.home+'|'+r.away));

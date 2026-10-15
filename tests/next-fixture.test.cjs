@@ -80,3 +80,7 @@ test('another tab immediately adopts a newer cancellation, and denied storage st
 test('bundled schedule is usable when the live schedule is unavailable',async()=>{
  const a=app(new Map(),false);a.ctx.fetch=async(url,options)=>{if(url==='official-schedule.json'){assert.equal(options.credentials,'same-origin');return {ok:true,json:async()=>structuredClone(calendar)};}throw Error('offline');};await a.eval('refreshFixtureCalendar()');assert.equal(a.node('away').value,'FC大阪');assert.match(a.node('nextFixtureStatus').textContent,/再取得失敗/);
 });
+
+test('late calendar response cannot overwrite a cancellation saved by another tab',()=>{
+ const storage=new Map(),slow=app(storage),fast=app(storage);fast.ctx.latest=structuredClone(calendar);fast.ctx.latest.checkedAt=new Date().toISOString();fast.ctx.latest.matches[0].status='cancelled';fast.eval('applyFixtureCalendar(latest)');assert.throws(()=>slow.eval('applyFixtureCalendar(calendar)'),/Older/);const reload=app(storage,false);assert.match(reload.node('nextFixtureStatus').textContent,/中止/);
+});

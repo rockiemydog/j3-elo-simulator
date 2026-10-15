@@ -33,3 +33,10 @@ test('manual refresh falls back to saved official feed when the refresh service 
 test('packaged official snapshot is available immediately without claiming a live check',()=>{
  const t=tab();t.ctx.J3OfficialSnapshot=structuredClone(feed);vm.runInContext(shared,t.ctx);assert.equal(t.ctx.J3Results.initialGames.length,feed.matches.length);assert.equal(t.ctx.J3Results.feedState.state,'cached');assert.equal(t.ctx.J3Results.verification(t.ctx.J3Results.clubStats().stats).ok,false);
 });
+test('a delayed tab cannot overwrite a newer correction already saved by another tab',()=>{
+ const storage=new Map(),slow=tab(storage),fast=tab(storage);slow.api.applyOfficialFeed(feed);
+ const newer=structuredClone(feed);newer.updatedAt=newerTimestamp;newer.matches[0].game[2]++;
+ fast.api.applyOfficialFeed(newer);const id=fast.api.resultId();
+ try{slow.api.applyOfficialFeed(feed);}catch{}
+ assert.equal(tab(storage).api.resultId(),id);
+});

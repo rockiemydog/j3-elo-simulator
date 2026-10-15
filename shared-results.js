@@ -66,6 +66,8 @@ function statusText(verified=false){
  return `保存済み公式結果：${base}画面は表示中、約5分ごとに確認します。${apiBase?'公式データが古い場合は再取得します。':'公式データの収集が遅れると、新しい結果の反映も遅れます。'}`;
 }
 function applyOfficialFeed(feed,persist=true){
+  // Recheck disk immediately before accepting a response from a slow tab.
+  if(persist)restoreCachedFeed();
   const now=Date.now(),todayJst=new Date(now+9*3600000).toISOString().slice(0,10);
   if(!feed||feed.verified!==true||feed.schemaVersion!==1||feed.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length<completed.length||feed.matches.length>380)throw new Error('Invalid official feed');
   if(!validDate(feed.asOfDate)||feed.asOfDate<'2026-08-08'||feed.asOfDate>'2027-07-31'||feed.asOfDate>todayJst||typeof feed.updatedAt!=='string'||!Number.isFinite(Date.parse(feed.updatedAt))||Date.parse(feed.updatedAt)>now+300000)throw new Error('Invalid official date');
