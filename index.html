@@ -11,6 +11,7 @@
 .team-pickers{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end}.team-pickers select{width:100%;height:46px;border:1px solid #d0d5dd;border-radius:9px;background:#fff;padding:0 9px;font:inherit}.versus{text-align:center;padding-bottom:13px;color:var(--muted);font-weight:700}.score-pickers{display:grid;grid-template-columns:1fr 20px 1fr;gap:8px;align-items:center;margin-top:12px}.score-box>span{display:block;text-align:center;color:var(--muted);font-size:11px;margin-bottom:5px}.stepper{display:grid;grid-template-columns:44px 1fr 44px;border:1px solid #d0d5dd;border-radius:10px;overflow:hidden}.stepper button{height:46px;border:0;background:#f2f4f7;color:var(--blue);font-size:22px;font-weight:700;cursor:pointer}.stepper input{width:100%;height:46px;border:0;border-left:1px solid #d0d5dd;border-right:1px solid #d0d5dd;text-align:center;font:700 22px inherit;color:var(--ink)}.score-sep{text-align:center;font-size:18px;color:var(--muted)}.mode-switch{margin:12px 0 6px}.mode-help{min-height:22px;margin-bottom:5px;text-align:center}.submit-main{margin-top:8px;min-height:48px}.steps,.section-label{display:none}.btn:disabled{cursor:not-allowed;opacity:.45;filter:none}.reset-current{border-color:#fda29b;color:var(--danger)}.reset-note{margin-top:7px;color:var(--muted);font-size:11px}.reset-actions{align-items:center}@media(max-width:420px){.team-pickers{grid-template-columns:1fr 20px 1fr}.stepper{grid-template-columns:40px 1fr 40px}}
 .stepper input{font:inherit;font-size:22px;font-weight:700}.data-ready{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#eef4ff;border:1px solid #b2ccff;border-radius:12px;padding:13px 15px;margin:-6px 0 18px}.data-ready strong{display:block;color:#0b3b8c}.data-ready span{display:block;color:var(--muted);font-size:12px;margin-top:2px}.data-ready.ok{background:#ecfdf3;border-color:#abefc6}.data-audit{font-size:12px;color:var(--muted);line-height:1.7}.source-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}.source-links a{color:var(--blue)}@media(max-width:520px){.data-ready{align-items:stretch;flex-direction:column}.data-ready .btn{width:100%}}
 .distribution{margin:18px 0 22px;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.distribution h2{margin:0 0 12px}.distribution label{font-size:12px;font-weight:700}.distribution select{margin-left:8px;padding:8px 10px;min-height:44px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:var(--ink);font:inherit}.distribution-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.distribution svg{display:block;width:100%;min-width:600px;height:auto}.distribution-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;color:var(--muted)}.distribution-legend span::before{content:'';display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:2px;background:var(--zone)}.distribution .sub{margin:8px 0 0;line-height:1.7}.distribution-summary{font-size:12px;font-weight:700;color:var(--ink);margin:10px 0 0}@media(max-width:520px){.distribution{padding:12px}}
+.month-only{display:none}body.month-view .month-only{display:block}body.month-view .final-only,body.month-view .month-navigation{display:none}body.month-view #monthSection{border:0;margin:0;padding:0}a#openMonthForecast{display:block;border:1px solid var(--line);border-radius:10px;padding:12px;font-weight:700;background:#fff9e6}
 </style>
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
@@ -18,7 +19,7 @@
 <body>
 <main class="shell">
   <header>
-    <div><div class="eyebrow">GIRAVANZ AI · ELO EDITION</div><h1>J3順位シミュレーター <span class="tag">Elo版</span></h1><p>勝敗結果からクラブの強さを更新し、残り試合と最終順位を再計算</p></div>
+    <div><div class="eyebrow">GIRAVANZ AI · ELO EDITION</div><h1 id="pageTitle">J3順位シミュレーター <span class="tag">Elo版</span></h1><p id="pageDescription">勝敗結果からクラブの強さを更新し、残り試合と最終順位を再計算</p></div>
     <div class="stamp">2026/27 J3 · Elo<br><span id="stampData">初期70試合</span></div>
   </header>
   <section class="data-ready" id="dataReady" aria-live="polite">
@@ -28,6 +29,8 @@
   <div class="grid">
     <aside class="panel">
       <p><a href="progress-tracker/">北九州の進捗トラッカーを見る →</a></p>
+      <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">月末時点の順位予測を別タブで見る →</a></p>
+      <p class="month-only"><a href="./">順位シミュレーターへ戻る →</a></p>
       <h2>公式結果の自動更新</h2><p id="autoStatus" class="sub" aria-live="polite">公式の終了試合を自動取得しています…</p><p id="verification" class="sub" aria-live="polite" style="white-space:pre-line"></p><button class="btn" id="refreshOfficial" type="button">最新結果を確認する</button><h2>対戦カードの勝敗確率</h2><div class="sub">ホーム・アウェーを選ぶと勝利・引き分け・敗戦の確率を表示します。</div>
       <div class="team-pickers"><div class="field"><label for="home">ホーム</label><select id="home"><option>岐阜</option><option selected>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div><div class="versus">対</div><div class="field"><label for="away">アウェー</label><select id="away"><option>岐阜</option><option>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option selected>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div></div>
       <p class="sub" id="nextFixtureStatus" aria-live="polite">北九州の公式日程を確認中…</p><button class="btn" id="showNextFixture" type="button">北九州の次戦に戻る</button>
@@ -45,16 +48,17 @@
       <div class="note">公式結果は自動反映され、Eloと進捗トラッカーも更新されます。試し入力はこの画面だけに反映され、再読込でリセットされます。公式結果が確定した試合の試し入力は自動解除されます。順位は勝点→得失点差→総得点→当該クラブ間成績で判定します。</div>
     </aside>
     <section class="panel">
-      <div class="statusline" id="statusline"></div><div class="sub" id="uncertainty"></div><div class="hero" id="hero"></div>
-      <section class="distribution" aria-labelledby="monthTitle">
+      <div class="statusline final-only" id="statusline"></div><div class="sub" id="uncertainty"></div><div class="hero final-only" id="hero"></div>
+      <section class="distribution" id="monthSection" aria-labelledby="monthTitle" hidden>
         <h2 id="monthTitle">月末時点の順位予測</h2>
+        <p class="sub">シミュレーターから開いた時点の試し入力を引き継ぎます。その後の入力・リセットは、このタブ内だけに反映します。</p>
         <label for="monthEnd">予測する月末</label><select id="monthEnd" disabled><option value="">全クラブの日程を確認中</option></select>
         <p class="sub" id="monthStatus" aria-live="polite">全20クラブの公式日程を取得しています。</p>
         <p class="distribution-summary" id="monthSummary" aria-live="polite"></p>
         <div class="table-wrap"><table aria-label="月末時点の順位予測"><thead><tr><th>クラブ</th><th>予想勝点</th><th>平均順位</th><th>6位以内</th><th>予想消化試合</th></tr></thead><tbody id="monthRows"></tbody></table></div>
         <p class="sub">現在の確定勝点＋選択した月末までの開催予定試合を予測。中止・延期・開催未確認の未消化試合は除外します。試し入力は対象期間のカードだけに反映します。平均順位・6位以内確率は月末時点の予測で、シーズン最終予測とは異なります。日程変更により試合数も変わります。</p>
       </section>
-      <section class="distribution" aria-labelledby="distributionTitle">
+      <section class="distribution final-only" aria-labelledby="distributionTitle">
         <h2 id="distributionTitle">最終順位の確率分布</h2>
         <label for="rankDistributionClub">表示クラブ</label><select id="rankDistributionClub"><option selected>北九州</option></select>
         <p class="distribution-summary" id="distributionSummary" aria-live="polite"></p>
@@ -62,9 +66,9 @@
         <div class="distribution-legend"><span style="--zone:#e5ac00">1～2位</span><span style="--zone:#14213d">3～6位</span><span style="--zone:#98a2b3">7～19位</span><span style="--zone:#d83043">20位</span></div>
         <p class="sub">横軸：最終順位 ／ 縦軸：確率（％）。各順位で終わった回数 ÷ 計算回数 × 100。試し入力にも連動します。<br>各クラブの確率合計は100％（表示は小数第1位に丸め）。0.0％は可能性ゼロを意味しません。狭い画面ではグラフを横にスワイプできます。</p>
       </section>
-      <details class="rankviz" open><summary>平均最終順位グラフ</summary><div class="rank-axis"><span></span><div class="ticks"><span>1位</span><span>6位</span><span>10位</span><span>15位</span><span>20位</span></div><span></span></div><div id="rankChart" aria-label="全クラブの平均最終順位"></div></details>
-      <div class="tabs"><button class="tab active" data-tab="forecast">最終順位予測</button><button class="tab" data-tab="live">現在順位・試し入力反映</button><span class="spinner" id="spinner">計算中…</span></div>
-      <div class="table-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+      <details class="rankviz final-only" open><summary>平均最終順位グラフ</summary><div class="rank-axis"><span></span><div class="ticks"><span>1位</span><span>6位</span><span>10位</span><span>15位</span><span>20位</span></div><span></span></div><div id="rankChart" aria-label="全クラブの平均最終順位"></div></details>
+      <div class="tabs final-only"><button class="tab active" data-tab="forecast">最終順位予測</button><button class="tab" data-tab="live">現在順位・試し入力反映</button><span class="spinner" id="spinner">計算中…</span></div>
+      <div class="table-wrap final-only"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
     </section>
   </div>
 </main>
@@ -90,6 +94,16 @@ function loadStored(){
 let confirmedExtra=loadStored()||[];
 let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
+const MONTH_VIEW=typeof window.location?.search==='string'&&/(?:^|[?&])view=month-end(?:&|$)/.test(window.location.search);
+function decodeMonthTrials(hash,games=confirmed()){
+  if(!hash||!hash.startsWith('#trial='))return [];
+  if(hash.length>100000)throw Error('試し入力が長すぎます');
+  const rows=JSON.parse(decodeURIComponent(hash.slice(7))),used=new Set(games.map(key)),seen=new Set();
+  if(!Array.isArray(rows)||rows.length>380)throw Error('試し入力の形式を確認してください');
+  for(const g of rows){if(!validStored(g)||seen.has(key(g)))throw Error('試し入力の形式を確認してください');seen.add(key(g));}
+  return rows.filter(g=>!used.has(key(g))).map(g=>g.slice());
+}
+function updateMonthLink(){const link=$('openMonthForecast');link.href='?view=month-end'+(scenarios.length?'#trial='+encodeURIComponent(JSON.stringify(scenarios)):'');}
 function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
 let fixtureCalendar=null,manualFixture=false,loadingCalendar=false,calendarIssue='';
 function validateCalendar(data,allClubs=false){
@@ -123,7 +137,7 @@ function updateNextFixture(force=false){
   label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}${calendarIssue}`;
 }
 async function refreshFixtureCalendar(){
-  refreshLeagueCalendar();
+  if(MONTH_VIEW)refreshLeagueCalendar();
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
   try{const r=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
@@ -167,7 +181,7 @@ function save(){
     return false;
   }
 }
-function renderScenarios(){const box=$('scenarios'),real=380-confirmed().length,sim=remainingFixtures().length;$('stampData').textContent=`Elo版・確定 ${confirmed().length}試合`;$('statusline').textContent=`Elo K=${ELO_K}・ホーム+${ELO_HOME} ｜ 確定 ${confirmed().length}/380 ｜ 未消化 ${real} ｜ 試し入力 ${scenarios.length} ｜ 計算対象 ${sim}`;$('resetScenario').disabled=!scenarios.length;if(!scenarios.length){box.innerHTML='<div class="empty">試し入力はありません</div>';syncForm();return}box.innerHTML=scenarios.map((g,i)=>`<div class="scenario"><span><span class="tag">試し入力</span> ${g[0]} <strong>${g[2]}–${g[3]}</strong> ${g[1]}</span><button class="remove" data-i="${i}" aria-label="${g[0]}対${g[1]}の試し入力を削除">×</button></div>`).join('');box.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{scenarios.splice(+b.dataset.i,1);renderScenarios();run()});syncForm()}
+function renderScenarios(){updateMonthLink();const box=$('scenarios'),real=380-confirmed().length,sim=remainingFixtures().length;$('stampData').textContent=`Elo版・確定 ${confirmed().length}試合`;$('statusline').textContent=`Elo K=${ELO_K}・ホーム+${ELO_HOME} ｜ 確定 ${confirmed().length}/380 ｜ 未消化 ${real} ｜ 試し入力 ${scenarios.length} ｜ 計算対象 ${sim}`;$('resetScenario').disabled=!scenarios.length;if(!scenarios.length){box.innerHTML='<div class="empty">試し入力はありません</div>';syncForm();return}box.innerHTML=scenarios.map((g,i)=>`<div class="scenario"><span><span class="tag">試し入力</span> ${g[0]} <strong>${g[2]}–${g[3]}</strong> ${g[1]}</span><button class="remove" data-i="${i}" aria-label="${g[0]}対${g[1]}の試し入力を削除">×</button></div>`).join('');box.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{scenarios.splice(+b.dataset.i,1);renderScenarios();run()});syncForm()}
 function renderHero(){const f=lastForecast.find(x=>x.club==='北九州'),b=baseline?.find(x=>x.club==='北九州'),live=liveRows().find(x=>x.club==='北九州');const delta=(v,bv,s='')=>b?`${v-bv>=0?'+':''}${(v-bv).toFixed(1)}${s} vs 現在`:'';$('hero').innerHTML=`<div class="metric"><div class="label">北九州 現在Elo</div><div class="value">${f.elo.toFixed(0)}</div><div class="delta">暫定勝点 ${live.pts}</div></div><div class="metric"><div class="label">最終予想勝点</div><div class="value">${f.points.toFixed(1)}</div><div class="delta">${delta(f.points,b?.points)}</div></div><div class="metric"><div class="label">平均最終順位</div><div class="value">${f.rank.toFixed(1)}位</div><div class="delta">${b?`${(b.rank-f.rank)>=0?'+':''}${(b.rank-f.rank).toFixed(1)}順位改善`:''}</div></div><div class="metric"><div class="label">6位以内確率</div><div class="value">${f.top6.toFixed(1)}%</div><div class="delta">${delta(f.top6,b?.top6,'pt')}</div></div>`}
 function liveRows(){const s=stateWithScenario(),games=[...confirmed(),...scenarios],order=sortOrder(s.pts,s.gf,s.ga,games),hh=h2h(games),sig=i=>{const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i]}})}
 function renderRankChart(){$('rankChart').innerHTML=lastForecast.map(r=>`<div class="rank-row ${r.club==='北九州'?'gira':''}"><div class="rank-club">${r.club}</div><div class="rank-track"><span class="rank-dot" style="left:${Math.max(0,Math.min(100,(r.rank-1)/19*100)).toFixed(1)}%"></span></div><div class="rank-value">${r.rank.toFixed(1)}位</div></div>`).join('')}
@@ -198,10 +212,16 @@ function validateLeagueCalendar(data){
   return data;
 }
 function monthChoices(calendar,today=jstToday()){
+  let through=calendar.coverageThrough;
+  if(calendar.matches.length===380){
+    const lastDate=calendar.matches.reduce((latest,row)=>row.date>latest?row.date:latest,'');
+    const lastMonthEnd=new Date(Date.UTC(+lastDate.slice(0,4),+lastDate.slice(5,7),0)).toISOString().slice(0,10);
+    if(lastMonthEnd<through)through=lastMonthEnd;
+  }
   const out=[];let cursor=new Date(today.slice(0,7)+'-01T00:00:00Z');
-  while(cursor.toISOString().slice(0,10)<=calendar.coverageThrough){
+  while(cursor.toISOString().slice(0,10)<=through){
     const year=cursor.getUTCFullYear(),month=cursor.getUTCMonth()+1,end=new Date(Date.UTC(year,month,0)).toISOString().slice(0,10);
-    if(end<=calendar.coverageThrough&&end>=DATA_AS_OF)out.push({date:end,label:`${year}年${month}月末`});
+    if(end<=through&&end>=DATA_AS_OF)out.push({date:end,label:`${year}年${month}月末`});
     cursor=new Date(Date.UTC(year,month,1));
   }
   return out;
@@ -244,7 +264,7 @@ async function refreshLeagueCalendar(){
 }
 $('monthEnd').onchange=()=>renderMonthForecast();
 let renderPending=false;
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTable();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on')},20)}
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
@@ -286,6 +306,7 @@ window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults(
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
+if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='月末時点の順位予測';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='月末時点の順位予測 · J3';try{scenarios=decodeMonthTrials(window.location.hash);}catch(error){$('error').textContent=error.message;}}
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>

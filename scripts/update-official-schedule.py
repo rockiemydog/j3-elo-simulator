@@ -3,6 +3,7 @@ import argparse, datetime as dt, json, os, re, urllib.parse, urllib.request
 from pathlib import Path
 from importlib import import_module
 TEAMS = import_module('update-official-results').TEAMS
+SEASON_START,SEASON_END=dt.date(2026,8,8),dt.date(2027,7,31)
 
 def parse_schedule(html, all_clubs=False, allow_empty=False):
     chunks = []
@@ -28,7 +29,7 @@ def parse_schedule(html, all_clubs=False, allow_empty=False):
         if not all_clubs and '北九州' not in (h,a): continue
         if h not in TEAMS or a not in TEAMS or h==a or not re.fullmatch(r'\d{10}',ident): raise ValueError('Invalid official fixture')
         day=dt.datetime.strptime(ident[:8],'%Y%m%d').date()
-        if not dt.date(2026,8,8)<=day<=dt.date(2027,7,31): continue
+        if not SEASON_START<=day<=SEASON_END: continue
         status={'ticket':'scheduled','before-game':'scheduled','scheduled':'scheduled','game-over':'finished','postponed':'postponed','cancelled':'cancelled','canceled':'cancelled'}.get(x['state'],'unconfirmed')
         time=x.get('time')
         if not isinstance(time,str) or not re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d',time): time=None
@@ -63,11 +64,10 @@ def month_windows(lo,hi):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--fixture');ap.add_argument('--output',default='official-schedule.json');ap.add_argument('--league-output');args=ap.parse_args()
-    today=dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
     # Include past dates so an unresolved cancelled card cannot disappear just
-    # because the calendar month changes.
-    lo=dt.date(2026,8,8);hi=min(dt.date(2027,7,31),today+dt.timedelta(days=100))
-    if lo>hi: raise ValueError('Season has ended')
+    # because the calendar month changes. Include the full season so month-end
+    # forecasts are not artificially limited to the next 100 days.
+    lo,hi=SEASON_START,SEASON_END
     if args.fixture: pages=[Path(args.fixture).read_text()]
     else:
         # The official search page limits long result lists. Request one month

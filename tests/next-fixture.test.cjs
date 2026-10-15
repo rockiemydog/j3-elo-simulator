@@ -2,13 +2,14 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const main=fs.readFileSync('index.html','utf8'),shared=fs.readFileSync('shared-results.js','utf8'),calendar={verified:true,season:'2026/27',checkedAt:'2026-10-14T11:00:00Z',matches:[
  {id:'2026101728',date:'2026-10-17',time:'14:00',home:'北九州',away:'FC大阪',status:'scheduled'},
  {id:'2026102127',date:'2026-10-21',time:'13:00',home:'福島',away:'北九州',status:'scheduled'}]};
-function app(){
+function app(location={search:'',hash:''}){
+ const timers=[];
  const events={};
  const nodes=new Map();const node=id=>{if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'10':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},querySelectorAll:()=>[],click(){this.onclick?.()}});return nodes.get(id);};
- const ctx={document:{getElementById:node,querySelectorAll:()=>[],addEventListener:(n,f)=>events[n]=f,hidden:false},localStorage:{getItem(){return null;}},setTimeout(){return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=(n,f)=>events[n]=f;ctx.dispatchEvent=()=>{};
+ const ctx={location,document:{getElementById:node,querySelectorAll:()=>[],addEventListener:(n,f)=>events[n]=f,hidden:false},localStorage:{getItem(){return null;}},setTimeout(f,ms){if(ms===20)timers.push(f);return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=(n,f)=>events[n]=f;ctx.dispatchEvent=()=>{};
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(main.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);
  ctx.calendar=structuredClone(calendar);vm.runInContext('fixtureCalendar=validateCalendar(calendar);updateNextFixture()',ctx);
- return {ctx,node,events,eval:s=>vm.runInContext(s,ctx)};
+ return {ctx,node,events,flushRender:()=>{while(timers.length)timers.shift()();},eval:s=>vm.runInContext(s,ctx)};
 }
 test('first display selects official next fixture with correct home/away and kickoff',()=>{
  const a=app();assert.equal(a.node('home').value,'北九州');assert.equal(a.node('away').value,'FC大阪');assert.match(a.node('nextFixtureStatus').textContent,/2026-10-17 14:00/);
@@ -89,4 +90,13 @@ test('an unchanged but expired monthly calendar clears predictions rather than s
 });
 test('older monthly calendar cannot undo a known cancellation',async()=>{
  const a=monthAudit('2026-10-15T22:30:00Z');a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status='cancelled';renderMonthForecast(10)");a.ctx.fetch=async()=>({ok:true,json:async()=>({...structuredClone(a.ctx.league),checkedAt:'2026-10-15T21:30:00Z'})});await a.eval('refreshLeagueCalendar()');assert.equal(a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status"),'cancelled');assert.match(a.node('monthSummary').textContent,/13試合/);assert.match(a.node('monthStatus').textContent,/再取得失敗/);
+});
+test('month forecast opens as a separate view with its own title and no final-season simulation',()=>{
+ const a=app({search:'?view=month-end',hash:''});a.flushRender();assert.equal(a.eval('MONTH_VIEW'),true);assert.equal(a.node('monthSection').hidden,false);assert.equal(a.node('pageTitle').textContent,'月末時点の順位予測');assert.equal(a.eval('lastForecast'),null);
+ assert.match(main,/id="monthSection"[^>]*hidden/);assert.match(main,/id="openMonthForecast"[^>]*target="_blank"[^>]*rel="noopener"/);assert.match(main,/body\.month-view \.final-only/);
+ const b=app();b.flushRender();assert.equal(b.eval('MONTH_VIEW'),false);assert.equal(b.eval('lastForecast.length'),20);
+});
+test('opening month view carries only valid unconfirmed trial rows without saving official results',()=>{
+ const source=app();source.eval("scenarios=[['北九州','FC大阪',2,0]];renderScenarios()");const hash=source.node('openMonthForecast').href.split('#')[1];assert(hash);const target=app({search:'?view=month-end',hash:'#'+hash});assert.equal(target.eval('scenarios.length'),1);assert.equal(target.eval('scenarios[0][2]'),2);assert.equal(target.eval('confirmed().length'),source.eval('confirmed().length'));target.eval('scenarios=[]');assert.equal(source.eval('scenarios.length'),1);
+ const invalid='#trial='+encodeURIComponent(JSON.stringify([['北九州','FC大阪',-1,0]])),bad=app({search:'?view=month-end',hash:invalid});assert.equal(bad.eval('scenarios.length'),0);
 });
