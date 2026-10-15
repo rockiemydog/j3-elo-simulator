@@ -28,6 +28,17 @@ class Tests(unittest.TestCase):
   row=self.row();other=self.row();other['id']='2026101828'
   for rows in [[],[row,other]]:
    with self.assertRaises(ValueError):module.parse_schedule(self.html(rows))
+ def test_explicit_postponement_and_replacement_are_reconciled_once(self):
+  for state in ['postponed','cancelled']:
+   old=self.row(state);new=self.row();new['id']='2026110128';new['detailHref']='/match/j3/2026/110128'
+   rows=module.parse_schedule(self.html([old,new]),all_clubs=True);self.assertEqual(len(rows),1);self.assertEqual(rows[0]['date'],'2026-11-01');self.assertEqual(rows[0]['home'],'北九州');self.assertEqual(rows[0]['away'],'FC大阪')
+   merged=module.reconcile_rescheduled(module.parse_schedule(self.html([old]))+module.parse_schedule(self.html([new])))
+   self.assertEqual(merged,rows)
+ def test_ambiguous_dates_never_reactivate_a_cancelled_or_duplicate_card(self):
+  old=self.row();new=self.row('cancelled');new['id']='2026110128';new['detailHref']='/match/j3/2026/110128'
+  with self.assertRaises(ValueError):module.parse_schedule(self.html([old,new]))
+  old=self.row('game-over');new['state']='ticket'
+  with self.assertRaises(ValueError):module.parse_schedule(self.html([old,new]))
  def test_missing_cancelled_card_is_preserved_until_official_completion(self):
   old=dict(id='2026101728',date='2026-10-17',time='14:00',home='北九州',away='FC大阪',status='cancelled')
   self.assertEqual(module.preserve_unresolved([],[old]),[old])
