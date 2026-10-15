@@ -12,6 +12,7 @@
 .stepper input{font:inherit;font-size:22px;font-weight:700}.data-ready{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#eef4ff;border:1px solid #b2ccff;border-radius:12px;padding:13px 15px;margin:-6px 0 18px}.data-ready strong{display:block;color:#0b3b8c}.data-ready span{display:block;color:var(--muted);font-size:12px;margin-top:2px}.data-ready.ok{background:#ecfdf3;border-color:#abefc6}.data-audit{font-size:12px;color:var(--muted);line-height:1.7}.source-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}.source-links a{color:var(--blue)}@media(max-width:520px){.data-ready{align-items:stretch;flex-direction:column}.data-ready .btn{width:100%}}
 .distribution{margin:18px 0 22px;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.distribution h2{margin:0 0 12px}.distribution label{font-size:12px;font-weight:700}.distribution select{margin-left:8px;padding:8px 10px;min-height:44px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:var(--ink);font:inherit}.distribution-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.distribution svg{display:block;width:100%;min-width:600px;height:auto}.distribution-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;color:var(--muted)}.distribution-legend span::before{content:'';display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:2px;background:var(--zone)}.distribution .sub{margin:8px 0 0;line-height:1.7}.distribution-summary{font-size:12px;font-weight:700;color:var(--ink);margin:10px 0 0}@media(max-width:520px){.distribution{padding:12px}}
 .month-only{display:none}body.month-view .month-only{display:block}body.month-view .final-only,body.month-view .month-navigation{display:none}body.month-view #monthSection{border:0;margin:0;padding:0}a#openMonthForecast{display:block;border:1px solid var(--line);border-radius:10px;padding:12px;font-weight:700;background:#fff9e6}
+.month-planner{border:1px solid #e4e7ec;border-radius:12px;padding:14px;margin:16px 0;background:#fafbfe}.month-planner details{border-top:1px solid #e4e7ec;padding:12px 0}.month-planner summary{font-weight:700;cursor:pointer;min-height:44px;padding:10px 0}.month-planner select{max-width:100%;margin:4px 0;min-height:44px}.month-planner .actions{flex-wrap:wrap}.month-planner td,.month-planner th{white-space:nowrap}.month-planner .table-wrap{margin:10px 0;max-height:360px}.next-value-row{display:grid;grid-template-columns:100px 1fr 60px;gap:8px;align-items:center;margin:10px 0;font-size:12px}.next-value-track{height:16px;background:#e4e7ec;border-radius:5px;overflow:hidden}.next-value-track span{display:block;height:100%}.month-planner h4{margin:14px 0 4px}
 </style>
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
@@ -55,6 +56,34 @@
         <label for="monthEnd">予測する月末</label><select id="monthEnd" disabled><option value="">全クラブの日程を確認中</option></select>
         <p class="sub" id="monthStatus" aria-live="polite">全20クラブの公式日程を取得しています。</p>
         <p class="distribution-summary" id="monthSummary" aria-live="polite"></p>
+        <section class="month-planner" aria-label="月末までの勝敗シナリオ">
+          <h3>勝ち方を変えて、月末の順位を試す</h3>
+          <p class="sub" id="plannerStatus" aria-live="polite">日程を確認しています。</p>
+          <p class="sub">以下は仮の結果です。公式成績は変更しません。指定しない試合はEloで予測します。勝利は1–0、引分けは1–1、敗戦は0–1を北九州側から割り当てます。</p>
+          <details open><summary>① 北九州の勝敗パターンを比較</summary>
+            <p class="sub">選択した月末までの北九州の未消化試合が対象です。比較は日程順に「勝ち→分け→負け」を割り当てます。同じ勝敗数でも相手によって順位予測は変わります。</p>
+            <button class="btn" id="comparePatterns" type="button" disabled>勝敗パターンを比較する</button>
+            <div class="table-wrap"><table aria-label="北九州の勝敗パターン比較"><thead><tr><th>勝敗パターン</th><th>追加勝点</th><th>月末予想勝点</th><th>平均順位</th><th>6位以内</th><th>反映</th></tr></thead><tbody id="patternRows"></tbody></table></div>
+            <p class="sub" id="patternStatus" aria-live="polite">比較ボタンで全勝などのパターンを並べます。</p>
+            <h4>試合ごとに割り当てを変更</h4>
+            <div class="table-wrap"><table aria-label="北九州の試合別シナリオ"><thead><tr><th>日程</th><th>ホーム 対 アウェー</th><th>北九州の結果</th></tr></thead><tbody id="kitPlanRows"></tbody></table></div>
+          </details>
+          <details><summary>② 次戦に勝つ価値を比較</summary>
+            <p class="sub" id="nextValueFixture">次戦を確認しています。</p>
+            <button class="btn" id="compareNextValue" type="button" disabled>次戦の勝ち・分け・負けを比較する</button>
+            <p class="sub">次戦だけを勝ち・分け・負けに置き換え、それ以外の試し入力を共通条件にして比較します。</p>
+            <div id="nextValueChart" class="next-value-chart" aria-live="polite"></div>
+            <div class="table-wrap"><table aria-label="次戦の結果別月末予測"><thead><tr><th>次戦の結果</th><th>月末予想勝点</th><th>平均順位</th><th>6位以内</th><th>反映</th></tr></thead><tbody id="nextValueRows"></tbody></table></div>
+            <p class="sub" id="nextValueStatus" aria-live="polite"></p>
+          </details>
+          <details><summary>③ ライバルの結果も指定</summary>
+            <p class="sub">選択した月末までの他クラブの開催予定カードです。現在6位のクラブが関わる試合を先頭に表示します。ホームとアウェーを確認して指定してください。</p>
+            <label for="rivalFixture">ライバルの対戦カード</label><select id="rivalFixture" disabled><option value="">日程を確認中</option></select>
+            <div class="actions rival-actions"><button class="btn" id="rivalHomeWin" disabled type="button">ホーム勝ち</button><button class="btn" id="rivalDraw" disabled type="button">引分け</button><button class="btn" id="rivalAwayWin" disabled type="button">アウェー勝ち</button><button class="btn" id="rivalClear" disabled type="button">この指定を解除</button></div>
+            <p class="sub" id="rivalStatus" aria-live="polite"></p>
+          </details>
+          <p class="sub" id="plannerNotice" aria-live="polite"></p>
+        </section>
         <h3>現在順位から月末予測への動き</h3>
         <p class="sub">左ほど上位。○は現在の確定順位、●は選択した月末の平均予想順位です。←は上昇、→は下降。試し入力は月末予測にだけ反映します。</p>
         <div class="distribution-scroll" id="monthRankChart" aria-live="polite"></div>
@@ -253,10 +282,107 @@ function renderMonthRankChart(rows){
   }).join('');
   $('monthRankChart').innerHTML=`<svg viewBox="0 0 770 844" role="img" aria-labelledby="monthChartTitle monthChartDesc" xmlns="http://www.w3.org/2000/svg"><title id="monthChartTitle">${$('monthEnd').value}の平均予想順位と現在の確定順位</title><desc id="monthChartDesc">左が1位、右が20位。白丸は公式結果だけの現在順位、色付き丸は月末の平均予想順位。矢印は現在順位から月末予測への移動を示します。順位差は現在順位から小数第1位で表示した平均予想順位を引きます。</desc><defs>${[['up','#175cd3'],['down','#d83043']].map(([id,color])=>`<marker id="monthArrow-${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`).join('')}</defs>${grid}${lines}</svg>`;
 }
+let patternComparison=null,nextValueComparison=null,plannerBusy=false;
+const fixtureKey=r=>r.home+'|'+r.away;
+function monthPlannerContext(){
+  const context=monthContext($('monthEnd').value),allowed=new Set(context.pairs.map(([h,a])=>teams[h]+'|'+teams[a]));
+  const cards=leagueCalendar.matches.filter(r=>allowed.has(fixtureKey(r))).slice().sort((a,b)=>(a.date+'T'+(a.time||'23:59')).localeCompare(b.date+'T'+(b.time||'23:59'))||a.id.localeCompare(b.id));
+  return {...context,cards,kit:cards.filter(r=>r.home==='北九州'||r.away==='北九州')};
+}
+function northOutcome(row,outcome){
+  if(!['win','draw','loss'].includes(outcome)||!(row.home==='北九州'||row.away==='北九州'))throw Error('北九州の対戦カード・結果を確認してください');
+  const score=representativeScore(outcome==='draw'?1:(outcome==='win')===(row.home==='北九州')?0:2);
+  return [row.home,row.away,...score];
+}
+function patternSpecs(count){
+  const options=[[count,0,0],[Math.max(0,count-1),0,Math.min(1,count)],[Math.floor(count/2),count>0?1:0,count-Math.floor(count/2)-(count>0?1:0)],[0,0,count]];
+  return count?options.filter((a,i)=>options.findIndex(b=>a.join(',')===b.join(','))===i):[];
+}
+function buildMonthPattern(cards,spec){
+  if(spec.length!==3||spec.some(v=>!Number.isInteger(v)||v<0)||spec.reduce((a,b)=>a+b,0)!==cards.length)throw Error('勝敗数と対象試合数が一致しません');
+  return cards.map((row,i)=>northOutcome(row,i<spec[0]?'win':i<spec[0]+spec[1]?'draw':'loss'));
+}
+function conditionedTrials(context,changes){const replaced=new Set(changes.map(key));return [...context.what.filter(g=>!replaced.has(key(g))),...changes];}
+function plannerSignature(context,kind){
+  const next=chooseNextFixture(leagueCalendar),omit=kind==='pattern'?new Set(context.kit.map(fixtureKey)):new Set(next?[fixtureKey(next)]:[]);
+  return JSON.stringify([$('monthEnd').value,+$('runs').value,confirmed(),context.cards,context.what.filter(g=>!omit.has(key(g)))]);
+}
+function replaceMonthTrials(changes,removeKeys=[]){
+  const context=monthPlannerContext(),allowed=new Set(context.cards.map(fixtureKey)),seen=new Set();
+  for(const g of changes){if(!validStored(g)||!allowed.has(key(g))||seen.has(key(g)))throw Error('開催予定の未消化カードだけを指定してください');seen.add(key(g));}
+  if(removeKeys.some(k=>!allowed.has(k)))throw Error('対象外の対戦カードです');
+  const replace=new Set([...changes.map(key),...removeKeys]);scenarios=[...scenarios.filter(g=>!replace.has(key(g))),...changes.map(g=>g.slice())];renderScenarios();run();
+}
+function plannerNext(context){
+  const next=chooseNextFixture(leagueCalendar);
+  return next&&next.status==='scheduled'&&context.kit.some(r=>fixtureKey(r)===fixtureKey(next))?next:null;
+}
+function calculatePatterns(n=+$('runs').value){
+  const context=monthPlannerContext();
+  if(!context.kit.length)throw Error('この月末までに北九州の開催予定試合がありません');
+  const signature=plannerSignature(context,'pattern'),rows=patternSpecs(context.kit.length).map(spec=>{const changes=buildMonthPattern(context.kit,spec),forecast=simulate(n,conditionedTrials(context,changes),context.pairs).find(r=>r.club==='北九州');return {spec,changes,forecast};});
+  patternComparison={signature,rows};return patternComparison;
+}
+function calculateNextValue(n=+$('runs').value){
+  const context=monthPlannerContext(),next=plannerNext(context);
+  if(!next)throw Error('次戦が対象月外、または中止・延期・開催状況未確認のため比較できません');
+  const rows=['win','draw','loss'].map(outcome=>{const game=northOutcome(next,outcome),forecast=simulate(n,conditionedTrials(context,[game]),context.pairs).find(r=>r.club==='北九州');return {outcome,game,forecast};});
+  nextValueComparison={signature:plannerSignature(context,'next'),rows};return nextValueComparison;
+}
+function clearMonthPlanner(message){
+  for(const id of ['comparePatterns','compareNextValue','rivalFixture','rivalHomeWin','rivalDraw','rivalAwayWin','rivalClear'])$(id).disabled=true;
+  for(const id of ['patternRows','kitPlanRows','nextValueRows','nextValueChart'])$(id).innerHTML='';
+  $('plannerStatus').textContent=message;$('patternStatus').textContent='';$('nextValueFixture').textContent=message;$('nextValueStatus').textContent='';$('rivalStatus').textContent=message;
+  $('rivalFixture').innerHTML='<option value="">対象カードなし</option>';patternComparison=null;nextValueComparison=null;
+}
+function renderMonthPlanner(context=monthPlannerContext()){
+  const next=plannerNext(context),ranks=new Map(liveRows([]).map(r=>[r.club,r.rank])),sixth=new Set([...ranks].filter(([,rank])=>rank===6).map(([club])=>club));
+  $('plannerStatus').textContent=`対象：${$('monthEnd').value}まで ／ 北九州 ${context.kit.length}試合 ／ 他クラブ ${context.cards.length-context.kit.length}試合。追加勝点＝3×勝数＋引分数。`;
+  $('comparePatterns').disabled=plannerBusy||!context.kit.length;$('compareNextValue').disabled=plannerBusy||!next;
+  $('nextValueFixture').textContent=next?`${next.date} ／ ホーム ${next.home} 対 アウェー ${next.away}`:'次戦が対象月外、または中止・延期・開催状況未確認のため比較できません。';
+  const choices=[['auto','指定なし（Elo予測）'],['win','北九州の勝ち'],['draw','引分け'],['loss','北九州の負け']];
+  $('kitPlanRows').innerHTML=context.kit.map(row=>{const game=scenarios.find(g=>key(g)===fixtureKey(row)),outcome=!game?'auto':game[2]===game[3]?'draw':(game[2]>game[3])===(row.home==='北九州')?'win':'loss';return `<tr><td>${row.date}</td><td>${row.home} 対 ${row.away}</td><td><select data-kit="${fixtureKey(row)}" aria-label="${row.date} ${row.home}対${row.away}の北九州の結果">${choices.map(([value,label])=>`<option value="${value}"${value===outcome?' selected':''}>${label}</option>`).join('')}</select></td></tr>`;}).join('');
+  $('kitPlanRows').querySelectorAll('[data-kit]').forEach(select=>select.onchange=()=>{try{const row=monthPlannerContext().kit.find(r=>fixtureKey(r)===select.dataset.kit);if(!row)throw Error('日程が変更されました');replaceMonthTrials(select.value==='auto'?[]:[northOutcome(row,select.value)],select.value==='auto'?[fixtureKey(row)]:[]);$('plannerNotice').textContent='試合別の指定を月末予測に反映しました。';}catch(error){$('plannerNotice').textContent=error.message;}});
+  if(patternComparison?.signature!==plannerSignature(context,'pattern'))patternComparison=null;
+  $('patternRows').innerHTML=patternComparison?patternComparison.rows.map(({spec,forecast:r},i)=>`<tr><td>${spec[0]}勝${spec[1]}分${spec[2]}敗</td><td>＋${3*spec[0]+spec[1]}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td><button class="btn" data-pattern="${i}" type="button">このパターンを反映</button></td></tr>`).join(''):'';
+  $('patternStatus').textContent=patternComparison?'他クラブの指定は共通条件です。反映ボタンで下のグラフ・表を更新します。':context.kit.length?'比較ボタンで全勝などのパターンを並べます。':'対象の北九州の試合はありません。';
+  $('patternRows').querySelectorAll('[data-pattern]').forEach(button=>button.onclick=()=>{try{const fresh=monthPlannerContext();if(!patternComparison||patternComparison.signature!==plannerSignature(fresh,'pattern'))throw Error('条件が変わったため、もう一度比較してください');replaceMonthTrials(patternComparison.rows[+button.dataset.pattern].changes);$('plannerNotice').textContent='勝敗パターンを月末予測に反映しました。試合別に変更できます。';}catch(error){$('plannerNotice').textContent=error.message;}});
+  if(nextValueComparison?.signature!==plannerSignature(context,'next'))nextValueComparison=null;
+  const labels={win:'北九州の勝ち',draw:'引分け',loss:'北九州の負け'},colors={win:'#175cd3',draw:'#e5ac00',loss:'#d83043'};
+  $('nextValueRows').innerHTML=nextValueComparison?nextValueComparison.rows.map(({outcome,forecast:r},i)=>`<tr><td>${labels[outcome]}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td><button class="btn" data-next-value="${i}" type="button">この結果を反映</button></td></tr>`).join(''):'';
+  const ceiling=nextValueComparison?Math.max(5,Math.ceil(Math.max(...nextValueComparison.rows.map(r=>r.forecast.top6))/5)*5):100;
+  $('nextValueChart').innerHTML=nextValueComparison?`<p class="sub">月末6位以内確率（棒の右端＝${ceiling}％）</p>`+nextValueComparison.rows.map(({outcome,forecast:r})=>`<div class="next-value-row"><span>${labels[outcome]}</span><div class="next-value-track"><span style="width:${r.top6/ceiling*100}%;background:${colors[outcome]}"></span></div><strong>${r.top6.toFixed(1)}％</strong></div>`).join(''):'';
+  if(nextValueComparison){const win=nextValueComparison.rows[0].forecast,loss=nextValueComparison.rows[2].forecast;$('nextValueStatus').textContent=`勝利時−敗戦時：予想勝点 ${(win.points-loss.points).toFixed(1)}点差 ／ 平均順位 ${(loss.rank-win.rank).toFixed(1)}位改善 ／ 6位以内確率 ${(win.top6-loss.top6).toFixed(1)}ポイント差。確率は予測で、順位の確約ではありません。`;}
+  else $('nextValueStatus').textContent='比較ボタンで、他の試し入力を共通条件にした3通りの月末予測を計算します。';
+  $('nextValueRows').querySelectorAll('[data-next-value]').forEach(button=>button.onclick=()=>{try{const fresh=monthPlannerContext();if(!nextValueComparison||nextValueComparison.signature!==plannerSignature(fresh,'next'))throw Error('条件が変わったため、もう一度比較してください');replaceMonthTrials([nextValueComparison.rows[+button.dataset.nextValue].game]);$('plannerNotice').textContent='次戦の指定を月末予測に反映しました。';}catch(error){$('plannerNotice').textContent=error.message;}});
+  const rivals=context.cards.filter(r=>r.home!=='北九州'&&r.away!=='北九州').sort((a,b)=>Number(sixth.has(b.home)||sixth.has(b.away))-Number(sixth.has(a.home)||sixth.has(a.away)));
+  const picker=$('rivalFixture'),old=picker.value;picker.innerHTML=rivals.map(r=>`<option value="${fixtureKey(r)}">${r.date} H:${r.home}（${ranks.get(r.home)}位） 対 A:${r.away}（${ranks.get(r.away)}位）</option>`).join('')||'<option value="">対象カードなし</option>';picker.value=rivals.some(r=>fixtureKey(r)===old)?old:rivals[0]?fixtureKey(rivals[0]):'';
+  for(const id of ['rivalFixture','rivalHomeWin','rivalDraw','rivalAwayWin','rivalClear'])$(id).disabled=!rivals.length;
+  renderRivalStatus();
+}
+function renderRivalStatus(){
+  const row=leagueCalendar?.matches.find(r=>fixtureKey(r)===$('rivalFixture').value);if(!row){$('rivalStatus').textContent='対象の他クラブの試合はありません。';return;}
+  $('rivalHomeWin').textContent=`ホーム ${row.home} の勝ち`;$('rivalAwayWin').textContent=`アウェー ${row.away} の勝ち`;
+  const game=scenarios.find(g=>key(g)===fixtureKey(row));$('rivalStatus').textContent=game?`指定中：ホーム ${row.home} ${game[2]}–${game[3]} アウェー ${row.away}`:'指定なし：この試合はEloで予測します。';
+}
+function setRivalOutcome(outcome){
+  const context=monthPlannerContext(),row=context.cards.find(r=>fixtureKey(r)===$('rivalFixture').value&&r.home!=='北九州'&&r.away!=='北九州');
+  if(!row)throw Error('対象の他クラブのカードを選択してください');
+  if(outcome==='auto')replaceMonthTrials([],[fixtureKey(row)]);
+  else{if(![0,1,2].includes(outcome))throw Error('勝敗の指定を確認してください');replaceMonthTrials([[row.home,row.away,...representativeScore(outcome)]]);}
+  renderRivalStatus();$('plannerNotice').textContent='ライバルの指定を月末予測に反映しました。';
+}
+function requestMonthComparison(kind){
+  if(plannerBusy)return;plannerBusy=true;$('comparePatterns').disabled=true;$('compareNextValue').disabled=true;$('plannerNotice').textContent='勝敗別に計算しています…';
+  setTimeout(()=>{try{if(kind==='pattern')calculatePatterns();else calculateNextValue();renderMonthPlanner();$('plannerNotice').textContent='比較が完了しました。反映ボタンで月末予測へ適用できます。';}catch(error){$('plannerNotice').textContent=error.message;}finally{plannerBusy=false;try{renderMonthPlanner();}catch{renderMonthForecast();}}},20);
+}
+$('comparePatterns').onclick=()=>requestMonthComparison('pattern');$('compareNextValue').onclick=()=>requestMonthComparison('next');$('rivalFixture').onchange=renderRivalStatus;
+for(const [id,outcome] of [['rivalHomeWin',0],['rivalDraw',1],['rivalAwayWin',2],['rivalClear','auto']])$(id).onclick=()=>{try{setRivalOutcome(outcome);}catch(error){$('plannerNotice').textContent=error.message;}};
+
 function renderMonthForecast(n=+$('runs').value){
   lastMonthRenderDay=jstToday();
   const picker=$('monthEnd');
-  if(!leagueCalendar){$('monthRankChart').innerHTML='';$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
+  if(!leagueCalendar){clearMonthPlanner('全クラブの日程を取得できるまで比較はできません。');$('monthRankChart').innerHTML='';$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
   const options=monthChoices(leagueCalendar),old=picker.value;
   picker.innerHTML=options.map(r=>`<option value="${r.date}">${r.label}</option>`).join('');
   picker.value=options.some(r=>r.date===old)?old:options[0]?.date||'';picker.disabled=!options.length;
@@ -265,8 +391,9 @@ function renderMonthForecast(n=+$('runs').value){
     $('monthStatus').textContent=`${picker.value} 日本時間時点 ／ 確認範囲 ${leagueCalendar.coverageThrough}まで ／ 開催予定 ${context.pairs.length}試合 ／ 中止・延期・開催状況未確認で除外 ${context.excluded}試合 ／ 対象外の試し入力 ${context.ignoredTrials}件${leagueIssue}`;
     $('monthSummary').textContent=`北九州：予想勝点 ${kitakyushu.points.toFixed(1)} ／ 平均順位 ${kitakyushu.rank.toFixed(1)}位 ／ 6位以内 ${kitakyushu.top6.toFixed(1)}％ ／ 予想消化 ${context.played[ix['北九州']]}試合`;
     renderMonthRankChart(rows);
+    renderMonthPlanner();
     $('monthRows').innerHTML=rows.map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td style="text-align:left;font-weight:700">${r.club}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td>${context.played[ix[r.club]]}試合</td></tr>`).join('');
-  }catch(error){$('monthStatus').textContent=`月末予測は表示できません：${error.message}。${leagueIssue}`;$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthRankChart').innerHTML='';}
+  }catch(error){clearMonthPlanner(error.message);$('monthStatus').textContent=`月末予測は表示できません：${error.message}。${leagueIssue}`;$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthRankChart').innerHTML='';}
 }
 async function refreshLeagueCalendar(){
   if(loadingLeagueCalendar||typeof window.fetch!=='function')return;loadingLeagueCalendar=true;
@@ -279,7 +406,7 @@ async function refreshLeagueCalendar(){
   }catch{leagueIssue=' ／ 全クラブの日程の再取得失敗（最新の変更は未確認）';renderMonthForecast();}
   finally{clearTimeout(timer);loadingLeagueCalendar=false;}
 }
-$('monthEnd').onchange=()=>renderMonthForecast();
+$('monthEnd').onchange=()=>{$('plannerNotice').textContent='';renderMonthForecast();};
 let renderPending=false;
 function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
