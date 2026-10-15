@@ -186,7 +186,7 @@ function renderRankDistribution(){
 }
 function renderTable(){if(activeTab==='forecast'){$('thead').innerHTML='<tr><th>予測</th><th>クラブ</th><th>Elo</th><th>予想勝点</th><th>平均順位</th><th>2位以内</th><th>6位以内</th><th title="20位で終わった回数 ÷ 計算回数 × 100">最下位確率</th></tr>';$('tbody').innerHTML=lastForecast.map((r,i)=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank"><span class="zone ${i<2?'auto':i<6?'po':''}">${i+1}</span></td><td>${r.club}</td><td>${r.elo.toFixed(0)}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}</td><td>${r.top2.toFixed(1)}%</td><td>${r.top6.toFixed(1)}%</td><td>${r.last.toFixed(1)}%</td></tr>`).join('')}else{$('thead').innerHTML='<tr><th>順位</th><th>クラブ</th><th>勝点</th><th>試合</th><th>勝</th><th>分</th><th>敗</th><th>得失</th></tr>';$('tbody').innerHTML=liveRows().map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank">${r.rank}${r.tied?'=':''}</td><td>${r.club}</td><td>${r.pts}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td></tr>`).join('')}}
 function renderVerification(){const s=stateWithScenario(),i=ix['北九州'];const displayed={played:s.p[i],points:s.pts[i],wins:s.w[i],draws:s.d[i],losses:s.l[i],gf:s.gf[i],ga:s.ga[i]};const report=J3Results.verification(displayed,scenarios.length===0&&J3Results.resultId(confirmed())===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('autoStatus').textContent=J3Results.statusText(report.ok);}
-let leagueCalendar=null,loadingLeagueCalendar=false,leagueIssue='';
+let leagueCalendar=null,loadingLeagueCalendar=false,leagueIssue='',lastMonthRenderDay='';
 const jstToday=()=>new Date(Date.now()+9*3600000).toISOString().slice(0,10);
 function validateLeagueCalendar(data){
   validateCalendar(data,true);
@@ -218,6 +218,7 @@ function monthContext(cutoff,today=jstToday()){
   return {pairs:eligible.map(r=>[ix[r.home],ix[r.away]]),what,played,excluded:rows.length-eligible.length,ignoredTrials:scenarios.length-what.length};
 }
 function renderMonthForecast(n=+$('runs').value){
+  lastMonthRenderDay=jstToday();
   const picker=$('monthEnd');
   if(!leagueCalendar){$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
   const options=monthChoices(leagueCalendar),old=picker.value;
@@ -237,7 +238,7 @@ async function refreshLeagueCalendar(){
     const response=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/league-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});
     if(!response.ok)throw Error('League calendar unavailable');const data=validateLeagueCalendar(await response.json());
     if(leagueCalendar&&Date.parse(data.checkedAt)<Date.parse(leagueCalendar.checkedAt))throw Error('Older league calendar');
-    const changed=JSON.stringify(data)!==JSON.stringify(leagueCalendar),hadIssue=!!leagueIssue;leagueCalendar=data;leagueIssue='';if(changed||hadIssue||!$('monthRows').innerHTML||Date.now()-Date.parse(data.checkedAt)>24*3600000)renderMonthForecast();
+    const changed=JSON.stringify(data)!==JSON.stringify(leagueCalendar),hadIssue=!!leagueIssue;leagueCalendar=data;leagueIssue='';if(changed||hadIssue||lastMonthRenderDay!==jstToday()||!$('monthRows').innerHTML||Date.now()-Date.parse(data.checkedAt)>24*3600000)renderMonthForecast();
   }catch{leagueIssue=' ／ 全クラブの日程の再取得失敗（最新の変更は未確認）';renderMonthForecast();}
   finally{clearTimeout(timer);loadingLeagueCalendar=false;}
 }
