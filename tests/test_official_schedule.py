@@ -9,6 +9,16 @@ class Tests(unittest.TestCase):
  def test_statuses_and_time(self):
   for state,expected in [('ticket','scheduled'),('game-over','finished'),('postponed','postponed'),('cancelled','cancelled'),('unknown','unconfirmed')]:self.assertEqual(module.parse_schedule(self.html([self.row(state)]))[0]['status'],expected)
   row=self.row();row['time']='未定';self.assertIsNone(module.parse_schedule(self.html([row]))[0]['time'])
+ def test_all_club_scope_preserves_other_cards_and_north_scope(self):
+  row=self.row();row['id']='2026101729';row['homeTeam']['name']='愛媛';row['awayTeam']['name']='鹿児島'
+  page=self.html([self.row(),row]);self.assertEqual(len(module.parse_schedule(page)),1);self.assertEqual(len(module.parse_schedule(page,all_clubs=True)),2)
+ def test_empty_offseason_is_allowed_but_malformed_page_is_not(self):
+  self.assertEqual(module.parse_schedule(self.html([]),all_clubs=True,allow_empty=True),[])
+  with self.assertRaises(ValueError):module.parse_schedule('<html>Error</html>',all_clubs=True,allow_empty=True)
+ def test_monthly_requests_cover_every_day_without_long_search_truncation(self):
+  spans=list(module.month_windows(dt.date(2026,8,8),dt.date(2027,1,24)))
+  self.assertEqual(len(spans),6);self.assertEqual(spans[0],(dt.date(2026,8,8),dt.date(2026,8,31)));self.assertEqual(spans[-1],(dt.date(2027,1,1),dt.date(2027,1,24)))
+  for (_,end),(start,_) in zip(spans,spans[1:]):self.assertEqual(end+dt.timedelta(days=1),start)
  def test_cup_and_unknown_club(self):
   row=self.row();row['detailHref']='/match/leaguecup/2026/101728'
   with self.assertRaises(ValueError):module.parse_schedule(self.html([row]))

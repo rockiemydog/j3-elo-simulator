@@ -46,6 +46,14 @@
     </aside>
     <section class="panel">
       <div class="statusline" id="statusline"></div><div class="sub" id="uncertainty"></div><div class="hero" id="hero"></div>
+      <section class="distribution" aria-labelledby="monthTitle">
+        <h2 id="monthTitle">月末時点の順位予測</h2>
+        <label for="monthEnd">予測する月末</label><select id="monthEnd" disabled><option value="">全クラブの日程を確認中</option></select>
+        <p class="sub" id="monthStatus" aria-live="polite">全20クラブの公式日程を取得しています。</p>
+        <p class="distribution-summary" id="monthSummary" aria-live="polite"></p>
+        <div class="table-wrap"><table aria-label="月末時点の順位予測"><thead><tr><th>クラブ</th><th>予想勝点</th><th>平均順位</th><th>6位以内</th><th>予想消化試合</th></tr></thead><tbody id="monthRows"></tbody></table></div>
+        <p class="sub">現在の確定勝点＋選択した月末までの開催予定試合を予測。中止・延期・開催未確認の未消化試合は除外します。試し入力は対象期間のカードだけに反映します。平均順位・6位以内確率は月末時点の予測で、シーズン最終予測とは異なります。日程変更により試合数も変わります。</p>
+      </section>
       <section class="distribution" aria-labelledby="distributionTitle">
         <h2 id="distributionTitle">最終順位の確率分布</h2>
         <label for="rankDistributionClub">表示クラブ</label><select id="rankDistributionClub"><option selected>北九州</option></select>
@@ -84,12 +92,12 @@ let lastSavedExtras=confirmedExtra.map(g=>g.slice());
 const $=id=>document.getElementById(id);
 function initSelects(){for(const id of ['home','away'])$(id).innerHTML='<option value="">クラブを選択</option>'+teams.map(t=>`<option>${t}</option>`).join('');$('home').value='北九州';$('away').value=''}
 let fixtureCalendar=null,manualFixture=false,loadingCalendar=false,calendarIssue='';
-function validateCalendar(data){
-  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||data.matches.length>38||typeof data.checkedAt!=='string'||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
+function validateCalendar(data,allClubs=false){
+  if(data?.verified!==true||data.season!=='2026/27'||!Array.isArray(data.matches)||data.matches.length>(allClubs?380:38)||typeof data.checkedAt!=='string'||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('Invalid calendar');
   const seen=new Set(),cards=new Set();
   for(const row of data.matches){
     if(!row||!/^\d{10}$/.test(row.id)||seen.has(row.id)||!/^\d{4}-\d{2}-\d{2}$/.test(row.date)||new Date(row.date+'T00:00:00Z').toISOString().slice(0,10)!==row.date||!teams.includes(row.home)||!teams.includes(row.away)||row.home===row.away||!['scheduled','finished','postponed','cancelled','unconfirmed'].includes(row.status)||!(row.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time)))throw Error('Invalid fixture');
-    if(typeof row.id!=='string'||row.id.slice(0,8)!==row.date.replaceAll('-','')||(row.home!=='北九州'&&row.away!=='北九州')||row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
+    if(typeof row.id!=='string'||row.id.slice(0,8)!==row.date.replaceAll('-','')||(!allClubs&&row.home!=='北九州'&&row.away!=='北九州')||row.date<'2026-08-08'||row.date>'2027-07-31'||cards.has(row.home+'|'+row.away))throw Error('Invalid fixture calendar');
     seen.add(row.id);cards.add(row.home+'|'+row.away);
   }
   return data;
@@ -115,6 +123,7 @@ function updateNextFixture(force=false){
   label.textContent=`${manualFixture?'手動選択中／':''}${hold?'北九州の保留カード：':'北九州の次戦：'}ホーム ${next.home} 対 アウェー ${next.away} ／ ${kickoff}${hold?' ／ '+hold:overdue?' ／ 結果・開催状況を確認中':''}${stale?' ／ 日程の確認から24時間以上経過':''}${calendarIssue}`;
 }
 async function refreshFixtureCalendar(){
+  refreshLeagueCalendar();
   if(loadingCalendar||typeof window.fetch!=='function')return;loadingCalendar=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
   try{const r=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/official-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('Calendar unavailable');const data=validateCalendar(await r.json());if(fixtureCalendar&&Date.parse(data.checkedAt)<Date.parse(fixtureCalendar.checkedAt))throw Error('Older calendar');fixtureCalendar=data;calendarIssue='';updateNextFixture();}
@@ -138,7 +147,7 @@ function prematchForecast(H,V){if(H===V||!teams.includes(H)||!teams.includes(V))
 function renderPrematch(){const H=$('home').value,V=$('away').value,r=prematchForecast(H,V);if(!r){$('prematch').innerHTML='<div class="prematch-title">異なるクラブを選んでください</div>';return}$('prematch').innerHTML=`<div class="prematch-title">Elo事前予想　${H} vs ${V}</div><div class="prob-grid"><div class="prob"><span>${H}勝利</span><strong>${r.home.toFixed(1)}%</strong></div><div class="prob"><span>引き分け</span><strong>${r.draw.toFixed(1)}%</strong></div><div class="prob"><span>${V}勝利</span><strong>${r.away.toFixed(1)}%</strong></div></div><div class="likely">Elo ${r.ratings[0].toFixed(0)}–${r.ratings[1].toFixed(0)}　｜　順位計算用 ${r.score[0]}–${r.score[1]}</div>`}
 function h2h(games){const p=new Int16Array(400),gd=new Int16Array(400),go=new Int16Array(400);for(const [H,A,hg,ag] of games){const h=ix[H],a=ix[A],ha=h*20+a,ah=a*20+h;gd[ha]+=hg-ag;gd[ah]+=ag-hg;go[ha]+=hg;go[ah]+=ag;if(hg>ag)p[ha]+=3;else if(hg<ag)p[ah]+=3;else{p[ha]++;p[ah]++}}return{p,gd,go}}
 function sortOrder(pts,gf,ga,games,rng){const order=[...Array(20).keys()].sort((a,b)=>pts[b]-pts[a]||(gf[b]-ga[b])-(gf[a]-ga[a])||gf[b]-gf[a]||a-b),hh=h2h(games),tie=Object.fromEntries([...Array(20).keys()].map(t=>[t,rng?rng():t]));for(let s=0;s<20;){let e=s+1;while(e<20&&pts[order[e]]===pts[order[s]]&&gf[order[e]]-ga[order[e]]===gf[order[s]]-ga[order[s]]&&gf[order[e]]===gf[order[s]])e++;if(e-s>1){const group=order.slice(s,e),set=new Set(group),mini=t=>{let p=0,gd=0,go=0;for(const u of set)if(u!==t){const k=t*20+u;p+=hh.p[k];gd+=hh.gd[k];go+=hh.go[k]}return[p,gd,go]};const m=Object.fromEntries(group.map(t=>[t,mini(t)]));group.sort((a,b)=>m[b][0]-m[a][0]||m[b][1]-m[a][1]||m[b][2]-m[a][2]||tie[a]-tie[b]);order.splice(s,e-s,...group)}s=e}return order}
-function simulate(n,what=scenarios){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=[];for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),last=Array(20).fill(0),rankCounts=Array.from({length:20},()=>Array(20).fill(0)),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);const pending=allFixtures.filter(([h,a])=>!used.has(`${teams[h]}|${teams[a]}`)).map(([h,a])=>[h,a,eloProb(model.R,h,a,model.nu)]);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a,p] of pending){const u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;rankCounts[t][r]++;if(r<2)top2[t]++;if(r<6)top6[t]++;if(r===teams.length-1)last[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n,last:last[i]*100/n,distribution:rankCounts[i].map(count=>count*100/n)})).sort((a,b)=>a.rank-b.rank)}
+function simulate(n,what=scenarios,fixturePairs=null){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=fixturePairs||[];if(!fixturePairs)for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),last=Array(20).fill(0),rankCounts=Array.from({length:20},()=>Array(20).fill(0)),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);const pending=allFixtures.filter(([h,a])=>!used.has(`${teams[h]}|${teams[a]}`)).map(([h,a])=>[h,a,eloProb(model.R,h,a,model.nu)]);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a,p] of pending){const u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;rankCounts[t][r]++;if(r<2)top2[t]++;if(r<6)top6[t]++;if(r===teams.length-1)last[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n,last:last[i]*100/n,distribution:rankCounts[i].map(count=>count*100/n)})).sort((a,b)=>a.rank-b.rank)}
 function save(){
   try{
     const current=J3Results.readConfirmed();
@@ -177,8 +186,64 @@ function renderRankDistribution(){
 }
 function renderTable(){if(activeTab==='forecast'){$('thead').innerHTML='<tr><th>予測</th><th>クラブ</th><th>Elo</th><th>予想勝点</th><th>平均順位</th><th>2位以内</th><th>6位以内</th><th title="20位で終わった回数 ÷ 計算回数 × 100">最下位確率</th></tr>';$('tbody').innerHTML=lastForecast.map((r,i)=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank"><span class="zone ${i<2?'auto':i<6?'po':''}">${i+1}</span></td><td>${r.club}</td><td>${r.elo.toFixed(0)}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}</td><td>${r.top2.toFixed(1)}%</td><td>${r.top6.toFixed(1)}%</td><td>${r.last.toFixed(1)}%</td></tr>`).join('')}else{$('thead').innerHTML='<tr><th>順位</th><th>クラブ</th><th>勝点</th><th>試合</th><th>勝</th><th>分</th><th>敗</th><th>得失</th></tr>';$('tbody').innerHTML=liveRows().map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank">${r.rank}${r.tied?'=':''}</td><td>${r.club}</td><td>${r.pts}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td></tr>`).join('')}}
 function renderVerification(){const s=stateWithScenario(),i=ix['北九州'];const displayed={played:s.p[i],points:s.pts[i],wins:s.w[i],draws:s.d[i],losses:s.l[i],gf:s.gf[i],ga:s.ga[i]};const report=J3Results.verification(displayed,scenarios.length===0&&J3Results.resultId(confirmed())===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('autoStatus').textContent=J3Results.statusText(report.ok);}
+let leagueCalendar=null,loadingLeagueCalendar=false,leagueIssue='';
+const jstToday=()=>new Date(Date.now()+9*3600000).toISOString().slice(0,10);
+function validateLeagueCalendar(data){
+  validateCalendar(data,true);
+  const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&new Date(s+'T00:00:00Z').toISOString().slice(0,10)===s;
+  if(data.scope!=='all-clubs'||data.source!=='https://www.jleague.jp/j3/match/'||!validDate(data.coverageFrom)||!validDate(data.coverageThrough)||data.coverageFrom>'2026-08-08'||data.coverageThrough<data.coverageFrom||data.coverageThrough>'2027-07-31')throw Error('Invalid league coverage');
+  if(new Set(data.matches.flatMap(r=>[r.home,r.away])).size!==20||data.matches.some(r=>r.date<data.coverageFrom||r.date>data.coverageThrough))throw Error('Incomplete league calendar');
+  const cards=new Set(data.matches.map(r=>r.home+'|'+r.away));
+  if(confirmed().some(g=>!cards.has(key(g))))throw Error('Calendar missing confirmed results');
+  return data;
+}
+function monthChoices(calendar,today=jstToday()){
+  const out=[];let cursor=new Date(today.slice(0,7)+'-01T00:00:00Z');
+  while(cursor.toISOString().slice(0,10)<=calendar.coverageThrough){
+    const year=cursor.getUTCFullYear(),month=cursor.getUTCMonth()+1,end=new Date(Date.UTC(year,month,0)).toISOString().slice(0,10);
+    if(end<=calendar.coverageThrough&&end>=DATA_AS_OF)out.push({date:end,label:`${year}年${month}月末`});
+    cursor=new Date(Date.UTC(year,month,1));
+  }
+  return out;
+}
+function monthContext(cutoff,today=jstToday()){
+  if(!leagueCalendar||!monthChoices(leagueCalendar,today).some(r=>r.date===cutoff))throw Error('対象月の日程を確認できません');
+  validateLeagueCalendar(leagueCalendar);
+  if(Date.now()-Date.parse(leagueCalendar.checkedAt)>24*3600000)throw Error('全クラブの日程確認から24時間以上経過しています');
+  const known=new Set(confirmed().map(key)),rows=leagueCalendar.matches.filter(r=>!known.has(r.home+'|'+r.away)&&r.date<=cutoff);
+  const eligible=rows.filter(r=>r.status==='scheduled'&&r.date>=today),allowed=new Set(eligible.map(r=>r.home+'|'+r.away));
+  const what=scenarios.filter(g=>allowed.has(key(g))),trialKeys=new Set(what.map(key));
+  const played=stateWithScenario(what).p.slice();
+  for(const r of eligible)if(!trialKeys.has(r.home+'|'+r.away)){played[ix[r.home]]++;played[ix[r.away]]++;}
+  return {pairs:eligible.map(r=>[ix[r.home],ix[r.away]]),what,played,excluded:rows.length-eligible.length,ignoredTrials:scenarios.length-what.length};
+}
+function renderMonthForecast(n=+$('runs').value){
+  const picker=$('monthEnd');
+  if(!leagueCalendar){$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
+  const options=monthChoices(leagueCalendar),old=picker.value;
+  picker.innerHTML=options.map(r=>`<option value="${r.date}">${r.label}</option>`).join('');
+  picker.value=options.some(r=>r.date===old)?old:options[0]?.date||'';picker.disabled=!options.length;
+  try{
+    const context=monthContext(picker.value),rows=simulate(n,context.what,context.pairs),kitakyushu=rows.find(r=>r.club==='北九州');
+    $('monthStatus').textContent=`${picker.value} 日本時間時点 ／ 確認範囲 ${leagueCalendar.coverageThrough}まで ／ 開催予定 ${context.pairs.length}試合 ／ 中止・延期・開催状況未確認で除外 ${context.excluded}試合 ／ 対象外の試し入力 ${context.ignoredTrials}件${leagueIssue}`;
+    $('monthSummary').textContent=`北九州：予想勝点 ${kitakyushu.points.toFixed(1)} ／ 平均順位 ${kitakyushu.rank.toFixed(1)}位 ／ 6位以内 ${kitakyushu.top6.toFixed(1)}％ ／ 予想消化 ${context.played[ix['北九州']]}試合`;
+    $('monthRows').innerHTML=rows.map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td style="text-align:left;font-weight:700">${r.club}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td>${context.played[ix[r.club]]}試合</td></tr>`).join('');
+  }catch(error){$('monthStatus').textContent=`月末予測は表示できません：${error.message}。${leagueIssue}`;$('monthSummary').textContent='';$('monthRows').innerHTML='';}
+}
+async function refreshLeagueCalendar(){
+  if(loadingLeagueCalendar||typeof window.fetch!=='function')return;loadingLeagueCalendar=true;
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+  try{
+    const response=await fetch('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/league-schedule.json?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});
+    if(!response.ok)throw Error('League calendar unavailable');const data=validateLeagueCalendar(await response.json());
+    if(leagueCalendar&&Date.parse(data.checkedAt)<Date.parse(leagueCalendar.checkedAt))throw Error('Older league calendar');
+    const changed=JSON.stringify(data)!==JSON.stringify(leagueCalendar),hadIssue=!!leagueIssue;leagueCalendar=data;leagueIssue='';if(changed||hadIssue||!$('monthRows').innerHTML||Date.now()-Date.parse(data.checkedAt)>24*3600000)renderMonthForecast();
+  }catch{leagueIssue=' ／ 全クラブの日程の再取得失敗（最新の変更は未確認）';renderMonthForecast();}
+  finally{clearTimeout(timer);loadingLeagueCalendar=false;}
+}
+$('monthEnd').onchange=()=>renderMonthForecast();
 let renderPending=false;
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(!baseline)baseline=simulate(n,[]);lastForecast=scenarios.length?simulate(n,scenarios):baseline.map(x=>({...x}));renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTable();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}

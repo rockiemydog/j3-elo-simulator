@@ -9,7 +9,9 @@ def git(*args, check=True):
 
 def publish():
     files=['official-results.json']
-    if os.environ.get('PUBLISH_SCHEDULE')=='true': files.append('official-schedule.json')
+    if os.environ.get('PUBLISH_SCHEDULE')=='true':
+        files.append('official-schedule.json')
+        if os.path.exists('league-schedule.json'): files.append('league-schedule.json')
     git('add', '--', *files)
     if git('diff', '--cached', '--quiet', '--', *files, check=False).returncode == 0:
         return git('rev-parse', 'HEAD').stdout.strip()
