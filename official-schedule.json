@@ -2,7 +2,7 @@
   "verified": true,
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-15T22:22:32.544370+00:00",
+  "checkedAt": "2026-10-15T22:52:33.561791+00:00",
   "matches": [
     {
       "id": "2026081519",
@@ -178,6 +178,134 @@
       "time": "14:00",
       "home": "北九州",
       "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022025",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "FC大阪",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022729",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "北九州",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030627",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "鳥取",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031328",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "北九州",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031720",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "鹿児島",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032021",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "松本",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032719",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "北九州",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040324",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "金沢",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041027",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "讃岐",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041727",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "北九州",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042423",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "群馬",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042928",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "北九州",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050326",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "滋賀",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050928",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "北九州",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051528",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "高知",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052319",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "北九州",
+      "away": "琉球",
       "status": "scheduled"
     }
   ]
