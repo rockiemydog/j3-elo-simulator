@@ -4,7 +4,7 @@ from pathlib import Path
 from importlib import import_module
 TEAMS = import_module('update-official-results').TEAMS
 
-def parse_schedule(html):
+def parse_schedule(html, all_clubs=False, allow_empty=False):
     chunks = []
     for m in re.finditer(r'self\.__next_f\.push\((.*?)\)</script>', html, re.S):
         try:
@@ -25,7 +25,7 @@ def parse_schedule(html):
     for ident, x in objects.items():
         if not re.fullmatch(r'/match/j3/(2026|2027)/\d{6}/?',x['detailHref']): continue
         h,a=x['homeTeam'].get('name'),x['awayTeam'].get('name')
-        if '北九州' not in (h,a): continue
+        if not all_clubs and '北九州' not in (h,a): continue
         if h not in TEAMS or a not in TEAMS or h==a or not re.fullmatch(r'\d{10}',ident): raise ValueError('Invalid official fixture')
         day=dt.datetime.strptime(ident[:8],'%Y%m%d').date()
         if not dt.date(2026,8,8)<=day<=dt.date(2027,7,31): continue
@@ -33,26 +33,62 @@ def parse_schedule(html):
         time=x.get('time')
         if not isinstance(time,str) or not re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d',time): time=None
         rows.append(dict(id=ident,date=day.isoformat(),time=time,home=h,away=a,status=status))
-    if not rows: raise ValueError('No official Kitakyushu schedule; keep last good file')
+    if not chunks: raise ValueError('Official schedule response is not a valid page')
+    if not rows and not allow_empty: raise ValueError('No official Kitakyushu schedule; keep last good file')
     keys=[(r['home'],r['away']) for r in rows]
     if len(keys)!=len(set(keys)): raise ValueError('Duplicate official card')
     return sorted(rows,key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
 
+def month_windows(lo,hi):
+    start=lo
+    while start<=hi:
+        next_month=(start.replace(day=28)+dt.timedelta(days=4)).replace(day=1)
+        yield start,min(hi,next_month-dt.timedelta(days=1))
+        start=next_month
+
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--fixture');ap.add_argument('--output',default='official-schedule.json');args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--fixture');ap.add_argument('--output',default='official-schedule.json');ap.add_argument('--league-output');args=ap.parse_args()
     today=dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).date()
     # Include past dates so an unresolved cancelled card cannot disappear just
     # because the calendar month changes.
     lo=dt.date(2026,8,8);hi=min(dt.date(2027,7,31),today+dt.timedelta(days=100))
     if lo>hi: raise ValueError('Season has ended')
-    if args.fixture: html=Path(args.fixture).read_text()
+    if args.fixture: pages=[Path(args.fixture).read_text()]
     else:
-        query=urllib.parse.urlencode(dict(startdate=lo.isoformat(),enddate=hi.isoformat(),period='custom'))
-        request=urllib.request.Request('https://www.jleague.jp/j3/match/search-list/?'+query,headers={'User-Agent':'J3-results-sync/1.0 (public match schedule)','Accept':'text/html'})
-        with urllib.request.urlopen(request,timeout=45) as response: raw=response.read(12_000_001)
-        if len(raw)>12_000_000: raise ValueError('Schedule too large')
-        html=raw.decode('utf-8')
-    rows=parse_schedule(html)
+        # The official search page limits long result lists. Request one month
+        # at a time so the late part of a month/season is never silently lost.
+        pages=[]
+        for start,end in month_windows(lo,hi):
+            query=urllib.parse.urlencode(dict(startdate=start.isoformat(),enddate=end.isoformat(),period='custom'))
+            request=urllib.request.Request('https://www.jleague.jp/j3/match/search-list/?'+query,headers={'User-Agent':'J3-results-sync/1.0 (public match schedule)','Accept':'text/html'})
+            with urllib.request.urlopen(request,timeout=45) as response: raw=response.read(12_000_001)
+            if len(raw)>12_000_000: raise ValueError('Schedule too large')
+            pages.append(raw.decode('utf-8'))
+    all_rows=[row for html in pages for row in parse_schedule(html,all_clubs=True,allow_empty=True)]
+    if not all_rows: raise ValueError('No official league schedule')
+    if len(all_rows)>380 or len({(r['home'],r['away']) for r in all_rows})!=len(all_rows): raise ValueError('Duplicate or excessive league cards')
+    all_rows.sort(key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
+    rows=[row for row in all_rows if '北九州' in (row['home'],row['away'])]
+    if not rows: raise ValueError('No official Kitakyushu schedule')
+    league_changed=False
+    if args.league_output:
+        league_rows=all_rows
+        if {r[k] for r in league_rows for k in ('home','away')}!=set(TEAMS): raise ValueError('League schedule does not cover all 20 clubs')
+        results_path=Path('official-results.json')
+        if results_path.exists():
+            known=json.loads(results_path.read_text()).get('matches',[])
+            cards={(r['home'],r['away']) for r in league_rows}
+            if any(tuple(r['game'][:2]) not in cards for r in known): raise ValueError('League schedule is missing confirmed cards')
+        league_path=Path(args.league_output)
+        league_previous=json.loads(league_path.read_text()) if league_path.exists() else None
+        if league_previous: league_rows=preserve_unresolved(league_rows,league_previous.get('matches',[]))
+        league=dict(verified=True,scope='all-clubs',season='2026/27',source='https://www.jleague.jp/j3/match/',checkedAt=dt.datetime.now(dt.timezone.utc).isoformat(),coverageFrom=lo.isoformat(),coverageThrough=hi.isoformat(),matches=league_rows)
+        try:
+            age=(dt.datetime.fromisoformat(league['checkedAt'])-dt.datetime.fromisoformat(league_previous['checkedAt'])).total_seconds()
+            league_changed=any(league_previous.get(k)!=league[k] for k in ('scope','season','coverageFrom','coverageThrough','matches')) or age>=3600 or age<0
+        except (KeyError,TypeError,ValueError): league_changed=True
+        if league_changed:
+            tmp=league_path.with_suffix('.tmp');tmp.write_text(json.dumps(league,ensure_ascii=False,indent=2)+'\n');tmp.replace(league_path)
     path=Path(args.output)
     previous=json.loads(path.read_text()) if path.exists() else None
     if previous:
@@ -68,7 +104,7 @@ def main():
     if changed:
         tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n');tmp.replace(path)
     if os.environ.get('GITHUB_OUTPUT'):
-        with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write(f'changed={str(changed).lower()}\n')
+        with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write(f'changed={str(changed or league_changed).lower()}\n')
     print(f'Official schedule: {len(rows)} Kitakyushu fixtures; changed={changed}')
 def preserve_unresolved(rows,previous):
     # Match on official home/away, not the date-based ID which can change when
