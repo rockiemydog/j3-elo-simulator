@@ -24,30 +24,17 @@
     @media(max-width:850px){.input-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:560px){header{padding:18px 16px}main{padding:0 12px 26px;margin:14px auto}.inputs{padding:15px 13px}.section-head{align-items:flex-start;flex-direction:column;gap:2px}.input-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.cards{grid-template-columns:1fr;gap:10px}.card{padding:14px}.legend{gap:7px 12px}.metric b{font-size:20px}}
   </style>
-  <link rel="stylesheet" href="../giravanz-theme.css?v=20261006-1">
+  <link rel="stylesheet" href="../giravanz-theme.css?v=6e0c4450b0a1">
 </head>
-<body>
-  <header>
-    <div class="brand">GIRAVANZ KITAKYUSHU · J3</div>
-    <h1 class="title">上位6位ラインへの現在地</h1>
-    <div class="asof">公式結果から自動集計</div>
-  </header>
-  <main>
-    <section class="panel inputs" aria-labelledby="sync-title">
-      <p id="verification" class="input-note" aria-live="polite" style="white-space:pre-line"></p><button class="action secondary" id="refresh-official" type="button">最新結果を確認する</button><h2 id="sync-title">試合結果との連動</h2><p id="auto-status" class="input-note" aria-live="polite">公式結果の自動取得を確認中です。</p>
-      <p id="sync-status" class="input-note" aria-live="polite"></p>
-      <p class="input-note">実際の成績は公式結果から自動集計します。試し入力は保存されず、公式の成績を変更しません。</p>
-      <a class="action secondary" href="../">対戦カード・順位予測を見る</a>
-    </section>
-
-    <section class="panel inputs input-panel test" aria-labelledby="test-title">
-      <div class="section-head"><h2 id="test-title">試し入力（仮の成績）</h2><span class="hint">公式の成績は変更されません</span></div>
-      <div class="input-grid" id="test-fields"></div>
-      <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
-      <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">実際の成績に戻る</button></div>
-      <p class="input-note">試し入力は保存されません。公式結果が更新された場合や再読込時は最新の実績に戻ります。「実際の成績に戻る」でいつでも公式集計を表示できます。</p>
-    </section>
-
+<body class="tracker-page"><div class="shell tracker-shell">
+<a class="skip-link" href="#workspace">メインコンテンツへ</a>
+ <div class="app-bar"><a class="wordmark" href="../"><svg class="brand-symbol" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="currentColor"/><path d="M12 11h7v8l8-8h8L23 23l10 10h-9l-5-6v6h-7z" fill="#13213b"/></svg><span>GIRAVANZ <b>AI</b><small>KITAKYUSHU · J3</small></span></a>
+ <nav class="app-nav" aria-label="画面の切り替え"><a href="../" >順位シミュレーター</a><a href="../progress-tracker/" class="active" aria-current="page">進捗トラッカー</a></nav><span class="season-pill">2026<span>/</span>27</span></div>
+  <header class="masthead"><div class="masthead-copy"><div class="eyebrow"><span></span> SEASON PROGRESS</div><h1>上位6位への現在地</h1><p>目標までの距離を、勝点と残り試合から読む。</p></div><div class="stamp"><span class="stamp-label">2026/27 · J3 LEAGUE</span><span>2023–25年の実績を基準に</span></div></header>
+  <section id="officialOverview" class="record-band" aria-label="北九州の公式実績" aria-live="polite"></section>
+  <main class="tracker-content" id="workspace">
+    <section class="panel sync-strip" aria-labelledby="sync-title"><div class="sync-strip-top"><div><h2 id="sync-title"><span class="data-dot"></span>公式結果と連動</h2><p id="sync-status" class="input-note" aria-live="polite"></p></div><button class="action secondary" id="refresh-official" type="button">最新結果を確認する</button></div><p id="auto-status" class="input-note" aria-live="polite">公式結果の自動取得を確認中です。</p><details class="verification-detail"><summary>取得状況・集計の照合</summary><p id="verification" class="input-note" aria-live="polite" style="white-space:pre-line"></p></details></section>
+    <div class="module-heading progress-heading"><div><p class="kicker">PROMOTION PROGRESS</p><h2>順位ラインへの進捗</h2></div><span class="outline-pill">過去3年の平均</span></div>
     <div class="legend" aria-label="判定の説明">
       <strong>色の見方</strong>
       <span class="legend-item"><i class="dot blue"></i>平均ペース以上・必要ペース2点/試合以下</span>
@@ -56,12 +43,24 @@
     </div>
     <div class="view-label" id="view-label" aria-live="polite">公式結果を集計しています</div>
     <section class="cards" id="cards" aria-label="順位別進捗"></section>
-    <section class="panel method" aria-label="計算方法">
+    <details class="trial-disclosure"><summary><span><b>試し入力で、先の成績を考える</b><small>勝点・勝敗を仮定して、目標までの距離を確認</small></span><span class="expand-label">開く ＋</span></summary>
+    <section class="panel inputs input-panel test" aria-labelledby="test-title">
+      <div class="section-head"><h2 id="test-title">試し入力（仮の成績）</h2><span class="hint">公式の成績は変更されません</span></div>
+      <div class="input-grid" id="test-fields"></div>
+      <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
+      <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">実際の成績に戻る</button></div>
+      <p class="input-note">試し入力は保存されません。公式結果が更新された場合や再読込時は最新の実績に戻ります。「実際の成績に戻る」でいつでも公式集計を表示できます。</p>
+    </section>
+
+    </details>
+    <details class="panel method" aria-label="計算方法"><summary>目安の計算方法</summary>
       <p><strong>勝利数：</strong>2023〜2025年のJ3各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
       <p><strong>最大敗数：</strong>表示された平均勝数の目安をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
       <p><strong>得失点差：</strong>得点−失点。あと改善は、2023〜2025年のJ3順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
-    </section>
+    </details>
+<footer class="app-footer"><span>GIRAVANZ AI <i>／</i> 2026–27</span><span>北九州の一戦を、数字で楽しむ。</span></footer>
   </main>
+</div>
   <script src="../official-api-config.js?v=2abf363444e1"></script>
   <script src="../shared-results.js?v=3c68c04029c4"></script>
   <script>
@@ -118,7 +117,12 @@
       $('view-label').className='view-label'+(view==='test'?' test-view':'');
       render();renderVerification();
     }
-    function renderVerification(){const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('auto-status').textContent=J3Results.statusText(report.ok);}
+function renderOfficialOverview(){
+  const s=J3Results.clubStats().stats,gd=s.gf-s.ga;
+  const markup=`<div class="record-club"><span class="micro-label">OFFICIAL RECORD</span><strong>ギラヴァンツ北九州</strong><span class="record-date">${s.asofDate}までの公式実績</span></div><div class="record-stat primary"><span>勝点</span><strong>${s.points}<small>pt</small></strong></div><div class="record-stat"><span>消化試合</span><strong>${s.played}<small>/ 38</small></strong></div><div class="record-stat results"><span>勝・分・敗</span><strong>${s.wins}<small>勝</small> ${s.draws}<small>分</small> ${s.losses}<small>敗</small></strong></div><div class="record-stat"><span>得失点差</span><strong>${gd>0?'+':''}${gd}</strong></div>`;
+  if($('officialOverview').innerHTML!==markup)$('officialOverview').innerHTML=markup;
+}
+    function renderVerification(){renderOfficialOverview();const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('auto-status').textContent=J3Results.statusText(report.ok);}
     function render(){
       const s=activeStats;
       const problems=validate(s);
@@ -145,7 +149,7 @@
         return `<article class="panel card ${state}">
           <div class="card-top"><div class="rank">${h.rank}位ライン</div><span class="flag ${state}"><i class="dot ${state}"></i>${status}</span></div>
           <div class="target">${activeView==='linked'?(syncHasExtras?'試合結果から集計（追加結果の日付は未登録）':'公式結果の基準日：'+J3Results.baseDate):'入力成績の基準日：'+asofDate}</div>
-          <div class="target">目標は2023〜2025年のJ3同順位平均勝点（切り上げ）</div>
+          <div class="target goal-target">過去3年平均・目標勝点 <b>${target}</b>点</div>
           <div class="progress-head"><span>現在 ${s.points}点／目標 ${target}点</span><b>達成率 ${Math.round(achievementRate*100)}%</b></div>
           <div class="track" role="progressbar" aria-label="${h.rank}位ラインの目標勝点の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100,Math.round(achievementRate*100))}"><div class="fill" style="width:${maxBar}%"></div></div>
           <div class="key-metrics">
