@@ -45,9 +45,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python scripts/publish-official-results.py
-      - name: Fetch official Kitakyushu schedule
+      - name: Fetch official Kitakyushu and all-club schedules
         id: schedule
-        run: python scripts/update-official-schedule.py
+        run: python scripts/update-official-schedule.py --league-output league-schedule.json
       - name: Publish updated schedule
         if: steps.schedule.outputs.changed == 'true'
         env:
