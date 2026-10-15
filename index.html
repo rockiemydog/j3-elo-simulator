@@ -241,7 +241,7 @@ function monthContext(cutoff,today=jstToday()){
   return {pairs:eligible.map(r=>[ix[r.home],ix[r.away]]),what,played,excluded:rows.length-eligible.length,ignoredTrials:scenarios.length-what.length};
 }
 function monthRankMovement(current,predicted){
-  const delta=Number((current-predicted).toFixed(1));
+  const delta=Number((current-Number(predicted.toFixed(1))).toFixed(1));
   return {delta,direction:delta>0?'up':delta<0?'down':'same',label:delta>0?`← ${delta.toFixed(1)}位上昇`:delta<0?`→ ${(-delta).toFixed(1)}位下降`:'変化なし'};
 }
 function renderMonthRankChart(rows){
@@ -251,7 +251,7 @@ function renderMonthRankChart(rows){
     const before=current.get(r.club),movement=monthRankMovement(before.rank,r.rank),color=movement.direction==='up'?'#175cd3':movement.direction==='down'?'#d83043':'#667085',y=56+i*40,start=x(before.rank),end=x(r.rank),description=`${r.club}：現在 ${before.rank}${before.tied?'（同順位）':''}位、月末予想 ${r.rank.toFixed(1)}位、${movement.label}`;
     return `<g><title>${description}</title>${r.club==='北九州'?`<rect x="0" y="${y-18}" width="760" height="38" rx="5" fill="#fff4cd"/>`:''}<text x="4" y="${y+4}" font-size="13" font-weight="700" fill="#14213d">${r.club}</text><line x1="110" y1="${y}" x2="510" y2="${y}" stroke="#eaecf0"/>${movement.delta!==0?`<line x1="${start}" y1="${y}" x2="${end}" y2="${y}" stroke="${color}" stroke-width="3" marker-end="url(#monthArrow-${movement.direction})"/>`:''}<circle cx="${start}" cy="${y}" r="6" fill="white" stroke="#667085" stroke-width="2"/><circle cx="${end}" cy="${y}" r="4" fill="${color}"/><text x="534" y="${y+4}" font-size="12" fill="#344054">${before.rank}位 → ${r.rank.toFixed(1)}位</text><text x="642" y="${y+4}" font-size="12" font-weight="700" fill="${color}">${movement.label}</text></g>`;
   }).join('');
-  $('monthRankChart').innerHTML=`<svg viewBox="0 0 770 844" role="img" aria-labelledby="monthChartTitle monthChartDesc" xmlns="http://www.w3.org/2000/svg"><title id="monthChartTitle">${$('monthEnd').value}の平均予想順位と現在の確定順位</title><desc id="monthChartDesc">左が1位、右が20位。白丸は公式結果だけの現在順位、色付き丸は月末の平均予想順位。矢印は現在順位から月末予測への移動を示します。順位差は現在順位から平均予想順位を引き、小数第1位に丸めます。</desc><defs>${[['up','#175cd3'],['down','#d83043']].map(([id,color])=>`<marker id="monthArrow-${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`).join('')}</defs>${grid}${lines}</svg>`;
+  $('monthRankChart').innerHTML=`<svg viewBox="0 0 770 844" role="img" aria-labelledby="monthChartTitle monthChartDesc" xmlns="http://www.w3.org/2000/svg"><title id="monthChartTitle">${$('monthEnd').value}の平均予想順位と現在の確定順位</title><desc id="monthChartDesc">左が1位、右が20位。白丸は公式結果だけの現在順位、色付き丸は月末の平均予想順位。矢印は現在順位から月末予測への移動を示します。順位差は現在順位から小数第1位で表示した平均予想順位を引きます。</desc><defs>${[['up','#175cd3'],['down','#d83043']].map(([id,color])=>`<marker id="monthArrow-${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`).join('')}</defs>${grid}${lines}</svg>`;
 }
 function renderMonthForecast(n=+$('runs').value){
   lastMonthRenderDay=jstToday();
@@ -323,7 +323,7 @@ window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults(
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
-if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='月末時点の順位予測';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='月末時点の順位予測 · J3';try{scenarios=decodeMonthTrials(window.location.hash);}catch(error){$('error').textContent=error.message;}}
+if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='月末時点の順位予測';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='月末時点の順位予測 · J3';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>
