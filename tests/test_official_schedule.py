@@ -19,6 +19,10 @@ class Tests(unittest.TestCase):
   spans=list(module.month_windows(dt.date(2026,8,8),dt.date(2027,1,24)))
   self.assertEqual(len(spans),6);self.assertEqual(spans[0],(dt.date(2026,8,8),dt.date(2026,8,31)));self.assertEqual(spans[-1],(dt.date(2027,1,1),dt.date(2027,1,24)))
   for (_,end),(start,_) in zip(spans,spans[1:]):self.assertEqual(end+dt.timedelta(days=1),start)
+ def test_full_season_collection_includes_spring_and_every_month(self):
+  spans=list(module.month_windows(module.SEASON_START,module.SEASON_END))
+  self.assertEqual(len(spans),12);self.assertEqual(spans[-1][1],dt.date(2027,7,31));self.assertIn((dt.date(2027,5,1),dt.date(2027,5,31)),spans)
+  for (_,end),(start,_) in zip(spans,spans[1:]):self.assertEqual(end+dt.timedelta(days=1),start)
  def test_cup_and_unknown_club(self):
   row=self.row();row['detailHref']='/match/leaguecup/2026/101728'
   with self.assertRaises(ValueError):module.parse_schedule(self.html([row]))
