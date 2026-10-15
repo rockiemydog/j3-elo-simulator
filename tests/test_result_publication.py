@@ -46,6 +46,13 @@ class PublicationTests(unittest.TestCase):
         self.git(repo, 'add', '.')
         self.git(repo, 'commit', '-m', message)
 
+    def test_schedule_publication_includes_league_and_north_files(self):
+        (self.runner/'official-schedule.json').write_text('north schedule\n')
+        (self.runner/'league-schedule.json').write_text('all clubs\n')
+        with patch.dict(os.environ,{'PUBLISH_SCHEDULE':'true'}): publisher.publish()
+        self.assertEqual(self.git(self.base,'--git-dir='+str(self.remote),'show','main:league-schedule.json'),'all clubs')
+        self.assertEqual(self.git(self.base,'--git-dir='+str(self.remote),'show','main:official-schedule.json'),'north schedule')
+
     def test_normal_publish(self):
         sha = publisher.publish()
         self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'rev-parse', 'main'), sha)
