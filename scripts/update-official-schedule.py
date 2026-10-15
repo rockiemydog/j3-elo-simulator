@@ -35,9 +35,24 @@ def parse_schedule(html, all_clubs=False, allow_empty=False):
         rows.append(dict(id=ident,date=day.isoformat(),time=time,home=h,away=a,status=status))
     if not chunks: raise ValueError('Official schedule response is not a valid page')
     if not rows and not allow_empty: raise ValueError('No official Kitakyushu schedule; keep last good file')
-    keys=[(r['home'],r['away']) for r in rows]
-    if len(keys)!=len(set(keys)): raise ValueError('Duplicate official card')
-    return sorted(rows,key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
+    return reconcile_rescheduled(rows)
+
+def reconcile_rescheduled(rows):
+    groups={}
+    for row in rows: groups.setdefault((row['home'],row['away']),[]).append(row)
+    out=[]
+    for cards in groups.values():
+        if len(cards)==1: out.append(cards[0]);continue
+        # Only explicit postponement/cancellation permits replacing the old
+        # date. Two active/finished dates are ambiguous: keep last good data.
+        active=[r for r in cards if r['status'] not in ('cancelled','postponed')]
+        if len(active)!=1 or active[0]['status'] not in ('scheduled','finished'):
+            raise ValueError('Duplicate official card')
+        current=active[0]
+        if any(r['id']==current['id'] or r['date']>=current['date'] for r in cards if r is not current):
+            raise ValueError('Ambiguous rescheduled card')
+        out.append(current)
+    return sorted(out,key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
 
 def month_windows(lo,hi):
     start=lo
@@ -66,7 +81,8 @@ def main():
             pages.append(raw.decode('utf-8'))
     all_rows=[row for html in pages for row in parse_schedule(html,all_clubs=True,allow_empty=True)]
     if not all_rows: raise ValueError('No official league schedule')
-    if len(all_rows)>380 or len({(r['home'],r['away']) for r in all_rows})!=len(all_rows): raise ValueError('Duplicate or excessive league cards')
+    all_rows=reconcile_rescheduled(all_rows)
+    if len(all_rows)>380: raise ValueError('Excessive league cards')
     all_rows.sort(key=lambda r:(r['date'],r['time'] or '23:59',r['id']))
     rows=[row for row in all_rows if '北九州' in (row['home'],row['away'])]
     if not rows: raise ValueError('No official Kitakyushu schedule')
