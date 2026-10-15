@@ -55,6 +55,9 @@
         <label for="monthEnd">予測する月末</label><select id="monthEnd" disabled><option value="">全クラブの日程を確認中</option></select>
         <p class="sub" id="monthStatus" aria-live="polite">全20クラブの公式日程を取得しています。</p>
         <p class="distribution-summary" id="monthSummary" aria-live="polite"></p>
+        <h3>現在順位から月末予測への動き</h3>
+        <p class="sub">左ほど上位。○は現在の確定順位、●は選択した月末の平均予想順位です。←は上昇、→は下降。試し入力は月末予測にだけ反映します。</p>
+        <div class="distribution-scroll" id="monthRankChart" aria-live="polite"></div>
         <div class="table-wrap"><table aria-label="月末時点の順位予測"><thead><tr><th>クラブ</th><th>予想勝点</th><th>平均順位</th><th>6位以内</th><th>予想消化試合</th></tr></thead><tbody id="monthRows"></tbody></table></div>
         <p class="sub">現在の確定勝点＋選択した月末までの開催予定試合を予測。中止・延期・開催未確認の未消化試合は除外します。試し入力は対象期間のカードだけに反映します。平均順位・6位以内確率は月末時点の予測で、シーズン最終予測とは異なります。日程変更により試合数も変わります。</p>
       </section>
@@ -183,7 +186,7 @@ function save(){
 }
 function renderScenarios(){updateMonthLink();const box=$('scenarios'),real=380-confirmed().length,sim=remainingFixtures().length;$('stampData').textContent=`Elo版・確定 ${confirmed().length}試合`;$('statusline').textContent=`Elo K=${ELO_K}・ホーム+${ELO_HOME} ｜ 確定 ${confirmed().length}/380 ｜ 未消化 ${real} ｜ 試し入力 ${scenarios.length} ｜ 計算対象 ${sim}`;$('resetScenario').disabled=!scenarios.length;if(!scenarios.length){box.innerHTML='<div class="empty">試し入力はありません</div>';syncForm();return}box.innerHTML=scenarios.map((g,i)=>`<div class="scenario"><span><span class="tag">試し入力</span> ${g[0]} <strong>${g[2]}–${g[3]}</strong> ${g[1]}</span><button class="remove" data-i="${i}" aria-label="${g[0]}対${g[1]}の試し入力を削除">×</button></div>`).join('');box.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{scenarios.splice(+b.dataset.i,1);renderScenarios();run()});syncForm()}
 function renderHero(){const f=lastForecast.find(x=>x.club==='北九州'),b=baseline?.find(x=>x.club==='北九州'),live=liveRows().find(x=>x.club==='北九州');const delta=(v,bv,s='')=>b?`${v-bv>=0?'+':''}${(v-bv).toFixed(1)}${s} vs 現在`:'';$('hero').innerHTML=`<div class="metric"><div class="label">北九州 現在Elo</div><div class="value">${f.elo.toFixed(0)}</div><div class="delta">暫定勝点 ${live.pts}</div></div><div class="metric"><div class="label">最終予想勝点</div><div class="value">${f.points.toFixed(1)}</div><div class="delta">${delta(f.points,b?.points)}</div></div><div class="metric"><div class="label">平均最終順位</div><div class="value">${f.rank.toFixed(1)}位</div><div class="delta">${b?`${(b.rank-f.rank)>=0?'+':''}${(b.rank-f.rank).toFixed(1)}順位改善`:''}</div></div><div class="metric"><div class="label">6位以内確率</div><div class="value">${f.top6.toFixed(1)}%</div><div class="delta">${delta(f.top6,b?.top6,'pt')}</div></div>`}
-function liveRows(){const s=stateWithScenario(),games=[...confirmed(),...scenarios],order=sortOrder(s.pts,s.gf,s.ga,games),hh=h2h(games),sig=i=>{const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i]}})}
+function liveRows(what=scenarios){const s=stateWithScenario(what),games=[...confirmed(),...what],order=sortOrder(s.pts,s.gf,s.ga,games),hh=h2h(games),sig=i=>{const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i]}})}
 function renderRankChart(){$('rankChart').innerHTML=lastForecast.map(r=>`<div class="rank-row ${r.club==='北九州'?'gira':''}"><div class="rank-club">${r.club}</div><div class="rank-track"><span class="rank-dot" style="left:${Math.max(0,Math.min(100,(r.rank-1)/19*100)).toFixed(1)}%"></span></div><div class="rank-value">${r.rank.toFixed(1)}位</div></div>`).join('')}
 function renderRankDistribution(){
   const picker=$('rankDistributionClub');
@@ -237,10 +240,23 @@ function monthContext(cutoff,today=jstToday()){
   for(const r of eligible)if(!trialKeys.has(r.home+'|'+r.away)){played[ix[r.home]]++;played[ix[r.away]]++;}
   return {pairs:eligible.map(r=>[ix[r.home],ix[r.away]]),what,played,excluded:rows.length-eligible.length,ignoredTrials:scenarios.length-what.length};
 }
+function monthRankMovement(current,predicted){
+  const delta=Number((current-predicted).toFixed(1));
+  return {delta,direction:delta>0?'up':delta<0?'down':'same',label:delta>0?`← ${delta.toFixed(1)}位上昇`:delta<0?`→ ${(-delta).toFixed(1)}位下降`:'変化なし'};
+}
+function renderMonthRankChart(rows){
+  const current=new Map(liveRows([]).map(r=>[r.club,r])),x=rank=>110+(rank-1)/19*400;
+  const grid=[1,6,10,15,20].map(rank=>`<line x1="${x(rank)}" y1="32" x2="${x(rank)}" y2="830" stroke="#e4e7ec"/><text x="${x(rank)}" y="20" text-anchor="middle" font-size="12" fill="#667085">${rank}位</text>`).join('');
+  const lines=rows.map((r,i)=>{
+    const before=current.get(r.club),movement=monthRankMovement(before.rank,r.rank),color=movement.direction==='up'?'#175cd3':movement.direction==='down'?'#d83043':'#667085',y=56+i*40,start=x(before.rank),end=x(r.rank),description=`${r.club}：現在 ${before.rank}${before.tied?'（同順位）':''}位、月末予想 ${r.rank.toFixed(1)}位、${movement.label}`;
+    return `<g><title>${description}</title>${r.club==='北九州'?`<rect x="0" y="${y-18}" width="760" height="38" rx="5" fill="#fff4cd"/>`:''}<text x="4" y="${y+4}" font-size="13" font-weight="700" fill="#14213d">${r.club}</text><line x1="110" y1="${y}" x2="510" y2="${y}" stroke="#eaecf0"/>${movement.delta!==0?`<line x1="${start}" y1="${y}" x2="${end}" y2="${y}" stroke="${color}" stroke-width="3" marker-end="url(#monthArrow-${movement.direction})"/>`:''}<circle cx="${start}" cy="${y}" r="6" fill="white" stroke="#667085" stroke-width="2"/><circle cx="${end}" cy="${y}" r="4" fill="${color}"/><text x="534" y="${y+4}" font-size="12" fill="#344054">${before.rank}位 → ${r.rank.toFixed(1)}位</text><text x="642" y="${y+4}" font-size="12" font-weight="700" fill="${color}">${movement.label}</text></g>`;
+  }).join('');
+  $('monthRankChart').innerHTML=`<svg viewBox="0 0 770 844" role="img" aria-labelledby="monthChartTitle monthChartDesc" xmlns="http://www.w3.org/2000/svg"><title id="monthChartTitle">${$('monthEnd').value}の平均予想順位と現在の確定順位</title><desc id="monthChartDesc">左が1位、右が20位。白丸は公式結果だけの現在順位、色付き丸は月末の平均予想順位。矢印は現在順位から月末予測への移動を示します。順位差は現在順位から平均予想順位を引き、小数第1位に丸めます。</desc><defs>${[['up','#175cd3'],['down','#d83043']].map(([id,color])=>`<marker id="monthArrow-${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`).join('')}</defs>${grid}${lines}</svg>`;
+}
 function renderMonthForecast(n=+$('runs').value){
   lastMonthRenderDay=jstToday();
   const picker=$('monthEnd');
-  if(!leagueCalendar){$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
+  if(!leagueCalendar){$('monthRankChart').innerHTML='';$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthStatus').textContent='全クラブの日程を取得できるまで月末予測は表示しません。'+leagueIssue;return;}
   const options=monthChoices(leagueCalendar),old=picker.value;
   picker.innerHTML=options.map(r=>`<option value="${r.date}">${r.label}</option>`).join('');
   picker.value=options.some(r=>r.date===old)?old:options[0]?.date||'';picker.disabled=!options.length;
@@ -248,8 +264,9 @@ function renderMonthForecast(n=+$('runs').value){
     const context=monthContext(picker.value),rows=simulate(n,context.what,context.pairs),kitakyushu=rows.find(r=>r.club==='北九州');
     $('monthStatus').textContent=`${picker.value} 日本時間時点 ／ 確認範囲 ${leagueCalendar.coverageThrough}まで ／ 開催予定 ${context.pairs.length}試合 ／ 中止・延期・開催状況未確認で除外 ${context.excluded}試合 ／ 対象外の試し入力 ${context.ignoredTrials}件${leagueIssue}`;
     $('monthSummary').textContent=`北九州：予想勝点 ${kitakyushu.points.toFixed(1)} ／ 平均順位 ${kitakyushu.rank.toFixed(1)}位 ／ 6位以内 ${kitakyushu.top6.toFixed(1)}％ ／ 予想消化 ${context.played[ix['北九州']]}試合`;
+    renderMonthRankChart(rows);
     $('monthRows').innerHTML=rows.map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td style="text-align:left;font-weight:700">${r.club}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td>${context.played[ix[r.club]]}試合</td></tr>`).join('');
-  }catch(error){$('monthStatus').textContent=`月末予測は表示できません：${error.message}。${leagueIssue}`;$('monthSummary').textContent='';$('monthRows').innerHTML='';}
+  }catch(error){$('monthStatus').textContent=`月末予測は表示できません：${error.message}。${leagueIssue}`;$('monthSummary').textContent='';$('monthRows').innerHTML='';$('monthRankChart').innerHTML='';}
 }
 async function refreshLeagueCalendar(){
   if(loadingLeagueCalendar||typeof window.fetch!=='function')return;loadingLeagueCalendar=true;
