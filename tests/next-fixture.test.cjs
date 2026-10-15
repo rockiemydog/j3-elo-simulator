@@ -56,3 +56,37 @@ test('mismatched IDs, other-club cards and non-string IDs are rejected',()=>{
 test('iPad visibility and page restoration fetch the current published cancellation',async()=>{
  for(const event of ['visibilitychange','pageshow']){const a=app();let calls=0;a.ctx.fetch=async url=>{if(url.includes('official-schedule.json')){calls++;assert(url.startsWith('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/'));const latest=structuredClone(calendar);latest.checkedAt=new Date().toISOString();latest.matches[0].status='cancelled';return {ok:true,json:async()=>latest};}throw Error('offline');};a.events[event]();await new Promise(setImmediate);assert.equal(calls,1);assert.match(a.node('nextFixtureStatus').textContent,/中止：自動切り替え停止/);assert.equal(a.node('away').value,'FC大阪');}
 });
+function monthAudit(now='2026-10-17T14:59:00Z'){
+ const a=app(),clock={now:Date.parse(now)},NativeDate=Date;
+ a.ctx.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[clock.now]));}static now(){return clock.now;}};
+ a.ctx.league=JSON.parse(fs.readFileSync('tests/fixtures/month-schedule.json','utf8'));
+ const live=JSON.parse(fs.readFileSync('official-results.json','utf8'));a.ctx.feed={...live,asOfDate:'2026-10-11',matches:live.matches.filter(r=>r.date<='2026-10-11')};
+ a.eval('J3Results.applyOfficialFeed(feed);completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=feed.asOfDate;league.checkedAt=new Date().toISOString();leagueCalendar=validateLeagueCalendar(league);renderMonthForecast(10)');
+ a.ctx.fetch=async()=>({ok:true,json:async()=>structuredClone(a.ctx.league)});
+ return {...a,clock};
+}
+test('unchanged calendar re-evaluates overdue fixtures after a JST date change',async()=>{
+ const a=monthAudit();assert.match(a.node('monthSummary').textContent,/14試合/);
+ a.clock.now=Date.parse('2026-10-17T15:01:00Z');await a.eval('refreshLeagueCalendar()');
+ assert.match(a.node('monthSummary').textContent,/13試合/);assert.match(a.node('monthStatus').textContent,/除外 6試合/);
+});
+test('same calendar removes elapsed month and selects next month after JST month rollover',async()=>{
+ const a=monthAudit('2026-10-31T14:59:00Z');assert.equal(a.node('monthEnd').value,'2026-10-31');
+ a.clock.now=Date.parse('2026-10-31T15:01:00Z');await a.eval('refreshLeagueCalendar()');
+ assert.equal(a.node('monthEnd').value,'2026-11-30');assert.doesNotMatch(a.node('monthEnd').innerHTML,/2026年10月末/);assert.match(a.node('monthStatus').textContent,/2026-11-30/);
+});
+test('unchanged calendar does not repeatedly recompute a manually selected month within the same day',async()=>{
+ const a=monthAudit('2026-10-15T22:30:00Z');a.node('monthEnd').value='2026-12-31';a.node('monthEnd').onchange();
+ a.eval('let monthCalls=0;const originalMonthRender=renderMonthForecast;renderMonthForecast=(...args)=>{monthCalls++;return originalMonthRender(...args)}');
+ await a.eval('refreshLeagueCalendar()');assert.equal(a.eval('monthCalls'),0);assert.equal(a.node('monthEnd').value,'2026-12-31');
+});
+test('failed monthly refresh reports uncertainty and identical successful retry clears it',async()=>{
+ const a=monthAudit('2026-10-15T22:30:00Z'),good=a.ctx.fetch;a.ctx.fetch=async()=>{throw Error('offline')};await a.eval('refreshLeagueCalendar()');assert.match(a.node('monthStatus').textContent,/再取得失敗/);assert.ok(a.node('monthRows').innerHTML);
+ a.ctx.fetch=good;await a.eval('refreshLeagueCalendar()');assert.doesNotMatch(a.node('monthStatus').textContent,/再取得失敗/);
+});
+test('an unchanged but expired monthly calendar clears predictions rather than showing old probabilities',async()=>{
+ const a=monthAudit('2026-10-15T22:30:00Z');a.clock.now+=25*3600000;await a.eval('refreshLeagueCalendar()');assert.equal(a.node('monthRows').innerHTML,'');assert.match(a.node('monthStatus').textContent,/24時間/);
+});
+test('older monthly calendar cannot undo a known cancellation',async()=>{
+ const a=monthAudit('2026-10-15T22:30:00Z');a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status='cancelled';renderMonthForecast(10)");a.ctx.fetch=async()=>({ok:true,json:async()=>({...structuredClone(a.ctx.league),checkedAt:'2026-10-15T21:30:00Z'})});await a.eval('refreshLeagueCalendar()');assert.equal(a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status"),'cancelled');assert.match(a.node('monthSummary').textContent,/13試合/);assert.match(a.node('monthStatus').textContent,/再取得失敗/);
+});
