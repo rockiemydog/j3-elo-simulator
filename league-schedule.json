@@ -3,9 +3,9 @@
   "scope": "all-clubs",
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-15T22:22:32.543178+00:00",
+  "checkedAt": "2026-10-15T22:52:33.560128+00:00",
   "coverageFrom": "2026-08-08",
-  "coverageThrough": "2027-01-24",
+  "coverageThrough": "2027-07-31",
   "matches": [
     {
       "id": "2026080815",
@@ -1765,6 +1765,1286 @@
       "time": "14:00",
       "home": "鹿児島",
       "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022021",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "栃木SC",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022022",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "群馬",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022023",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "相模原",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022024",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "滋賀",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022025",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "FC大阪",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022026",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "奈良",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022027",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "山口",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022028",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "愛媛",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022029",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "熊本",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022030",
+      "date": "2027-02-20",
+      "time": null,
+      "home": "鹿児島",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022721",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "福島",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022722",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "群馬",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022723",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "相模原",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022724",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "岐阜",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022725",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "山口",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022726",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "讃岐",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022727",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "愛媛",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022728",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "高知",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022729",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "北九州",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027022730",
+      "date": "2027-02-27",
+      "time": null,
+      "home": "琉球",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030621",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "栃木SC",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030622",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "金沢",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030623",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "岐阜",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030624",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "滋賀",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030625",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "FC大阪",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030626",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "奈良",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030627",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "鳥取",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030628",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "高知",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030629",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "熊本",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027030630",
+      "date": "2027-03-06",
+      "time": null,
+      "home": "鹿児島",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031320",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "福島",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031321",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "群馬",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031322",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "松本",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031323",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "長野",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031324",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "滋賀",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031325",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "山口",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031326",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "讃岐",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031327",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "愛媛",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031328",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "北九州",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031329",
+      "date": "2027-03-13",
+      "time": null,
+      "home": "琉球",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031711",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "福島",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031712",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "栃木SC",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031713",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "群馬",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031714",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "相模原",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031715",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "金沢",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031716",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "奈良",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031717",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "鳥取",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031718",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "愛媛",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031719",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "高知",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027031720",
+      "date": "2027-03-17",
+      "time": null,
+      "home": "鹿児島",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032020",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "相模原",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032021",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "松本",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032022",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "長野",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032023",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "金沢",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032024",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "岐阜",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032025",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "FC大阪",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032026",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "奈良",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032027",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "山口",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032028",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "熊本",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032029",
+      "date": "2027-03-20",
+      "time": null,
+      "home": "琉球",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032711",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "福島",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032712",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "栃木SC",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032713",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "長野",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032714",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "岐阜",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032715",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "滋賀",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032716",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "鳥取",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032717",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "讃岐",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032718",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "愛媛",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032719",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "北九州",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027032720",
+      "date": "2027-03-27",
+      "time": null,
+      "home": "鹿児島",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040321",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "群馬",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040322",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "相模原",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040323",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "松本",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040324",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "金沢",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040325",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "FC大阪",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040326",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "奈良",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040327",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "山口",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040328",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "高知",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040329",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "熊本",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027040330",
+      "date": "2027-04-03",
+      "time": null,
+      "home": "琉球",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041020",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "福島",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041021",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "栃木SC",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041022",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "長野",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041023",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "金沢",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041024",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "岐阜",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041025",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "滋賀",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041026",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "鳥取",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041027",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "讃岐",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041028",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "愛媛",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041029",
+      "date": "2027-04-10",
+      "time": null,
+      "home": "鹿児島",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041720",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "相模原",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041721",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "松本",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041722",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "岐阜",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041723",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "FC大阪",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041724",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "奈良",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041725",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "山口",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041726",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "高知",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041727",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "北九州",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041728",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "熊本",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027041729",
+      "date": "2027-04-17",
+      "time": null,
+      "home": "琉球",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042421",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "福島",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042422",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "栃木SC",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042423",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "群馬",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042424",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "相模原",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042425",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "松本",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042426",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "金沢",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042427",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "滋賀",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042428",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "鳥取",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042429",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "愛媛",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042430",
+      "date": "2027-04-24",
+      "time": null,
+      "home": "高知",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042921",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "福島",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042922",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "長野",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042923",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "金沢",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042924",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "FC大阪",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042925",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "鳥取",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042926",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "山口",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042927",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "讃岐",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042928",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "北九州",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042929",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "熊本",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027042930",
+      "date": "2027-04-29",
+      "time": null,
+      "home": "鹿児島",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050321",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "栃木SC",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050322",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "群馬",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050323",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "相模原",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050324",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "松本",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050325",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "岐阜",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050326",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "滋賀",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050327",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "奈良",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050328",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "愛媛",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050329",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "高知",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050330",
+      "date": "2027-05-03",
+      "time": null,
+      "home": "琉球",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050921",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "福島",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050922",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "松本",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050923",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "金沢",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050924",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "FC大阪",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050925",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "鳥取",
+      "away": "滋賀",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050926",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "山口",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050927",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "讃岐",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050928",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "北九州",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050929",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "熊本",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027050930",
+      "date": "2027-05-09",
+      "time": null,
+      "home": "鹿児島",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051521",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "福島",
+      "away": "岐阜",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051522",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "栃木SC",
+      "away": "群馬",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051523",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "相模原",
+      "away": "奈良",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051524",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "長野",
+      "away": "FC大阪",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051525",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "滋賀",
+      "away": "讃岐",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051526",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "鳥取",
+      "away": "熊本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051527",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "愛媛",
+      "away": "金沢",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051528",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "高知",
+      "away": "北九州",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051529",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "鹿児島",
+      "away": "山口",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027051530",
+      "date": "2027-05-15",
+      "time": null,
+      "home": "琉球",
+      "away": "松本",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052311",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "群馬",
+      "away": "鹿児島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052312",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "松本",
+      "away": "福島",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052313",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "金沢",
+      "away": "相模原",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052314",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "岐阜",
+      "away": "鳥取",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052315",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "FC大阪",
+      "away": "高知",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052316",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "奈良",
+      "away": "栃木SC",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052317",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "山口",
+      "away": "愛媛",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052318",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "讃岐",
+      "away": "長野",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052319",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "北九州",
+      "away": "琉球",
+      "status": "scheduled"
+    },
+    {
+      "id": "2027052320",
+      "date": "2027-05-23",
+      "time": null,
+      "home": "熊本",
+      "away": "滋賀",
       "status": "scheduled"
     }
   ]
