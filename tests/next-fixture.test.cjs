@@ -2,11 +2,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const main=fs.readFileSync('index.html','utf8'),shared=fs.readFileSync('shared-results.js','utf8'),calendar={verified:true,season:'2026/27',checkedAt:'2026-10-14T11:00:00Z',matches:[
  {id:'2026101728',date:'2026-10-17',time:'14:00',home:'北九州',away:'FC大阪',status:'scheduled'},
  {id:'2026102127',date:'2026-10-21',time:'13:00',home:'福島',away:'北九州',status:'scheduled'}]};
-function app(location={search:'',hash:''}){
+function app(location={search:'',hash:''},history){
  const timers=[];
  const events={};
  const nodes=new Map();const node=id=>{if(!nodes.has(id))nodes.set(id,{value:id==='runs'?'10':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},querySelectorAll:()=>[],click(){this.onclick?.()}});return nodes.get(id);};
- const ctx={location,document:{getElementById:node,querySelectorAll:()=>[],addEventListener:(n,f)=>events[n]=f,hidden:false},localStorage:{getItem(){return null;}},setTimeout(f,ms){if(ms===20)timers.push(f);return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=(n,f)=>events[n]=f;ctx.dispatchEvent=()=>{};
+ const ctx={location,history,document:{getElementById:node,querySelectorAll:()=>[],addEventListener:(n,f)=>events[n]=f,hidden:false},localStorage:{getItem(){return null;}},setTimeout(f,ms){if(ms===20)timers.push(f);return 0;},setInterval(){},clearTimeout(){},AbortController,console};ctx.window=ctx;ctx.addEventListener=(n,f)=>events[n]=f;ctx.dispatchEvent=()=>{};
  vm.createContext(ctx);vm.runInContext(shared,ctx);vm.runInContext(main.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);
  ctx.calendar=structuredClone(calendar);vm.runInContext('fixtureCalendar=validateCalendar(calendar);updateNextFixture()',ctx);
  return {ctx,node,events,flushRender:()=>{while(timers.length)timers.shift()();},eval:s=>vm.runInContext(s,ctx)};
@@ -99,4 +99,11 @@ test('month forecast opens as a separate view with its own title and no final-se
 test('opening month view carries only valid unconfirmed trial rows without saving official results',()=>{
  const source=app();source.eval("scenarios=[['北九州','FC大阪',2,0]];renderScenarios()");const hash=source.node('openMonthForecast').href.split('#')[1];assert(hash);const target=app({search:'?view=month-end',hash:'#'+hash});assert.equal(target.eval('scenarios.length'),1);assert.equal(target.eval('scenarios[0][2]'),2);assert.equal(target.eval('confirmed().length'),source.eval('confirmed().length'));target.eval('scenarios=[]');assert.equal(source.eval('scenarios.length'),1);
  const invalid='#trial='+encodeURIComponent(JSON.stringify([['北九州','FC大阪',-1,0]])),bad=app({search:'?view=month-end',hash:invalid});assert.equal(bad.eval('scenarios.length'),0);
+});
+
+test('opening snapshot is consumed so reload cannot revive reset trial inputs',()=>{
+ const location={pathname:'/j3-elo-simulator/',search:'?view=month-end',hash:'#trial='+encodeURIComponent(JSON.stringify([['北九州','FC大阪',2,0]]))};let replaced='';
+ const a=app(location,{replaceState(_state,_title,url){replaced=url;location.hash='';}});
+ assert.equal(a.eval('scenarios.length'),1);assert.equal(replaced,'/j3-elo-simulator/?view=month-end');
+ a.node('resetScenario').onclick();assert.equal(a.eval('scenarios.length'),0);assert.equal(app(location).eval('scenarios.length'),0);
 });
