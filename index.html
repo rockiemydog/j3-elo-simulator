@@ -273,6 +273,7 @@ function monthRankMovement(current,predicted){
   const delta=Number((current-Number(predicted.toFixed(1))).toFixed(1));
   return {delta,direction:delta>0?'up':delta<0?'down':'same',label:delta>0?`← ${delta.toFixed(1)}位上昇`:delta<0?`→ ${(-delta).toFixed(1)}位下降`:'変化なし'};
 }
+function displayedDifference(a,b){return (Number(a.toFixed(1))-Number(b.toFixed(1))).toFixed(1);}
 function renderMonthRankChart(rows){
   const current=new Map(liveRows([]).map(r=>[r.club,r])),x=rank=>110+(rank-1)/19*400;
   const grid=[1,6,10,15,20].map(rank=>`<line x1="${x(rank)}" y1="32" x2="${x(rank)}" y2="830" stroke="#e4e7ec"/><text x="${x(rank)}" y="20" text-anchor="middle" font-size="12" fill="#667085">${rank}位</text>`).join('');
@@ -352,7 +353,7 @@ function renderMonthPlanner(context=monthPlannerContext()){
   $('nextValueRows').innerHTML=nextValueComparison?nextValueComparison.rows.map(({outcome,forecast:r},i)=>`<tr><td>${labels[outcome]}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td><button class="btn" data-next-value="${i}" type="button">この結果を反映</button></td></tr>`).join(''):'';
   const ceiling=nextValueComparison?Math.max(5,Math.ceil(Math.max(...nextValueComparison.rows.map(r=>r.forecast.top6))/5)*5):100;
   $('nextValueChart').innerHTML=nextValueComparison?`<p class="sub">月末6位以内確率（棒の右端＝${ceiling}％）</p>`+nextValueComparison.rows.map(({outcome,forecast:r})=>`<div class="next-value-row"><span>${labels[outcome]}</span><div class="next-value-track"><span style="width:${r.top6/ceiling*100}%;background:${colors[outcome]}"></span></div><strong>${r.top6.toFixed(1)}％</strong></div>`).join(''):'';
-  if(nextValueComparison){const win=nextValueComparison.rows[0].forecast,loss=nextValueComparison.rows[2].forecast;$('nextValueStatus').textContent=`勝利時−敗戦時：予想勝点 ${(win.points-loss.points).toFixed(1)}点差 ／ 平均順位 ${(loss.rank-win.rank).toFixed(1)}位改善 ／ 6位以内確率 ${(win.top6-loss.top6).toFixed(1)}ポイント差。確率は予測で、順位の確約ではありません。`;}
+  if(nextValueComparison){const win=nextValueComparison.rows[0].forecast,loss=nextValueComparison.rows[2].forecast;$('nextValueStatus').textContent=`勝利時−敗戦時（表示値の差）：予想勝点 ${displayedDifference(win.points,loss.points)}点差 ／ 平均順位 ${displayedDifference(loss.rank,win.rank)}位改善 ／ 6位以内確率 ${displayedDifference(win.top6,loss.top6)}ポイント差。確率は予測で、順位の確約ではありません。`;}
   else $('nextValueStatus').textContent='比較ボタンで、他の試し入力を共通条件にした3通りの月末予測を計算します。';
   $('nextValueRows').querySelectorAll('[data-next-value]').forEach(button=>button.onclick=()=>{try{const fresh=monthPlannerContext();if(!nextValueComparison||nextValueComparison.signature!==plannerSignature(fresh,'next'))throw Error('条件が変わったため、もう一度比較してください');replaceMonthTrials([nextValueComparison.rows[+button.dataset.nextValue].game]);$('plannerNotice').textContent='次戦の指定を月末予測に反映しました。';}catch(error){$('plannerNotice').textContent=error.message;}});
   const rivals=context.cards.filter(r=>r.home!=='北九州'&&r.away!=='北九州').sort((a,b)=>Number(sixth.has(b.home)||sixth.has(b.away))-Number(sixth.has(a.home)||sixth.has(a.away)));
