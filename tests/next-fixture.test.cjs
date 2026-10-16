@@ -92,7 +92,7 @@ test('older monthly calendar cannot undo a known cancellation',async()=>{
  const a=monthAudit('2026-10-15T22:30:00Z');a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status='cancelled';renderMonthForecast(10)");a.ctx.fetch=async()=>({ok:true,json:async()=>({...structuredClone(a.ctx.league),checkedAt:'2026-10-15T21:30:00Z'})});await a.eval('refreshLeagueCalendar()');assert.equal(a.eval("leagueCalendar.matches.find(r=>r.home==='北九州'&&r.away==='FC大阪').status"),'cancelled');assert.match(a.node('monthSummary').textContent,/13試合/);assert.match(a.node('monthStatus').textContent,/再取得失敗/);
 });
 test('month forecast opens as a separate view with its own title and no final-season simulation',()=>{
- const a=app({search:'?view=month-end',hash:''});a.flushRender();assert.equal(a.eval('MONTH_VIEW'),true);assert.equal(a.node('monthSection').hidden,false);assert.equal(a.node('pageTitle').textContent,'月末時点の順位予測');assert.equal(a.eval('lastForecast'),null);
+ const a=app({search:'?view=month-end',hash:''});a.flushRender();assert.equal(a.eval('MONTH_VIEW'),true);assert.equal(a.node('monthSection').hidden,false);assert.equal(a.node('pageTitle').textContent,'J3 Month-End Outlook');assert.equal(a.eval('lastForecast'),null);
  assert.match(main,/id="monthSection"[^>]*hidden/);assert.match(main,/id="openMonthForecast"[^>]*target="_blank"[^>]*rel="noopener"/);assert.match(main,/body\.month-view \.final-only/);
  const b=app();b.flushRender();assert.equal(b.eval('MONTH_VIEW'),false);assert.equal(b.eval('lastForecast.length'),20);
 });

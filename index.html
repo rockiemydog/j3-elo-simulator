@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>J3順位シミュレーター Elo版 2026/27</title>
+<title>J3 Season Outlook · 2026/27</title>
 <style>
 :root{--ink:#172033;--muted:#667085;--line:#e4e7ec;--bg:#f7f8fa;--card:#fff;--blue:#175cd3;--blue2:#e8f1ff;--gold:#f5b700;--danger:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}.shell{max-width:1180px;margin:auto;padding:28px 20px 48px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:22px}.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted);font-weight:700}h1{font-size:28px;line-height:1.2;margin:5px 0 7px}header p{margin:0;color:var(--muted)}.stamp{text-align:right;color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:360px 1fr;gap:18px}.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(16,24,40,.04)}h2{font-size:17px;margin:0 0 4px}h3{font-size:14px;margin:18px 0 8px}.sub{color:var(--muted);font-size:12px;margin-bottom:16px}.form-grid{display:grid;grid-template-columns:1fr 58px 20px 58px 1fr;gap:8px;align-items:end}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.field select,.field input,.runs select{width:100%;height:40px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:var(--ink);padding:0 10px;font:inherit}.field input{text-align:center;font-size:18px;font-weight:700}.dash{text-align:center;padding-bottom:10px;font-weight:700}.actions{display:flex;gap:8px;margin-top:12px}.btn{border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:var(--ink);padding:10px 13px;font-weight:700;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;flex:1}.btn:hover{filter:brightness(.98)}.error{color:var(--danger);font-size:12px;min-height:18px;margin-top:6px}.scenario-list{display:grid;gap:7px}.scenario{display:grid;grid-template-columns:1fr auto 28px;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}.scenario strong{font-variant-numeric:tabular-nums}.remove{border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer}.empty{color:var(--muted);padding:10px 0}.runs{display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:end;margin-top:18px}.runs label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.metric{border:1px solid var(--line);border-radius:10px;padding:12px}.metric .label{font-size:11px;color:var(--muted)}.metric .value{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}.metric .delta{font-size:11px;color:var(--blue);min-height:16px}.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:10px}.tab{border:0;background:transparent;padding:10px 12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}.tab.active{color:var(--blue);border-color:var(--blue)}.table-wrap{overflow:auto;max-height:650px}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th{position:sticky;top:0;background:var(--card);z-index:1;color:var(--muted);font-size:11px;text-align:right;padding:8px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th:nth-child(2){text-align:left}td{text-align:right;padding:8px 7px;border-bottom:1px solid #f0f1f3}td:nth-child(2){text-align:left;font-weight:600}.gira td{background:var(--blue2);color:#0b3b8c;font-weight:800}.rank{font-weight:800}.zone{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-size:11px}.zone.auto{background:#d1fadf;color:#05603a}.zone.po{background:#fff3c7;color:#7a4d00}.spinner{display:none;color:var(--muted);font-size:12px;margin-left:auto}.spinner.on{display:block}@media(max-width:850px){.grid{grid-template-columns:1fr}.hero{grid-template-columns:repeat(2,1fr)}header{align-items:start}.stamp{display:none}}@media(max-width:520px){.shell{padding:18px 12px}.form-grid{grid-template-columns:1fr 52px 14px 52px 1fr}.panel{padding:14px}.hero{grid-template-columns:1fr 1fr}h1{font-size:23px}}
@@ -20,7 +20,7 @@
 <body>
 <main class="shell">
   <header>
-    <div><div class="eyebrow">GIRAVANZ AI · ELO EDITION</div><h1 id="pageTitle">J3順位シミュレーター <span class="tag">Elo版</span></h1><p id="pageDescription">勝敗結果からクラブの強さを更新し、残り試合と最終順位を再計算</p></div>
+    <div><div class="eyebrow">GIRAVANZ AI · ELO EDITION</div><h1 id="pageTitle">J3 Season Outlook <span class="tag">Elo版</span></h1><p id="pageDescription">勝敗結果からクラブの強さを更新し、残り試合と最終順位を再計算</p></div>
     <div class="stamp">2026/27 J3 · Elo<br><span id="stampData">初期70試合</span></div>
   </header>
   <section class="data-ready" id="dataReady" aria-live="polite">
@@ -29,9 +29,9 @@
   </section>
   <div class="grid">
     <aside class="panel">
-      <p><a href="progress-tracker/">北九州の進捗トラッカーを見る →</a></p>
-      <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">月末時点の順位予測を別タブで見る →</a></p>
-      <p class="month-only"><a href="./">順位シミュレーターへ戻る →</a></p>
+      <p><a href="progress-tracker/">Giravanz Promotion Tracker を見る →</a></p>
+      <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">J3 Month-End Outlook を別タブで見る →</a></p>
+      <p class="month-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
       <h2>公式結果の自動更新</h2><p id="autoStatus" class="sub" aria-live="polite">公式の終了試合を自動取得しています…</p><p id="verification" class="sub" aria-live="polite" style="white-space:pre-line"></p><button class="btn" id="refreshOfficial" type="button">最新結果を確認する</button><h2>対戦カードの勝敗確率</h2><div class="sub">ホーム・アウェーを選ぶと勝利・引き分け・敗戦の確率を表示します。</div>
       <div class="team-pickers"><div class="field"><label for="home">ホーム</label><select id="home"><option>岐阜</option><option selected>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div><div class="versus">対</div><div class="field"><label for="away">アウェー</label><select id="away"><option>岐阜</option><option>愛媛</option><option>鹿児島</option><option>相模原</option><option>鳥取</option><option>FC大阪</option><option>長野</option><option>滋賀</option><option>熊本</option><option>栃木SC</option><option>琉球</option><option>讃岐</option><option>山口</option><option>奈良</option><option>高知</option><option selected>北九州</option><option>松本</option><option>金沢</option><option>群馬</option><option>福島</option></select></div></div>
       <p class="sub" id="nextFixtureStatus" aria-live="polite">北九州の公式日程を確認中…</p><button class="btn" id="showNextFixture" type="button">北九州の次戦に戻る</button>
@@ -51,7 +51,7 @@
     <section class="panel">
       <div class="statusline final-only" id="statusline"></div><div class="sub" id="uncertainty"></div><div class="hero final-only" id="hero"></div>
       <section class="distribution" id="monthSection" aria-labelledby="monthTitle" hidden>
-        <h2 id="monthTitle">月末時点の順位予測</h2>
+        <h2 id="monthTitle">J3 Month-End Outlook</h2>
         <p class="sub">シミュレーターから開いた時点の試し入力を引き継ぎます。その後の入力・リセットは、このタブ内だけに反映します。</p>
         <label for="monthEnd">予測する月末</label><select id="monthEnd" disabled><option value="">全クラブの日程を確認中</option></select>
         <p class="sub" id="monthStatus" aria-live="polite">全20クラブの公式日程を取得しています。</p>
@@ -60,15 +60,15 @@
           <h3>勝ち方を変えて、月末の順位を試す</h3>
           <p class="sub" id="plannerStatus" aria-live="polite">日程を確認しています。</p>
           <p class="sub">以下は仮の結果です。公式成績は変更しません。指定しない試合はEloで予測します。勝利は1–0、引分けは1–1、敗戦は0–1を北九州側から割り当てます。</p>
-          <details open><summary>① 北九州の勝敗パターンを比較</summary>
+          <details open><summary>① 勝ち方を試す</summary>
             <p class="sub">選択した月末までの北九州の未消化試合が対象です。比較は日程順に「勝ち→分け→負け」を割り当てます。同じ勝敗数でも相手によって順位予測は変わります。</p>
-            <button class="btn" id="comparePatterns" type="button" disabled>勝敗パターンを比較する</button>
+            <button class="btn" id="comparePatterns" type="button" disabled>勝ち方を試す</button>
             <div class="table-wrap"><table aria-label="北九州の勝敗パターン比較"><thead><tr><th>勝敗パターン</th><th>追加勝点</th><th>月末予想勝点</th><th>平均順位</th><th>6位以内</th><th>反映</th></tr></thead><tbody id="patternRows"></tbody></table></div>
             <p class="sub" id="patternStatus" aria-live="polite">比較ボタンで全勝などのパターンを並べます。</p>
             <h4>試合ごとに割り当てを変更</h4>
             <div class="table-wrap"><table aria-label="北九州の試合別シナリオ"><thead><tr><th>日程</th><th>ホーム 対 アウェー</th><th>北九州の結果</th></tr></thead><tbody id="kitPlanRows"></tbody></table></div>
           </details>
-          <details><summary>② 次戦に勝つ価値を比較</summary>
+          <details><summary>② 次の一勝の価値</summary>
             <p class="sub" id="nextValueFixture">次戦を確認しています。</p>
             <button class="btn" id="compareNextValue" type="button" disabled>次戦の勝ち・分け・負けを比較する</button>
             <p class="sub">次戦だけを勝ち・分け・負けに置き換え、それ以外の試し入力を共通条件にして比較します。</p>
@@ -76,7 +76,7 @@
             <div class="table-wrap"><table aria-label="次戦の結果別月末予測"><thead><tr><th>次戦の結果</th><th>月末予想勝点</th><th>平均順位</th><th>6位以内</th><th>反映</th></tr></thead><tbody id="nextValueRows"></tbody></table></div>
             <p class="sub" id="nextValueStatus" aria-live="polite"></p>
           </details>
-          <details><summary>③ ライバルの結果も指定</summary>
+          <details><summary>③ ライバルの動向</summary>
             <p class="sub">選択した月末までの他クラブの開催予定カードです。現在6位のクラブが関わる試合を先頭に表示します。ホームとアウェーを確認して指定してください。</p>
             <label for="rivalFixture">ライバルの対戦カード</label><select id="rivalFixture" disabled><option value="">日程を確認中</option></select>
             <div class="actions rival-actions"><button class="btn" id="rivalHomeWin" disabled type="button">ホーム勝ち</button><button class="btn" id="rivalDraw" disabled type="button">引分け</button><button class="btn" id="rivalAwayWin" disabled type="button">アウェー勝ち</button><button class="btn" id="rivalClear" disabled type="button">この指定を解除</button></div>
@@ -87,7 +87,7 @@
         <h3>現在順位から月末予測への動き</h3>
         <p class="sub">左ほど上位。○は現在の確定順位、●は選択した月末の平均予想順位です。←は上昇、→は下降。試し入力は月末予測にだけ反映します。</p>
         <div class="distribution-scroll" id="monthRankChart" aria-live="polite"></div>
-        <div class="table-wrap"><table aria-label="月末時点の順位予測"><thead><tr><th>クラブ</th><th>予想勝点</th><th>平均順位</th><th>6位以内</th><th>予想消化試合</th></tr></thead><tbody id="monthRows"></tbody></table></div>
+        <div class="table-wrap"><table aria-label="J3 Month-End Outlook"><thead><tr><th>クラブ</th><th>予想勝点</th><th>平均順位</th><th>6位以内</th><th>予想消化試合</th></tr></thead><tbody id="monthRows"></tbody></table></div>
         <p class="sub">現在の確定勝点＋選択した月末までの開催予定試合を予測。中止・延期・開催未確認の未消化試合は除外します。試し入力は対象期間のカードだけに反映します。平均順位・6位以内確率は月末時点の予測で、シーズン最終予測とは異なります。日程変更により試合数も変わります。</p>
       </section>
       <section class="distribution final-only" aria-labelledby="distributionTitle">
@@ -451,7 +451,7 @@ window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults(
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
-if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='月末時点の順位予測';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='月末時点の順位予測 · J3';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
+if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='J3 Month-End Outlook';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='J3 Month-End Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>
