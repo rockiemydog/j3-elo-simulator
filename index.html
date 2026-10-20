@@ -35,7 +35,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
       <p><a href="progress-tracker/">Giravanz Promotion Tracker を見る →</a></p>
       <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">J3 Month-End Outlook を別タブで見る →</a></p>
       <p class="gd-navigation"><a id="openGoalDifference" href="?view=goal-difference" target="_blank" rel="noopener">20クラブの得失点差を別タブで見る →</a></p>
-      <p class="promotion-navigation"><a id="openPromotionLines" href="?view=promotion-lines" target="_blank" rel="noopener">2位・プレーオフラインを別タブで見る →</a></p>
+      <p class="promotion-navigation"><a id="openPromotionLines" href="?view=promotion-lines" target="_blank" rel="noopener">優勝・2位・プレーオフラインを別タブで見る →</a></p>
       <p class="promotion-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
       <p class="gd-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
       <p class="month-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
@@ -105,7 +105,8 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
         <div class="distribution-legend"><span style="--zone:#e5ac00">1～2位</span><span style="--zone:#14213d">3～6位</span><span style="--zone:#98a2b3">7～19位</span><span style="--zone:#d83043">20位</span></div>
         <p class="sub">横軸：最終順位 ／ 縦軸：確率（％）。各順位で終わった回数 ÷ 計算回数 × 100。試し入力にも連動します。<br>各クラブの確率合計は100％（表示は小数第1位に丸め）。0.0％は可能性ゼロを意味しません。狭い画面ではグラフを横にスワイプできます。</p>
       </section>
-      <section class="distribution final-only" aria-labelledby="titlePointsHeading">
+      <section class="promotion-only"><h2>優勝・2位・プレーオフ圏の勝点を比較</h2><p class="sub">各シミュレーションで全20クラブを最終順位順に並べ、優勝・2位・6位のクラブの最終勝点をそれぞれ集計します。プレーオフラインは6位の勝点を指します。昇格・出場資格の判定は含みません。</p><p class="sub">開いた時点の試し入力を引き継ぎ、その後の入力・リセットはこのタブ内だけに反映します。</p></section>
+      <section class="distribution promotion-only" aria-labelledby="titlePointsHeading">
         <h2 id="titlePointsHeading">優勝ラインの確率分布</h2>
         <p class="sub">全20クラブを対象に、各シミュレーションで優勝したクラブの最終勝点を集計します。</p>
         <p class="distribution-summary" id="titlePointsSummary" aria-live="polite"></p>
@@ -114,7 +115,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
         <p class="sub">横軸：優勝クラブの最終勝点（1点刻み）／ 縦軸：確率（％）。確率＝その勝点で優勝した回数 ÷ 計算回数 × 100。中央80％は累積確率10～90％の位置です。得失点差などで順位が決まるため、この勝点に届けば必ず優勝できるという保証ではありません。試し入力・計算精度にも連動します。0％と表示されても可能性がゼロとは限りません。</p>
         <details><summary>勝点ごとの確率を見る</summary><div class="table-wrap"><table aria-label="優勝勝点ごとの確率"><thead><tr><th>最終勝点</th><th>確率</th><th>回数</th></tr></thead><tbody id="titlePointsRows"></tbody></table></div><p class="sub">観測された勝点のみ表示。確率は小数第2位に丸めています。</p></details>
       </section>
-      <section class="promotion-only"><h2>2位・プレーオフ圏の勝点を比較</h2><p class="sub">各シミュレーションで全20クラブを最終順位順に並べ、2位と6位のクラブの最終勝点をそれぞれ集計します。プレーオフラインは6位の勝点を指します。昇格・出場資格の判定は含みません。</p><p class="sub">開いた時点の試し入力を引き継ぎ、その後の入力・リセットはこのタブ内だけに反映します。</p></section>
+
       <section class="distribution promotion-only" aria-labelledby="secondPointsHeading">
         <h2 id="secondPointsHeading">2位ラインの確率分布</h2>
         <p class="sub">全20クラブを対象に、各シミュレーションで2位になったクラブの最終勝点を集計します。</p>
@@ -534,7 +535,7 @@ window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults(
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
-if(LINE_VIEW){document.body?.classList.add('promotion-view');$('pageTitle').textContent='J3 Promotion Outlook';$('pageDescription').textContent='2位とプレーオフ圏の最終勝点を確率分布で比較';document.title='J3 Promotion Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
+if(LINE_VIEW){document.body?.classList.add('promotion-view');$('pageTitle').textContent='J3 Promotion Outlook';$('pageDescription').textContent='優勝・2位・プレーオフ圏の最終勝点を確率分布で比較';document.title='J3 Promotion Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
 if(GD_VIEW){document.body?.classList.add('gd-view');$('pageTitle').textContent='J3 Goal Difference';$('pageDescription').textContent='公式結果から、全20クラブの現在の得失点差を比較';document.title='J3 Goal Difference · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 
 if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='J3 Month-End Outlook';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='J3 Month-End Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
