@@ -118,6 +118,7 @@ check('retry restores verified state for both pages with unchanged results',()=>
 
 values.clear();
 const apiFeed={...published,officialCheckedAt:'2026-10-10T08:00:00Z'};
+const expectedKit=published.matches.reduce((s,{game:[home,away,hg,ag]})=>{if(home!=='北九州'&&away!=='北九州')return s;const own=home==='北九州'?hg:ag,other=home==='北九州'?ag:hg;return {played:s.played+1,losses:s.losses+Number(own<other),ga:s.ga+other};},{played:0,losses:0,ga:0});
 const apiReply=(t,status='unchanged',feed=apiFeed)=>({status,feed,resultId:t.eval('J3Results.resultId('+JSON.stringify(feed.matches.map(r=>r.game))+')'),added:0,corrected:0,retryAfter:60});
 const response=(body,status=200)=>({ok:status===200,status,json:async()=>body});
 const apiMain=tab(main,true),apiTracker=tab(progress,true);await new Promise(setImmediate);
@@ -142,7 +143,7 @@ check('busy, cooldown and invalid responses do not announce update completion',(
 apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test')");
 apiTracker.fetch=async()=>response(apiReply(apiTracker));await apiTracker.eval('syncAutomaticResults(true)');
 check('manual official refresh replaces old trial display with current actual stats',()=>{
- assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),10);assert.equal(apiTracker.eval('activeStats.losses'),4);assert.equal(apiTracker.eval('activeStats.ga'),18);assert(apiTracker.node('cards').innerHTML.includes('28<small>試合'));assert(!apiTracker.node('cards').innerHTML.includes('29<small>試合'));assert.equal(apiTracker.node('verification').dataset.verified,'true');assert(apiTracker.node('test-fields').innerHTML.includes('id="test-played" type="number" min="0" max="38" value="10"'));
+ assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),expectedKit.played);assert.equal(apiTracker.eval('activeStats.losses'),expectedKit.losses);assert.equal(apiTracker.eval('activeStats.ga'),expectedKit.ga);assert(apiTracker.node('cards').innerHTML.includes((38-expectedKit.played)+'<small>試合'));assert(!apiTracker.node('cards').innerHTML.includes((39-expectedKit.played)+'<small>試合'));assert.equal(apiTracker.node('verification').dataset.verified,'true');assert(apiTracker.node('test-fields').innerHTML.includes('id="test-played" type="number" min="0" max="38" value="'+expectedKit.played+'"'));
 });
 apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test');Date.now=()=>9999999999999");
 await apiTracker.eval('syncAutomaticResults()');
@@ -150,7 +151,7 @@ check('automatic unchanged check preserves deliberate trial inputs',()=>{assert.
 const corrected=JSON.parse(JSON.stringify(apiFeed));const game=corrected.matches.find(r=>r.game[0]==='奈良'&&r.game[1]==='北九州');game.game[2]=3;
 for(const t of [apiMain,apiTracker]){t.fetch=async()=>response({...apiReply(t,'updated',corrected),corrected:1});await t.eval('syncAutomaticResults(true)');t.flushRender();}
 check('a score correction updates both models without duplicating the fixture',()=>{
- assert.equal(apiMain.eval('confirmed().length'),published.matches.length);assert.equal(apiMain.eval('stateWithScenario().ga[ix["北九州"]]'),19);assert.equal(apiTracker.eval('activeStats.ga'),19);assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));assert.equal(apiMain.node('verification').dataset.verified,'true');assert.equal(apiTracker.node('verification').dataset.verified,'true');
+ assert.equal(apiMain.eval('confirmed().length'),published.matches.length);assert.equal(apiMain.eval('stateWithScenario().ga[ix["北九州"]]'),expectedKit.ga+1);assert.equal(apiTracker.eval('activeStats.ga'),expectedKit.ga+1);assert.equal(apiMain.eval('J3Results.resultId()'),apiTracker.eval('J3Results.resultId()'));assert.equal(apiMain.node('verification').dataset.verified,'true');assert.equal(apiTracker.node('verification').dataset.verified,'true');
 });
 // Automatic API failure may display a saved feed, but must disclose that the source was not confirmed.
 apiMain.eval('Date.now=()=>9999999999999');apiMain.fetch=async url=>{if(url.includes('/api/'))throw Error('offline');return response(corrected);};await apiMain.eval('syncAutomaticResults()');
