@@ -18,6 +18,15 @@ METRICS = {
     'interceptCount': ('インターセプト総数', '回', 5000),
     'cleanSheet': ('無失点試合総数', '試合', 38),
 }
+DERIVED = {
+    'shotsPg': ('1試合平均シュート数', '本／試合', 100),
+    'shotConversion': ('シュート決定率', '％', 100),
+    'concededPg': ('1試合平均失点', '点／試合', 30),
+    'shotsAgainstPg': ('1試合平均被シュート数', '本／試合', 100),
+    'ckPg': ('1試合平均CK数', '本／試合', 50),
+    'cleanSheetRate': ('無失点試合率', '％', 100),
+}
+LOWER_BETTER = {'concededPg', 'shotsAgainstPg'}
 
 def flight_objects(html):
     chunks = []
@@ -68,8 +77,6 @@ def parse_stats(html, now=None, slug="kitakyushu"):
         if prior is not None:
             prior = number(prior, maximum)
         metrics.append(dict(key=key, label=label, unit=unit, value=value, previous=prior))
-    if slug != 'kitakyushu':
-        return dict(club=CLUBS[slug], metrics=metrics)
     games = []
     seen = set()
     for row in props.get('gameLogInClubByYear', {}).get('2026-2', []):
@@ -84,7 +91,7 @@ def parse_stats(html, now=None, slug="kitakyushu"):
         seen.add(ident)
         score = row.get('scoreResult') or {}
         opponent = row.get('opponentTeamShortName')
-        if not isinstance(opponent, str) or not opponent or len(opponent) > 30:
+        if opponent not in CLUBS.values() or opponent == CLUBS[slug]:
             raise ValueError('Invalid opponent')
         games.append(dict(id=ident, date=day.isoformat(), opponent=opponent,
                           gf=number(score.get('score'), 30, True), ga=number(score.get('lost'), 30, True),
@@ -92,8 +99,38 @@ def parse_stats(html, now=None, slug="kitakyushu"):
     if not games or len(games) > 38:
         raise ValueError('Missing complete match log')
     games.sort(key=lambda r: (r['date'], r['id']))
-    return dict(schemaVersion=1, verified=True, club='北九州', season='2026/27', source=SOURCE,
+    return dict(schemaVersion=2, verified=True, club=CLUBS[slug], season='2026/27', source=SOURCE,
                 checkedAt=now.isoformat(), statsUpdatedAt=None, metrics=metrics, matches=games)
+
+
+def add_derived(clubs):
+    """Pair both official match logs before computing any new rate or denominator."""
+    pairs = {}
+    for slug, club in clubs.items():
+        for game in club['matches']:
+            pairs.setdefault(game['id'], []).append((CLUBS[slug], game))
+    for entries in pairs.values():
+        if len(entries) != 2:
+            raise ValueError('Incomplete two-club match log')
+        (a, ga), (b, gb) = entries
+        if ga['opponent'] != b or gb['opponent'] != a or ga['gf'] != gb['ga'] or ga['ga'] != gb['gf'] or ga['date'] != gb['date']:
+            raise ValueError('Conflicting two-club match log')
+    for slug, club in clubs.items():
+        games = club['matches']
+        totals = dict(played=len(games), goals=sum(g['gf'] for g in games), conceded=sum(g['ga'] for g in games),
+                      shots=sum(g['shots'] for g in games), ck=sum(g['ck'] for g in games),
+                      cleanSheets=sum(g['ga'] == 0 for g in games),
+                      shotsAgainst=sum(next(g['shots'] for name, g in pairs[game['id']] if name != CLUBS[slug]) for game in games))
+        if totals['shots'] == 0:
+            raise ValueError('Undefined shot conversion denominator')
+        n = totals['played']
+        values = dict(shotsPg=totals['shots']/n, shotConversion=100*totals['goals']/totals['shots'],
+                      concededPg=totals['conceded']/n, shotsAgainstPg=totals['shotsAgainst']/n,
+                      ckPg=totals['ck']/n, cleanSheetRate=100*totals['cleanSheets']/n)
+        club['sample'] = dict(**totals, through=max(g['date'] for g in games))
+        for key, value in values.items():
+            label, unit, maximum = DERIVED[key]
+            club['metrics'].append(dict(key=key, label=label, unit=unit, value=number(value, maximum), previous=None))
 
 
 def save_stats(data, path):
@@ -103,6 +140,9 @@ def save_stats(data, path):
         # A source response missing already published matches is not authoritative.
         if not {g['id'] for g in old['matches']}.issubset({g['id'] for g in data['matches']}):
             raise ValueError('Regressing match log; keeping last good stats')
+        for club, games in old.get('matchLogs', {}).items():
+            if not {g['id'] for g in games}.issubset({g['id'] for g in data.get('matchLogs', {}).get(club, [])}):
+                raise ValueError('Regressing league match log; keeping last good stats')
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
 
 
@@ -119,14 +159,17 @@ def collect(fetcher=None):
         return parse_stats(body.decode('utf-8'), now, slug)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         clubs = dict(zip(CLUBS, pool.map(fetch, CLUBS)))
+    add_derived(clubs)
     data = clubs['kitakyushu']
+    data['samples'] = {CLUBS[slug]: club['sample'] for slug, club in clubs.items()}
+    data['matchLogs'] = {CLUBS[slug]: club['matches'] for slug, club in clubs.items()}
     data['league'] = {}
-    for key in METRICS:
+    for key in {**METRICS, **DERIVED}:
         values = [dict(club=CLUBS[slug], value=next(m['value'] for m in clubs[slug]['metrics'] if m['key'] == key)) for slug in CLUBS]
         for row in values:
-            row['rank'] = 1 + sum(other['value'] > row['value'] for other in values)
+            row['rank'] = 1 + sum((other['value'] < row['value']) if key in LOWER_BETTER else (other['value'] > row['value']) for other in values)
             row['tied'] = sum(other['value'] == row['value'] for other in values) > 1
-        data['league'][key] = sorted(values, key=lambda row: (-row['value'], list(CLUBS.values()).index(row['club'])))
+        data['league'][key] = sorted(values, key=lambda row: (row['rank'], list(CLUBS.values()).index(row['club'])))
         own = next(row for row in values if row['club'] == '北九州')
         next(m for m in data['metrics'] if m['key'] == key).update(rank=own['rank'], tied=own['tied'])
     return data
