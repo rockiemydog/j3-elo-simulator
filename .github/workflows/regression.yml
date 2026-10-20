@@ -31,3 +31,6 @@ jobs:
       - run: python tests/test_official_results.py
       - run: python tests/test_result_notification.py
       - run: python tests/test_result_publication.py
+
+      - run: python tests/test_team_stats.py
+      - run: node --test tests/team-stats.test.cjs
