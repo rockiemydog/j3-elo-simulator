@@ -116,3 +116,15 @@ test('champion points chart follows trials, restores baseline and refreshes afte
  a.node('runs').value='37';a.node('runs').onchange();a.flushRender();assert.equal(a.eval('lastTitleCounts.reduce((a,b)=>a+b,0)'),37);
  const month=app({search:'?view=month-end',hash:''});month.flushRender();assert.equal(month.eval('lastTitleCounts'),null);
 });
+test('champion goal difference uses a separate tab, inherits trials and restores baseline',()=>{
+ const source=app();source.flushRender();assert.equal(source.eval('lastGDCounts'),null);source.eval("scenarios=[['北九州','FC大阪',2,0]];renderScenarios()");const hash=source.node('openGoalDifference').href.split('#')[1];assert(hash);assert.match(main,/id="openGoalDifference"[^>]*target="_blank"[^>]*rel="noopener"/);
+ const a=app({search:'?view=goal-difference',hash:'#'+hash});a.flushRender();assert.equal(a.eval('GD_VIEW'),true);assert.equal(a.node('pageTitle').textContent,'J3 Goal Difference Outlook');assert.match(a.node('goalDifferenceSummary').textContent,/試し入力反映/);assert.equal(a.eval('Object.values(lastGDCounts).reduce((a,b)=>a+b,0)'),10);
+ a.eval('scenarios=[];run()');a.flushRender();const baseline=a.node('goalDifferenceChart').innerHTML;assert.match(a.node('goalDifferenceSummary').textContent,/公式結果のみ/);a.eval("scenarios=[['北九州','FC大阪',30,0]];run()");a.flushRender();a.eval('scenarios=[];run()');a.flushRender();assert.equal(a.node('goalDifferenceChart').innerHTML,baseline);a.eval("$('runs').value='37';baseline=null;run()");a.flushRender();assert.equal(a.eval('Object.values(lastGDCounts).reduce((a,b)=>a+b,0)'),37);
+ assert.match(main,/大差での勝敗は予測していません/);assert.match(main,/body\.gd-view \.final-only/);
+});
+test('goal difference collector leaves forecasts identical and supports negative and certain outcomes',()=>{
+ const a=app();a.flushRender();assert.equal(a.eval(`JSON.stringify(simulate(71,[]))===JSON.stringify(simulate(71,[],null,null,{}))`),true);
+ const result=a.eval(`(()=>{const counts={};simulate(71,[],null,null,counts);const s=goalDifferenceStats(counts);return {total:s.samples,prob:Object.values(s.probabilities).reduce((a,b)=>a+b,0)};})()`);assert.equal(result.total,71);assert(Math.abs(result.prob-100)<1e-9);
+ const s=a.eval(`goalDifferenceStats({'-4':10,'0':70,'8':20})`);assert.equal(s.low,-4);assert.equal(s.median,0);assert.equal(s.high,8);assert.equal(s.mean,1.2);assert.equal(a.eval("goalDifferenceStats({'-2':10}).probabilities[-2]"),100);assert.equal(a.eval("goalDifferenceStats({'0':0})"),null);assert.equal(a.eval("goalDifferenceStats({'a':1})"),null);
+ a.eval(`completed=[];confirmedExtra=[];for(let h=0;h<20;h++)for(let v=0;v<20;v++)if(h!==v)completed.push([teams[h],teams[v],1,1]);const gd={};simulate(7,[],null,null,gd);lastGDCounts=gd;renderGoalDifference();`);assert.equal(a.eval('lastGDCounts[0]'),7);assert.match(a.node('goalDifferenceChart').innerHTML,/100\.00％/);assert.doesNotMatch(a.node('goalDifferenceChart').innerHTML,/NaN|undefined/);
+});
