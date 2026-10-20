@@ -8,7 +8,7 @@ def git(*args, check=True):
 
 
 def publish():
-    files=['official-results.json']
+    files=['team-stats.json'] if os.environ.get('PUBLISH_TEAM_STATS')=='true' else ['official-results.json']
     if os.environ.get('PUBLISH_SCHEDULE')=='true':
         files.append('official-schedule.json')
         if os.path.exists('league-schedule.json'): files.append('league-schedule.json')
