@@ -1,0 +1,36 @@
+name: Update official Kitakyushu team stats
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/update-team-stats.py
+      - .github/workflows/team-stats.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '32 */6 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: official-team-stats
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tests/test_team_stats.py
+      - name: Collect six stats for all twenty J3 clubs
+        run: python scripts/update-team-stats.py
+      - name: Publish validated stats without overwriting concurrent changes
+        env:
+          PUBLISH_TEAM_STATS: 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python scripts/publish-official-results.py
