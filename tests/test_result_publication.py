@@ -53,6 +53,12 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.git(self.base,'--git-dir='+str(self.remote),'show','main:league-schedule.json'),'all clubs')
         self.assertEqual(self.git(self.base,'--git-dir='+str(self.remote),'show','main:official-schedule.json'),'north schedule')
 
+    def test_stats_publication_never_commits_official_result_changes(self):
+        (self.runner/'team-stats.json').write_text('new stats\n')
+        with patch.dict(os.environ, {'PUBLISH_TEAM_STATS':'true'}): publisher.publish()
+        self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:team-stats.json'), 'new stats')
+        self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:official-results.json'), 'old')
+
     def test_normal_publish(self):
         sha = publisher.publish()
         self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'rev-parse', 'main'), sha)
