@@ -6,6 +6,12 @@ def props(slug='kitakyushu'):
     return dict(clubId=slug,leagueName='j3',clubStatsInLeaguePulldown=[dict(key='2026-68',label='2026/27')],clubStatsInLeague={'2026-68':{k:dict(rawValue=1,value=99) for k in m.METRICS}},gameLogInClubByYear={'2026-2':[dict(gameId=2026101728,gameDate='26/10/17',leagueName='明治安田Ｊ３',scoreResult=dict(score=3,lost=1),opponentTeamShortName='FC大阪',shoot=15,CK=3)]})
 def html(p):
     return '<script>self.__next_f.push('+json.dumps([1,'1:'+json.dumps(p,ensure_ascii=False)+'\n'])+')</script>'
+def league_fixture(slug):
+    names=list(m.CLUBS);i=names.index(slug);j=i^1
+    p=props(slug);g=p['gameLogInClubByYear']['2026-2'][0]
+    g.update(gameId=int('20261017'+str(10+i//2)),opponentTeamShortName=m.CLUBS[names[j]],shoot=10+i,CK=3)
+    g['scoreResult']=dict(score=3 if i%2==0 else 1,lost=1 if i%2==0 else 3)
+    return p
 class StatsTests(unittest.TestCase):
     def test_raw_values_not_radar_scale(self):
         data=m.parse_stats(html(props()),NOW);self.assertTrue(all(r['value']==1 for r in data['metrics']));self.assertIsNone(data['statsUpdatedAt'])
@@ -26,7 +32,7 @@ class StatsTests(unittest.TestCase):
         with self.assertRaises(ValueError):m.parse_stats(html(p),NOW)
     def test_twenty_clubs_and_competition_ranks_with_ties(self):
         def fetch(slug):
-            p=props(slug);value=2 if slug in ['gifu','ehime'] else 1
+            p=league_fixture(slug);value=2 if slug in ['gifu','ehime'] else 1
             for metric in p['clubStatsInLeague']['2026-68'].values():metric['rawValue']=value
             return html(p)
         d=m.collect(fetch);self.assertEqual(len(d['league']['scorePg']),20);self.assertEqual(d['metrics'][0]['rank'],3);self.assertTrue(d['metrics'][0]['tied']);self.assertEqual([r['rank'] for r in d['league']['scorePg'][:3]],[1,1,3])
@@ -40,4 +46,33 @@ class StatsTests(unittest.TestCase):
             self.assertEqual(path.read_text(),original)
     def test_malformed_page_rejected(self):
         with self.assertRaises(ValueError):m.parse_stats('<html>no stats</html>',NOW)
+    def test_derived_formulas_and_lower_is_better(self):
+        d=m.collect(lambda slug:html(league_fixture(slug)));self.assertEqual(len(d['metrics']),12)
+        values={r['key']:r['value'] for r in d['metrics']}
+        self.assertEqual(values['shotsPg'],25);self.assertEqual(values['shotConversion'],4)
+        self.assertEqual(values['concededPg'],3);self.assertEqual(values['shotsAgainstPg'],24)
+        self.assertEqual(values['ckPg'],3);self.assertEqual(values['cleanSheetRate'],0)
+        self.assertEqual(d['league']['concededPg'][0]['value'],1)
+        self.assertEqual(d['league']['concededPg'][-1]['rank'],11)
+    def test_missing_counterpart_and_conflicting_scores_abort(self):
+        for mutation in ['missing','score']:
+            def fetch(slug):
+                p=league_fixture(slug)
+                if slug=='gifu':
+                    if mutation=='missing':p['gameLogInClubByYear']['2026-2'][0]['gameId']=2026101799
+                    else:p['gameLogInClubByYear']['2026-2'][0]['scoreResult']['score']=7
+                return html(p)
+            with self.assertRaises(ValueError):m.collect(fetch)
+    def test_zero_shot_denominator_is_not_zero_percent(self):
+        def fetch(slug):
+            p=league_fixture(slug)
+            if slug=='gifu':p['gameLogInClubByYear']['2026-2'][0]['shoot']=0
+            return html(p)
+        with self.assertRaises(ValueError):m.collect(fetch)
+    def test_other_club_regression_preserves_saved_data(self):
+        d=m.collect(lambda slug:html(league_fixture(slug)))
+        with tempfile.TemporaryDirectory() as tmp:
+            path=pathlib.Path(tmp)/'stats.json';m.save_stats(d,path);original=path.read_text();bad=copy.deepcopy(d);bad['matchLogs']['岐阜']=[]
+            with self.assertRaises(ValueError):m.save_stats(bad,path)
+            self.assertEqual(path.read_text(),original)
 if __name__=='__main__':unittest.main()
