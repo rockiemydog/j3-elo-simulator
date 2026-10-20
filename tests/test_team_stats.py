@@ -12,6 +12,13 @@ def league_fixture(slug):
     g.update(gameId=int('20261017'+str(10+i//2)),opponentTeamShortName=m.CLUBS[names[j]],shoot=10+i,CK=3)
     g['scoreResult']=dict(score=3 if i%2==0 else 1,lost=1 if i%2==0 else 3)
     return p
+def detail_props(key):
+    stat=m.DETAILS[key][3]
+    return dict(initialParams=dict(category='j3',year='2026-27',stats=stat,club='all'),
+                rankingList=[dict(category='j3',stats=dict(value=stat),data=[dict(name=name,score=1) for name in m.FULL_NAMES])],
+                pathname=f'/j3/stats/club/2026-27/{stat}/search-list',data=dict(yearLabel='2026/27',statsType='club'),
+                className='p-basic-page-header__updated-date',children='更新日: 2026/10/19 17:00')
+def detail_fixture(key):return html(detail_props(key))
 class StatsTests(unittest.TestCase):
     def test_raw_values_not_radar_scale(self):
         data=m.parse_stats(html(props()),NOW);self.assertTrue(all(r['value']==1 for r in data['metrics']));self.assertIsNone(data['statsUpdatedAt'])
@@ -35,7 +42,7 @@ class StatsTests(unittest.TestCase):
             p=league_fixture(slug);value=2 if slug in ['gifu','ehime'] else 1
             for metric in p['clubStatsInLeague']['2026-68'].values():metric['rawValue']=value
             return html(p)
-        d=m.collect(fetch);self.assertEqual(len(d['league']['scorePg']),20);self.assertEqual(d['metrics'][0]['rank'],3);self.assertTrue(d['metrics'][0]['tied']);self.assertEqual([r['rank'] for r in d['league']['scorePg'][:3]],[1,1,3])
+        d=m.collect(fetch,detail_fixture);self.assertEqual(len(d['league']['scorePg']),20);self.assertEqual(d['metrics'][0]['rank'],3);self.assertTrue(d['metrics'][0]['tied']);self.assertEqual([r['rank'] for r in d['league']['scorePg'][:3]],[1,1,3])
     def test_one_failed_club_aborts_collection(self):
         with self.assertRaises(ValueError):m.collect(lambda slug: '<html>missing</html>' if slug=='nara' else html(props(slug)))
     def test_missing_match_cannot_overwrite_previous_file(self):
@@ -47,11 +54,12 @@ class StatsTests(unittest.TestCase):
     def test_malformed_page_rejected(self):
         with self.assertRaises(ValueError):m.parse_stats('<html>no stats</html>',NOW)
     def test_derived_formulas_and_lower_is_better(self):
-        d=m.collect(lambda slug:html(league_fixture(slug)));self.assertEqual(len(d['metrics']),12)
+        d=m.collect(lambda slug:html(league_fixture(slug)),detail_fixture);self.assertEqual(len(d['metrics']),16)
         values={r['key']:r['value'] for r in d['metrics']}
         self.assertEqual(values['shotsPg'],25);self.assertEqual(values['shotConversion'],4)
         self.assertEqual(values['concededPg'],3);self.assertEqual(values['shotsAgainstPg'],24)
         self.assertEqual(values['ckPg'],3);self.assertEqual(values['cleanSheetRate'],0)
+        self.assertEqual(values['shotsAgainstTotal'],24)
         self.assertEqual(d['league']['concededPg'][0]['value'],1)
         self.assertEqual(d['league']['concededPg'][-1]['rank'],11)
     def test_missing_counterpart_and_conflicting_scores_abort(self):
@@ -70,9 +78,37 @@ class StatsTests(unittest.TestCase):
             return html(p)
         with self.assertRaises(ValueError):m.collect(fetch)
     def test_other_club_regression_preserves_saved_data(self):
-        d=m.collect(lambda slug:html(league_fixture(slug)))
+        d=m.collect(lambda slug:html(league_fixture(slug)),detail_fixture)
         with tempfile.TemporaryDirectory() as tmp:
             path=pathlib.Path(tmp)/'stats.json';m.save_stats(d,path);original=path.read_text();bad=copy.deepcopy(d);bad['matchLogs']['岐阜']=[]
+            with self.assertRaises(ValueError):m.save_stats(bad,path)
+            self.assertEqual(path.read_text(),original)
+    def test_detail_source_normalizes_names_and_keeps_zero_values(self):
+        for key in m.DETAILS:
+            p=detail_props(key);p['rankingList'][0]['data'][0].update(name='ＦＣ岐阜',score=0)
+            d=m.parse_detail(html(p),key,NOW);self.assertEqual(d['values'][0],dict(club='岐阜',value=0));self.assertEqual(len(d['values']),20)
+    def test_detail_wrong_season_metric_or_partial_clubs_rejected(self):
+        for change in ['season','metric','partial','duplicate','negative','future','player']:
+            p=detail_props('expectedGoals')
+            if change=='season':p['initialParams']['year']='2026'
+            if change=='metric':p['rankingList'][0]['stats']['value']='expected_goals_against'
+            if change=='partial':p['rankingList'][0]['data'].pop()
+            if change=='duplicate':p['rankingList'][0]['data'][0]['name']=m.FULL_NAMES[1]
+            if change=='negative':p['rankingList'][0]['data'][0]['score']=-1
+            if change=='future':p['children']='更新日: 2099/10/20 17:00'
+            if change=='player':p['data']['statsType']='player'
+            with self.assertRaises(ValueError,msg=change):m.parse_detail(html(p),'expectedGoals',NOW)
+    def test_missing_detail_or_conflicting_xg_totals_abort(self):
+        def conflicting(key):
+            p=detail_props(key)
+            if key=='expectedGoals':p['rankingList'][0]['data'][0]['score']=99
+            return html(p)
+        for fetch in [lambda key:'<html>missing</html>',conflicting]:
+            with self.assertRaises(ValueError):m.collect(lambda slug:html(league_fixture(slug)),fetch)
+    def test_detail_timestamp_regression_cannot_overwrite(self):
+        d=m.collect(lambda slug:html(league_fixture(slug)),detail_fixture)
+        with tempfile.TemporaryDirectory() as tmp:
+            path=pathlib.Path(tmp)/'stats.json';m.save_stats(d,path);original=path.read_text();bad=copy.deepcopy(d);bad['detailSources']['expectedGoals']['updatedAt']='2026-08-08T00:00:00+09:00'
             with self.assertRaises(ValueError):m.save_stats(bad,path)
             self.assertEqual(path.read_text(),original)
 if __name__=='__main__':unittest.main()
