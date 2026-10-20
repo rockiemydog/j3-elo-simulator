@@ -61,7 +61,7 @@ function monthAudit(now='2026-10-17T14:59:00Z'){
  const a=app(),clock={now:Date.parse(now)},NativeDate=Date;
  a.ctx.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[clock.now]));}static now(){return clock.now;}};
  a.ctx.league=JSON.parse(fs.readFileSync('tests/fixtures/month-schedule.json','utf8'));
- const live=JSON.parse(fs.readFileSync('official-results.json','utf8'));a.ctx.feed={...live,asOfDate:'2026-10-11',matches:live.matches.filter(r=>r.date<='2026-10-11')};
+ const live=JSON.parse(fs.readFileSync('official-results.json','utf8'));a.ctx.feed={...live,asOfDate:'2026-10-11',updatedAt:'2026-10-11T14:00:00Z',officialCheckedAt:null,matches:live.matches.filter(r=>r.date<='2026-10-11')};
  a.eval('J3Results.applyOfficialFeed(feed);completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=feed.asOfDate;league.checkedAt=new Date().toISOString();leagueCalendar=validateLeagueCalendar(league);renderMonthForecast(10)');
  a.ctx.fetch=async()=>({ok:true,json:async()=>structuredClone(a.ctx.league)});
  return {...a,clock};
@@ -106,4 +106,13 @@ test('opening snapshot is consumed so reload cannot revive reset trial inputs',(
  const a=app(location,{replaceState(_state,_title,url){replaced=url;location.hash='';}});
  assert.equal(a.eval('scenarios.length'),1);assert.equal(replaced,'/j3-elo-simulator/?view=month-end');
  a.node('resetScenario').onclick();assert.equal(a.eval('scenarios.length'),0);assert.equal(app(location).eval('scenarios.length'),0);
+});
+test('champion points chart follows trials, restores baseline and refreshes after official completion',()=>{
+ const a=app();a.flushRender();const initial=a.eval('JSON.stringify(lastTitleCounts)'),chart=a.node('titlePointsChart').innerHTML;
+ assert.equal(a.eval('lastTitleCounts.reduce((a,b)=>a+b,0)'),10);assert.match(a.node('titlePointsSummary').textContent,/公式結果のみ/);
+ a.eval('scenarios=[["北九州","FC大阪",2,0]];run()');a.flushRender();assert.match(a.node('titlePointsSummary').textContent,/試し入力反映/);assert.equal(a.eval('lastTitleCounts.reduce((a,b)=>a+b,0)'),10);
+ a.node('resetScenario').onclick();a.flushRender();assert.equal(a.eval('JSON.stringify(lastTitleCounts)'),initial);assert.equal(a.node('titlePointsChart').innerHTML,chart);
+ a.eval('completed.push(["北九州","FC大阪",2,0]);baseline=null;run()');a.flushRender();assert.equal(a.eval('lastTitleCounts.reduce((a,b)=>a+b,0)'),10);assert.equal(a.eval('JSON.stringify(lastTitleCounts)'),a.eval('JSON.stringify(baselineTitleCounts)'));
+ a.node('runs').value='37';a.node('runs').onchange();a.flushRender();assert.equal(a.eval('lastTitleCounts.reduce((a,b)=>a+b,0)'),37);
+ const month=app({search:'?view=month-end',hash:''});month.flushRender();assert.equal(month.eval('lastTitleCounts'),null);
 });
