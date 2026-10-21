@@ -3,7 +3,7 @@
   "scope": "all-clubs",
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-21T00:59:40.938797+00:00",
+  "checkedAt": "2026-10-21T06:02:53.672707+00:00",
   "coverageFrom": "2026-08-08",
   "coverageThrough": "2027-07-31",
   "matches": [
@@ -890,26 +890,26 @@
     {
       "id": "2026102127",
       "date": "2026-10-21",
-      "time": "13:00",
+      "time": "13:03",
       "home": "福島",
       "away": "北九州",
-      "status": "scheduled"
+      "status": "finished"
     },
     {
       "id": "2026102128",
       "date": "2026-10-21",
-      "time": "13:00",
+      "time": "13:03",
       "home": "栃木SC",
       "away": "滋賀",
-      "status": "scheduled"
+      "status": "finished"
     },
     {
       "id": "2026102129",
       "date": "2026-10-21",
-      "time": "13:00",
+      "time": "13:03",
       "home": "長野",
       "away": "琉球",
-      "status": "scheduled"
+      "status": "finished"
     },
     {
       "id": "2026102130",
