@@ -4,6 +4,7 @@ const root=path.resolve(__dirname,'..'),read=f=>JSON.parse(fs.readFileSync(path.
 // Stable test clock and completed subset: unattended tests must still pass
 // when the real season's feeds advance beyond this example fixture.
 const feed={...read('official-results.json'),updatedAt:'2026-10-22T00:00:00Z',matches:read('official-results.json').matches.filter(r=>r.date<'2026-10-01')},calendar=read('league-schedule.json');
+feed.asOfDate=feed.matches.at(-1).date;
 const now=new Date('2026-10-22T01:00:00Z');
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const empty=()=>({schemaVersion:1,season:'2026/27',snapshots:[],predictions:[]});
@@ -42,9 +43,10 @@ test('frontend uses actual-only baseline, handles invalid target and records no 
   el('compassTarget').value='custom';el('compassCustom').value='';vm.runInContext('renderCompass()',context);assert.ok(el('compassSummary').textContent.includes('整数'));
   assert.ok(html.includes('xG・被xG'));assert.ok(html.includes('現在の順位予測には使っていません'));assert.ok(!html.includes('localStorage.setItem(\'prediction'));
 });
-async function journalHarness(fetcher){
+async function journalHarness(fetcher,clock=()=>+now){
   const els=new Map(),el=id=>{if(!els.has(id))els.set(id,{value:'',innerHTML:'',textContent:'',disabled:false,classList:{add(){},remove(){}}});return els.get(id);};
-  const context={document:{getElementById:el,hidden:false},window:{J3ForecastInsights:api,addEventListener(){}},fetch:fetcher,AbortController,setTimeout,clearTimeout,setInterval(){}};
+  class TestDate extends Date{constructor(...args){super(...(args.length?args:[clock()]));}static now(){return clock();}}
+  const context={document:{getElementById:el,hidden:false},window:{J3ForecastInsights:api,addEventListener(){}},fetch:fetcher,AbortController,setTimeout,clearTimeout,setInterval(){},Date:TestDate};
   vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(root,'prediction-journal/journal.js'),'utf8'),context);
   for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));return {el};
 }
@@ -75,3 +77,38 @@ test('empty first archive has a truthful no-history state, not a zero probabilit
   const h=await journalHarness(async url=>response(url.includes('prediction-journal.json')?empty():payload(url.split('/').at(-1).split('?')[0])));
   assert.ok(h.el('trendSummary').textContent.includes('記録開始待ち'));assert.equal(h.el('journalTrend').innerHTML,'');assert.ok(!h.el('scoreSummary').innerHTML.includes('0.0%'));
 });
+test('switching clubs after a failed refresh preserves the failure notice',async()=>{
+  let offline=false;const h=await journalHarness(async url=>{if(offline)throw Error('offline');return response(payload(url.split('/').at(-1).split('?')[0]));});
+  offline=true;await h.el('refreshJournal').onclick();const warning=h.el('journalStatus').textContent;
+  h.el('journalClub').value='鹿児島';h.el('journalClub').onchange();assert.equal(h.el('journalStatus').textContent,warning);assert.ok(h.el('trendSummary').textContent.includes('鹿児島'));
+});
+test('changing a displayed club never manufactures a new retrieval time',async()=>{
+  let clock=+now;const h=await journalHarness(async url=>response(payload(url.split('/').at(-1).split('?')[0])),()=>clock);
+  const stamp=h.el('journalStatus').textContent;clock+=3600000;h.el('journalClub').value='鹿児島';h.el('journalClub').onchange();assert.equal(h.el('journalStatus').textContent,stamp);
+});
+test('older results or calendar cannot replace known newer data in the journal',async()=>{
+  for(const older of ['official-results.json','league-schedule.json']){let replay=false;const h=await journalHarness(async url=>{const file=url.split('/').at(-1).split('?')[0],data=payload(file);if(replay&&file===older){const field=file==='official-results.json'?'updatedAt':'checkedAt';data[field]=new Date(Date.parse(data[field])-60000).toISOString();}return response(data);});
+    replay=true;const chart=h.el('journalTrend').innerHTML;await h.el('refreshJournal').onclick();assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'),older);assert.equal(h.el('journalTrend').innerHTML,chart);
+  }
+});
+test('malformed source dates and future source timestamps cannot be used for scoring',async()=>{
+  for(const mutate of [(f,c)=>f.updatedAt='bad',(f,c)=>c.checkedAt='bad',(f,c)=>c.checkedAt=new Date(+now+3600000).toISOString(),(f,c)=>c.matches[0].date='2026-02-30',(f,c)=>f.matches[0].date='2027-12-01']){
+    const f=payload('official-results.json'),c=payload('league-schedule.json');mutate(f,c);const h=await journalHarness(async url=>response(url.includes('prediction-journal.json')?payload('prediction-journal.json'):url.includes('official-results.json')?f:c));assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'));
+  }
+});
+test('returning to a previous model starts a new chart segment and comparison',async()=>{
+  const first=capture(empty(),feed,mockCalendar(),now,fake),second=capture(first,feed,mockCalendar(),new Date(+now+1000),g=>({...fake(g),signature:'test-v2'})),third=capture(second,feed,mockCalendar(),new Date(+now+2000),fake);
+  const h=await journalHarness(async url=>response(url.includes('prediction-journal.json')?third:payload(url.split('/').at(-1).split('?')[0])));
+  assert.equal((h.el('journalTrend').innerHTML.match(/<polyline /g)||[]).length,2);assert.ok(h.el('trendSummary').textContent.includes('モデル切替'));
+});
+test('finished results and newer score corrections update the actual UI; replay does not undo them',async()=>{
+  const f=payload('official-results.json'),c=payload('league-schedule.json');f.matches.push({id:fixture.id,date:fixture.date,game:[fixture.home,fixture.away,2,1]});f.asOfDate=fixture.date;f.updatedAt='2026-10-24T08:00:00Z';c.checkedAt=f.updatedAt;c.matches[0].status='finished';
+  let revision=0;const h=await journalHarness(async url=>{const data=url.includes('prediction-journal.json')?payload('prediction-journal.json'):url.includes('official-results.json')?structuredClone(f):structuredClone(c);if(revision===1&&url.includes('official-results.json')){data.updatedAt='2026-10-24T08:01:00Z';data.matches.at(-1).game=[fixture.home,fixture.away,1,2];}return response(data);},()=>Date.parse('2026-10-24T10:00:00Z'));
+  assert.ok(h.el('matchArchive').innerHTML.includes('2–1'));assert.ok(h.el('scoreSummary').innerHTML.includes('100.0%'));assert.ok(h.el('scoreSummary').innerHTML.includes('0.693'));assert.ok(h.el('scoreSummary').innerHTML.includes('0.380'));
+  revision=1;await h.el('refreshJournal').onclick();assert.ok(h.el('matchArchive').innerHTML.includes('1–2'));assert.ok(h.el('scoreSummary').innerHTML.includes('1.609'));assert.ok(h.el('scoreSummary').innerHTML.includes('0.980'));
+  revision=2;await h.el('refreshJournal').onclick();assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'));assert.ok(h.el('matchArchive').innerHTML.includes('1–2'));
+});
+test('missing known results or scheduled cards retain the previous complete display',async()=>{
+  for(const missing of ['official-results.json','league-schedule.json']){let dropped=false;const h=await journalHarness(async url=>{const file=url.split('/').at(-1).split('?')[0],data=payload(file);if(dropped&&file===missing)data.matches.shift();return response(data);});const chart=h.el('journalTrend').innerHTML;dropped=true;await h.el('refreshJournal').onclick();assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'));assert.equal(h.el('journalTrend').innerHTML,chart);}
+});
+test('journal HTML loads the current client instead of a cached previous version',()=>{const source=fs.readFileSync(path.join(root,'prediction-journal/journal.js')),hash=require('node:crypto').createHash('sha256').update(source).digest('hex').slice(0,12),html=fs.readFileSync(path.join(root,'prediction-journal/index.html'),'utf8');assert.ok(html.includes('journal.js?v='+hash+'"'));});
