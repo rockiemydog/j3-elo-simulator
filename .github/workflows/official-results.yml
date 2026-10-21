@@ -7,6 +7,8 @@ on:
       - scripts/update-official-results.py
       - scripts/publish-official-results.py
       - scripts/update-official-schedule.py
+      - scripts/capture-predictions.cjs
+      - forecast-insights.js
       - .github/workflows/official-results.yml
   workflow_dispatch:
   schedule:
@@ -28,11 +30,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Validate collectors before publishing
         run: |
           python tests/test_official_results.py
           python tests/test_official_schedule.py
           python tests/test_result_publication.py
+          node --test tests/forecast-insights.test.cjs
       - name: Fetch and validate finished official matches
         id: fetch
         run: |
@@ -52,6 +58,15 @@ jobs:
         if: steps.schedule.outputs.changed == 'true'
         env:
           PUBLISH_SCHEDULE: 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python scripts/publish-official-results.py
+      - name: Capture prospective forecasts after validated results and schedules
+        run: node scripts/capture-predictions.cjs
+      - name: Publish append-only prediction journal (no notifications)
+        env:
+          PUBLISH_JOURNAL: 'true'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
