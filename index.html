@@ -19,6 +19,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 </style>
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
+<link rel="stylesheet" href="forecast-insights.css?v=4acffcdd2e3a">
 </head>
 <body>
 <main class="shell">
@@ -57,7 +58,22 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
       <div class="note">公式結果は自動反映され、Eloと進捗トラッカーも更新されます。試し入力はこの画面だけに反映され、再読込でリセットされます。公式結果が確定した試合の試し入力は自動解除されます。シーズン途中の現在順位は勝点→得失点差→総得点で判定します。最終予測は当該クラブ間成績まで比較し、なお並ぶ場合は抽選相当で順位を決めます。</div>
     </aside>
     <section class="panel">
-      <div class="statusline final-only" id="statusline"></div><div class="sub" id="uncertainty"></div><div class="hero final-only" id="hero"></div>
+      <div class="statusline final-only" id="statusline"></div><div class="sub" id="uncertainty"></div>
+      <section class="insight-card" aria-labelledby="lensTitle">
+        <div class="insight-kicker">Understand the forecast</div><h2 id="lensTitle">Forecast Lens <small>予測の前提</small></h2>
+        <div class="lens-grid"><div><strong>計算に使うもの</strong>公式確定結果・ホーム／アウェー。全クラブElo 1500開始、K=20・ホーム+60、Davidson方式。試し入力は仮定としてのみ反映。</div><div><strong>参考表示にとどまるもの</strong>Team StatsのxG・被xG・チャンス数など。これらのスタッツは現在の順位予測には使っていません。</div><div><strong>まだ織り込めないもの</strong>負傷・出場停止・連戦・天候・将来の戦力変化。残り試合のEloは現在値で固定します。</div></div>
+        <p class="sub">将来の得点は予測せず、順位計算には勝ち1–0・引分1–1・負け0–1を使用します。この近似は得失点差・同勝点時の順位にも影響します。確率は保証ではなく、乱数誤差とモデル誤差は別です。</p>
+        <a href="prediction-journal/" target="_blank" rel="noopener">Prediction Journal — 予測と答え合わせ ↗</a>
+      </section>
+      <div class="hero final-only" id="hero"></div>
+      <section class="insight-card final-only" id="playoffCompass" aria-labelledby="compassTitle">
+        <div class="insight-kicker">Your route to the top six</div><h2 id="compassTitle">Playoff Compass <small>6位への道筋</small></h2>
+        <p class="sub">公式の現在成績を基準に計算します。試し入力はここには反映しません。</p>
+        <label for="compassTarget">目標勝点</label> <select id="compassTarget"><option value="median">予測6位の中央値</option><option value="high">予測6位の90パーセンタイル</option><option value="custom">自分で設定</option></select>
+        <label for="compassCustom" id="compassCustomLabel" hidden>指定勝点 <input id="compassCustom" type="number" min="0" max="114" step="1" value="60" inputmode="numeric"></label>
+        <div id="compassSummary" aria-live="polite">計算中…</div>
+        <p class="insight-note">必要ペース＝max（0, 目標勝点−現在勝点）÷残り試合。目標は変動します。90パーセンタイルは6位勝点分布の90%点であり、「90%でプレーオフ進出」の意味ではありません。同勝点の順位判定があるため、到達しても6位以内を保証しません。</p>
+      </section>
       <section class="distribution" id="monthSection" aria-labelledby="monthTitle" hidden>
         <h2 id="monthTitle">J3 Month-End Outlook</h2>
         <p class="sub">シミュレーターから開いた時点の試し入力を引き継ぎます。その後の入力・リセットは、このタブ内だけに反映します。</p>
@@ -152,6 +168,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 </main>
 <script src="official-api-config.js?v=2abf363444e1"></script>
 <script src="shared-results.js?v=b5977a3bc3d8"></script>
+<script src="forecast-insights.js?v=545777d6f80f"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
@@ -494,7 +511,21 @@ async function refreshLeagueCalendar(){
 }
 $('monthEnd').onchange=()=>{$('plannerNotice').textContent='';renderMonthForecast();};
 let renderPending=false;
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts?{second:baselineLineCounts.second.slice(),sixth:baselineLineCounts.sixth.slice()}:null;}renderPrematch();renderScenarios();renderHero();renderRankChart();renderRankDistribution();renderTitleDistribution();if(LINE_VIEW)renderPromotionLines();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
+function renderCompass(){
+  if(typeof J3ForecastInsights==='undefined')return;
+  const stats=titlePointsStats(baselineLineCounts?.sixth),rows=liveRows([]),north=rows.find(r=>r.club==='北九州');
+  if(!stats||!north)return;
+  const mode=$('compassTarget').value||'median',raw=$('compassCustom').value;
+  $('compassCustomLabel').hidden=mode!=='custom';
+  const target=mode==='custom'?(raw.trim()===''?NaN:Number(raw)):mode==='high'?stats.high:stats.median;
+  if(!Number.isInteger(target)||target<0||target>114){$('compassSummary').textContent='目標勝点は0〜114の整数で入力してください。';return;}
+  const c=J3ForecastInsights.compass(north.pts,north.p,target),gap=rows[5].pts-north.pts;
+  const pace=c.reached?'目標到達済み':!c.remaining?'全日程終了':!c.possible?'到達不可能':c.pace.toFixed(2)+'点／試合';
+  $('compassSummary').innerHTML=`<div class="compass-grid"><div><span>現在の6位との勝点差</span><strong>${gap>0?'+':''}${gap}点</strong></div><div><span>北九州の現在勝点／残り</span><strong>${north.pts}点／${c.remaining}試合</strong></div><div><span>目標／あと必要な勝点</span><strong>${target}点／＋${c.needed}点</strong></div></div><p><strong>必要ペース：${pace}</strong>　<span class="sub">最高到達勝点 ${c.maximum}点</span></p><p class="sub">勝点差は「現在6位の勝点−北九州の勝点」（マイナスなら北九州が上回る）。試合数の違いに注意。6位予測の中央80%範囲：${stats.low}〜${stats.high}点 ／ 公式${confirmed().length}試合・${stats.samples.toLocaleString()}回計算。</p>`;
+}
+if($('compassTarget'))$('compassTarget').onchange=renderCompass;
+if($('compassCustom'))$('compassCustom').oninput=renderCompass;
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts={second:Array(115).fill(0),sixth:Array(115).fill(0)};baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts?{second:baselineLineCounts.second.slice(),sixth:baselineLineCounts.sixth.slice()}:null;}renderPrematch();renderScenarios();renderHero();renderCompass();renderRankChart();renderRankDistribution();renderTitleDistribution();if(LINE_VIEW)renderPromotionLines();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
