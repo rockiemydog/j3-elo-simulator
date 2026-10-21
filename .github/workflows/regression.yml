@@ -34,3 +34,4 @@ jobs:
 
       - run: python tests/test_team_stats.py
       - run: node --test tests/team-stats.test.cjs
+      - run: node --test tests/forecast-insights.test.cjs
