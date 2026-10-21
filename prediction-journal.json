@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "season": "2026/27",
+  "snapshots": [
+    {
+      "id": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "sourceUpdatedAt": "2026-10-21T17:13:43.420275+00:00",
+      "confirmed": 120,
+      "runs": 10000,
+      "clubs": [
+        {
+          "club": "鹿児島",
+          "top6": 94.68
+        },
+        {
+          "club": "愛媛",
+          "top6": 88.65
+        },
+        {
+          "club": "奈良",
+          "top6": 73.94
+        },
+        {
+          "club": "山口",
+          "top6": 71.98
+        },
+        {
+          "club": "岐阜",
+          "top6": 59.95
+        },
+        {
+          "club": "相模原",
+          "top6": 52.63
+        },
+        {
+          "club": "FC大阪",
+          "top6": 47.21
+        },
+        {
+          "club": "熊本",
+          "top6": 44.17
+        },
+        {
+          "club": "琉球",
+          "top6": 17.77
+        },
+        {
+          "club": "長野",
+          "top6": 14.38
+        },
+        {
+          "club": "金沢",
+          "top6": 6.81
+        },
+        {
+          "club": "松本",
+          "top6": 6.54
+        },
+        {
+          "club": "滋賀",
+          "top6": 5.21
+        },
+        {
+          "club": "鳥取",
+          "top6": 5.63
+        },
+        {
+          "club": "北九州",
+          "top6": 3.94
+        },
+        {
+          "club": "栃木SC",
+          "top6": 4.02
+        },
+        {
+          "club": "福島",
+          "top6": 1.51
+        },
+        {
+          "club": "群馬",
+          "top6": 0.7
+        },
+        {
+          "club": "讃岐",
+          "top6": 0.23
+        },
+        {
+          "club": "高知",
+          "top6": 0.05
+        }
+      ]
+    }
+  ],
+  "predictions": [
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102413",
+      "home": "群馬",
+      "away": "讃岐",
+      "kickoff": "2026-10-24T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.4711062053876321,
+        0.21330303753414132,
+        0.3155907570782265
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102414",
+      "home": "相模原",
+      "away": "栃木SC",
+      "kickoff": "2026-10-24T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.5123030812348632,
+        0.20902057075241035,
+        0.27867634801272645
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102415",
+      "home": "FC大阪",
+      "away": "鹿児島",
+      "kickoff": "2026-10-24T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.41324617614336095,
+        0.21641198216053703,
+        0.3703418416961021
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102416",
+      "home": "奈良",
+      "away": "琉球",
+      "kickoff": "2026-10-24T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.5062073879448934,
+        0.20976040889202963,
+        0.2840322031630769
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102515",
+      "home": "鳥取",
+      "away": "高知",
+      "kickoff": "2026-10-25T04:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.5182133403601499,
+        0.20826824927917698,
+        0.27351841036067315
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102516",
+      "home": "熊本",
+      "away": "岐阜",
+      "kickoff": "2026-10-25T04:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.4598549499122548,
+        0.2141772260925991,
+        0.3259678239951461
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102517",
+      "home": "松本",
+      "away": "山口",
+      "kickoff": "2026-10-25T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.406051810567124,
+        0.21655307405864108,
+        0.37739511537423504
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102518",
+      "home": "滋賀",
+      "away": "金沢",
+      "kickoff": "2026-10-25T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.4544528485173758,
+        0.21455131118128545,
+        0.33099584030133883
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102519",
+      "home": "北九州",
+      "away": "長野",
+      "kickoff": "2026-10-25T05:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.4479916175846978,
+        0.21495958874940319,
+        0.33704879366589896
+      ]
+    },
+    {
+      "snapshotId": "9ea9ea4149afe91df830de32",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026102520",
+      "home": "愛媛",
+      "away": "福島",
+      "kickoff": "2026-10-25T07:00:00.000Z",
+      "recordedAt": "2026-10-21T22:25:12.530Z",
+      "probabilities": [
+        0.5569035420708625,
+        0.2024950995397117,
+        0.2406013583894258
+      ]
+    }
+  ]
+}

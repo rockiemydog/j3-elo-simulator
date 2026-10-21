@@ -1,0 +1,54 @@
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id),api=window.J3ForecastInsights;
+  const clubs=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
+  let current=null,loading=false;
+  const date=s=>new Date(s).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const pct=n=>(n*100).toFixed(1)+'%';
+  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function validateSources(feed,calendar){
+    if(feed?.verified!==true||calendar?.verified!==true||feed.season!=='2026/27'||calendar.season!=='2026/27'||!Array.isArray(feed.matches)||feed.matches.length>380||!Array.isArray(calendar.matches)||calendar.matches.length>380)throw Error('公式データの形式不一致');
+    const ids=new Set(),cards=new Set();
+    for(const r of feed.matches){const g=r.game;if(!/^\d{10}$/.test(r.id)||ids.has(r.id)||!Array.isArray(g)||g.length!==4||!clubs.includes(g[0])||!clubs.includes(g[1])||g[0]===g[1]||cards.has(g[0]+'|'+g[1])||!g.slice(2).every(v=>Number.isInteger(v)&&v>=0&&v<=30))throw Error('公式結果の形式不一致');ids.add(r.id);cards.add(g[0]+'|'+g[1]);}
+    const fixtureIds=new Set();for(const f of calendar.matches){if(!/^\d{10}$/.test(f.id)||fixtureIds.has(f.id)||!clubs.includes(f.home)||!clubs.includes(f.away)||f.home===f.away||!['finished','scheduled','postponed','cancelled','unconfirmed'].includes(f.status)||!/^\d{4}-\d{2}-\d{2}$/.test(f.date)||!(f.time===null||/^([01]\d|2[0-3]):[0-5]\d$/.test(f.time)))throw Error('公式日程の形式不一致');fixtureIds.add(f.id);}
+  }
+  function render(){
+    if(!current)return;
+    const {archive,feed,calendar,origin}=current,club=$('journalClub').value||'北九州',snapshots=archive.snapshots;
+    const latest=snapshots.at(-1),model=latest?.model,series=snapshots.filter(s=>s.model===model),rows=series.map(s=>({s,p:s.clubs.find(r=>r.club===club)?.top6})).filter(r=>Number.isFinite(r.p));
+    if(!rows.length){$('trendSummary').textContent='記録開始待ちです。履歴が蓄積すると、ここに確率の推移を表示します。';$('journalTrend').innerHTML='';}
+    else{
+      const last=rows.at(-1),previous=rows.at(-2),delta=previous?last.p-previous.p:null;
+      $('trendSummary').textContent=`${club} ${last.p.toFixed(1)}% ／ ${delta===null?'初回記録（比較対象なし）':(delta>0?'↑ ＋':delta<0?'↓ ':'→ ')+delta.toFixed(1)+'ポイント（前回比）'} ／ ${date(last.s.recordedAt)} 日本時間`;
+      const x=i=>60+(rows.length>1?i/(rows.length-1)*600:300),y=p=>230-p*1.8;
+      const dots=rows.map((r,i)=>`<circle cx="${x(i)}" cy="${y(r.p)}" r="4" fill="#b78500"><title>${escape(date(r.s.recordedAt))}：${r.p.toFixed(2)}%／確定${r.s.confirmed}試合</title></circle>`).join('');
+      $('journalTrend').innerHTML=`<svg viewBox="0 0 720 280" role="img" aria-label="${escape(club)}の6位以内確率推移。${rows.length}記録。最新${last.p.toFixed(1)}パーセント"><text x="20" y="25" fill="#667085">6位以内確率（%）</text>${[0,25,50,75,100].map(p=>`<line x1="60" y1="${y(p)}" x2="660" y2="${y(p)}" stroke="#e4e7ec"/><text x="48" y="${y(p)+4}" text-anchor="end" font-size="12">${p}</text>`).join('')}<polyline points="${rows.map((r,i)=>x(i)+','+y(r.p)).join(' ')}" fill="none" stroke="#c79c24" stroke-width="3"/>${dots}<text x="60" y="260" font-size="12">${escape(date(rows[0].s.recordedAt))}</text><text x="660" y="260" text-anchor="end" font-size="12">${escape(date(last.s.recordedAt))}</text></svg>`;
+    }
+    const settled=api.settledPredictions(archive,feed,calendar).filter(p=>p.model===model),score=api.calibration(settled);
+    const metrics=[['採点済み試合',String(score.n)],['的中率',score.n?pct(score.accuracy):'—'],['Log loss',score.n?score.logLoss.toFixed(3):'—'],['Brier score',score.n?score.brier.toFixed(3):'—']];
+    $('scoreSummary').innerHTML=metrics.map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join('');
+    $('sampleNote').textContent=score.n===0?'まだ採点できる試合前記録がありません。今後、記録済みカードの公式終了結果が確認できたら集計します。':score.n<100?'標本が少ないため暫定評価です。確率帯ごとの記録数も確認してください。':'実績に基づく評価ですが、将来の精度を保証するものではありません。';
+    $('calibrationRows').innerHTML=score.bins.map(b=>`<tr><td>${b.low}〜${b.high}%${b.high===100?'（100%含む）':'未満'}</td><td>${b.n}</td><td>${b.n?pct(b.forecast):'—'}</td><td>${b.n?pct(b.actual):'—'}</td></tr>`).join('');
+    $('calibrationChart').innerHTML=score.n?`<svg viewBox="0 0 600 280" role="img" aria-label="予測確率と実現率の比較。点線に近いほど一致"><line x1="60" y1="230" x2="520" y2="35" stroke="#98a2b3" stroke-dasharray="5 5"/>${[0,50,100].map(p=>`<text x="45" y="${234-p*1.95}" text-anchor="end" font-size="12">${p}%</text><text x="${60+p*4.6}" y="252" text-anchor="middle" font-size="12">${p}%</text>`).join('')}${score.bins.filter(b=>b.n).map(b=>`<circle cx="${60+b.forecast*460}" cy="${230-b.actual*195}" r="6" fill="#17518b"><title>平均予測${pct(b.forecast)}／実現率${pct(b.actual)}／${b.n}記録</title></circle>`).join('')}<text x="10" y="20" font-size="12">実現率 ↑</text><text x="430" y="275" font-size="12">平均予測確率 →</text></svg>`:'';
+    const latestCards=new Map();for(const p of archive.predictions.filter(p=>p.model===model)){const key=p.fixtureId+'|'+p.kickoff;const old=latestCards.get(key);if(!old||Date.parse(p.recordedAt)>Date.parse(old.recordedAt))latestCards.set(key,p);}
+    const results=new Map(settled.map(p=>[p.fixtureId+'|'+p.kickoff,p]));
+    $('matchArchive').innerHTML=[...latestCards.values()].sort((a,b)=>a.kickoff.localeCompare(b.kickoff)).map(p=>{const r=results.get(p.fixtureId+'|'+p.kickoff),f=calendar.matches.find(f=>f.id===p.fixtureId),hold=!f||f.status!=='scheduled'||Date.parse(f.date+'T'+(f.time||'00:00')+':00+09:00')!==Date.parse(p.kickoff);return `<tr><td>H ${escape(p.home)} — A ${escape(p.away)}<br><small>${escape(date(p.kickoff))}</small></td>${p.probabilities.map(v=>'<td>'+pct(v)+'</td>').join('')}<td>${r?r.game[2]+'–'+r.game[3]:hold?'未採点／開催・日時確認':'結果待ち'}</td><td>${escape(date(p.recordedAt))}</td></tr>`;}).join('')||'<tr><td colspan="6">次の7日間に日時確定した対象カードの記録を待っています。</td></tr>';
+    $('journalStatus').textContent=`${origin}\n記録${snapshots.length}回・試合前予測${archive.predictions.length}件（更新分を含む）\n${latest?'最新予測：'+date(latest.recordedAt)+' 日本時間／公式確定'+latest.confirmed+'試合':'まだ記録はありません。'}\n今回取得：${date(new Date().toISOString())} 日本時間／取得した公式結果${feed.matches.length}試合${latest&&latest.confirmed!==feed.matches.length?'。予測記録と結果の更新時点が異なります。':''}\n公式日程の確認：${date(calendar.checkedAt)} 日本時間。過去の予測値は更新で変えません。`;
+  }
+  async function refresh(){
+    if(loading)return;loading=true;$('refreshJournal').disabled=true;
+    try{
+      const download=async base=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{return await Promise.all(['prediction-journal.json','official-results.json','league-schedule.json'].map(async file=>{const r=await fetch(base+file+'?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('HTTP '+r.status);return r.json();}));}finally{controller.abort();clearTimeout(timer);}};
+      let data,origin='GitHubの保存済み記録を取得（公式サイトを直接確認する操作ではありません）';
+      try{data=await download('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/');}catch(error){if(current)throw error;data=await download('../');origin='公開ページに同梱の記録を表示（GitHub最新記録の再取得は未確認）';}
+      const [archive,feed,calendar]=data;
+      api.validArchive(archive);validateSources(feed,calendar);
+      if(archive.snapshots.some(s=>s.clubs.some(r=>!clubs.includes(r.club)))||archive.predictions.some(p=>!clubs.includes(p.home)||!clubs.includes(p.away)))throw Error('記録のクラブ不一致');
+      if(current&&(archive.snapshots.length<current.archive.snapshots.length||archive.predictions.length<current.archive.predictions.length||current.archive.snapshots.some((s,i)=>JSON.stringify(s)!==JSON.stringify(archive.snapshots[i]))||current.archive.predictions.some((p,i)=>JSON.stringify(p)!==JSON.stringify(archive.predictions[i]))))throw Error('以前の予測記録と不一致');
+      current={archive,feed,calendar,origin};render();$('journalStatus').classList.remove('insight-error');
+    }catch(error){$('journalStatus').textContent='記録の取得・検証に失敗しました。'+(current?'前回の表示を保持しています。':'まだ記録を確認できません。')+' 再確認してください。';$('journalStatus').classList.add('insight-error');}
+    finally{loading=false;$('refreshJournal').disabled=false;}
+  }
+  $('journalClub').innerHTML=clubs.map(c=>'<option>'+c+'</option>').join('');$('journalClub').value='北九州';$('journalClub').onchange=render;$('refreshJournal').onclick=refresh;
+  setInterval(()=>{if(!document.hidden)refresh();},300000);window.addEventListener('focus',refresh);refresh();
+})();
