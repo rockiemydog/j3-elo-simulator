@@ -23,9 +23,12 @@ function capture(archive,feed,calendar,now=new Date(),makeEngine=engine,clock=()
   const model=makeEngine(games),known=new Set(model.teams);
   if(known.size!==20||[...clubs].some(c=>!known.has(c)))throw Error('Invalid clubs');
   const signature=insights.MODEL+'-'+model.signature;
-  const id=crypto.createHash('sha256').update(JSON.stringify([signature,games])).digest('hex').slice(0,24);
-  const next=structuredClone(archive);let snapshot=next.snapshots.find(s=>s.id===id);
-  if(!snapshot){snapshot={id,model:signature,recordedAt:stamp,sourceUpdatedAt:feed.updatedAt,confirmed:games.length,runs:10000,clubs:model.forecast().map(r=>({club:r.club,top6:r.top6}))};next.snapshots.push(snapshot);}
+  const sourceId=crypto.createHash('sha256').update(JSON.stringify([signature,games])).digest('hex').slice(0,24);
+  const next=structuredClone(archive);let snapshot=next.snapshots.at(-1);
+  // A correction later reverted to its original score is still a NEW event.
+  // Compare with the last snapshot, not any historical copy of these inputs.
+  if((snapshot?.sourceId||snapshot?.id)!==sourceId){const id=snapshot?crypto.createHash('sha256').update(sourceId+'|'+snapshot.id).digest('hex').slice(0,24):sourceId;snapshot={id,sourceId,model:signature,recordedAt:stamp,sourceUpdatedAt:feed.updatedAt,confirmed:games.length,runs:10000,clubs:model.forecast().map(r=>({club:r.club,top6:r.top6}))};next.snapshots.push(snapshot);}
+  const id=snapshot.id;
   // Append only. An existing pre-match forecast is never rewritten. Each
   // result/model revision can add one new record for a known future kickoff.
   for(const f of calendar.matches){
