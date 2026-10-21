@@ -64,6 +64,14 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'rev-parse', 'main'), sha)
         self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:official-results.json'), 'collected')
 
+    def test_journal_publication_never_commits_other_dirty_files(self):
+        (self.runner/'prediction-journal.json').write_text('append-only journal\n')
+        (self.runner/'index.html').write_text('unrelated local edit\n')
+        with patch.dict(os.environ, {'PUBLISH_JOURNAL':'true'}): publisher.publish()
+        self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:prediction-journal.json'), 'append-only journal')
+        self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:official-results.json'), 'old')
+        self.assertEqual(self.git(self.base, '--git-dir='+str(self.remote), 'show', 'main:index.html'), 'original')
+
     def test_concurrent_site_edit_is_preserved(self):
         (self.writer/'index.html').write_text('concurrent fix\n')
         self.commit(self.writer, 'site fix')
