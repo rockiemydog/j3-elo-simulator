@@ -20,6 +20,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
 <link rel="stylesheet" href="forecast-insights.css?v=4acffcdd2e3a">
+<link rel="stylesheet" href="dashboard.css?v=0293192544fc">
 </head>
 <body>
 <main class="shell">
@@ -31,8 +32,20 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
     <div><strong id="dataReadyTitle">初期データを検査中…</strong><span id="dataReadyText">20クラブ・全試合の整合性を確認しています。</span></div>
     <button class="btn primary" id="acceptInitial" type="button">このデータで始める</button>
   </section>
+  <section id="dashboardSection" class="dashboard-only" aria-label="北九州ダッシュボード" hidden>
+    <div class="dash-toolbar"><div><span class="dash-mode">公式結果ベース</span><span id="dashDataDate" class="dash-data-date"></span></div><div><a class="dash-menu" href="#dashboardLinks">詳細ページを開く ↓</a><button class="dash-refresh" id="refreshDashboard" type="button">最新結果・日程を確認</button></div></div>
+    <div class="dash-stats" aria-label="北九州の公式成績"><div class="dash-stat"><span>現在順位</span><strong id="dashRank">—</strong><small>公式確定結果から集計</small></div><div class="dash-stat"><span>現在勝点</span><strong id="dashPoints">—</strong><small id="dashRecord"></small></div><div class="dash-stat"><span>残り試合</span><strong id="dashRemaining">—</strong><small id="dashPlayed"></small></div><div class="dash-stat"><span>現在6位との勝点差</span><strong id="dashGap">—</strong><small id="dashSixth"></small></div></div>
+    <div class="dash-meters" aria-label="最終順位の予測メーター"><article class="dash-card dash-meter-main"><span class="dash-label">PLAYOFF OUTLOOK</span><h2>6位以内確率</h2><div id="dashTop6Gauge"></div></article><article class="dash-card"><span class="dash-label">TOP TWO</span><h3>2位以内確率</h3><div id="dashTop2Gauge"></div></article><article class="dash-card"><span class="dash-label">TITLE CHANCE</span><h3>優勝確率</h3><div id="dashTitleGauge"></div></article></div>
+    <p class="dash-forecast-note" id="dashForecastNote" aria-live="polite"></p>
+    <div class="dash-detail-row"><article class="dash-card" aria-labelledby="dashNextTitle"><div class="dash-card-head"><div><span class="dash-label">NEXT MATCH</span><h2 id="dashNextTitle">次の一戦</h2></div><span id="dashNextStatus" class="dash-next-status" aria-live="polite">日程確認中</span></div><div id="dashFixture"></div><div id="dashMatchProb"></div><a class="dash-next-link" href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">公式日程・会場を確認 ↗</a><p id="dashCalendarNote" class="dash-muted"></p></article>
+    <article class="dash-card" aria-labelledby="dashTargetTitle"><span class="dash-label">PLAYOFF COMPASS</span><h2 id="dashTargetTitle">目標勝点への進捗</h2><div class="dash-target" id="dashTarget">—</div><p id="dashTargetHelp" class="dash-muted"></p><div id="dashProgress" class="dash-progress"></div><div class="dash-pace-row"><div><span>目標まで</span><strong id="dashNeeded">—</strong></div><div><span>残り試合の必要ペース</span><strong id="dashPace">—</strong></div></div><p id="dashTargetRange" class="dash-muted"></p><a class="dash-next-link" href="./" target="_blank" rel="noopener">目標勝点を変えて試す ↗</a></article></div>
+    <div class="dash-detail-row"><article class="dash-card"><span class="dash-label">GOAL BALANCE</span><h2>公式得失点差</h2><div id="dashGDGauge"></div><p id="dashGDSummary" class="dash-muted"></p><a class="dash-next-link" href="?view=goal-difference" target="_blank" rel="noopener">全20クラブの得失点差を比較 ↗</a></article><article class="dash-card"><span class="dash-label">TEAM FORM</span><h2>直近5試合</h2><div id="dashRecent" class="dash-form"></div><p id="dashRecentSummary" class="dash-muted"></p><a class="dash-next-link" href="team-stats/" target="_blank" rel="noopener">攻撃・守備のスタッツを見る ↗</a></article></div>
+    <nav id="dashboardLinks" aria-labelledby="dashLinksTitle"><div class="dash-links-heading"><h2 id="dashLinksTitle">詳しく見る</h2></div><p class="dash-links-note">各ボタンから詳細ページを別タブで開きます。</p><div class="dash-link-grid"><a class="dash-link" href="./" target="_blank" rel="noopener"><small>SEASON OUTLOOK</small><strong>最終順位・確率分布</strong><span>全20クラブの予測と、試し入力による比較</span></a><a class="dash-link" href="?view=month-end" target="_blank" rel="noopener"><small>MONTH-END OUTLOOK</small><strong>月末の順位を予測</strong><span>月ごとの見通し・勝敗パターンを確認</span></a><a class="dash-link" href="?view=promotion-lines" target="_blank" rel="noopener"><small>PROMOTION OUTLOOK</small><strong>優勝・2位・6位の勝点ライン</strong><span>各ラインの予測勝点と確率分布を比較</span></a><a class="dash-link" href="team-stats/" target="_blank" rel="noopener"><small>TEAM STATS</small><strong>チームスタッツ</strong><span>xG・被シュートなど、20クラブ中の順位</span></a><a class="dash-link" href="?view=goal-difference" target="_blank" rel="noopener"><small>GOAL DIFFERENCE</small><strong>全クラブの得失点差</strong><span>公式結果から、20クラブの現在地を比較</span></a><a class="dash-link" href="prediction-journal/" target="_blank" rel="noopener"><small>PREDICTION JOURNAL</small><strong>予測履歴・答え合わせ</strong><span>確率の推移と、試合前予測の検証結果</span></a><a class="dash-link" href="progress-tracker/" target="_blank" rel="noopener"><small>PROMOTION TRACKER</small><strong>上位6位ラインへの現在地</strong><span>過去の順位別勝点を目安に、到達ペースを確認</span></a></div></nav>
+    <p id="dashDataStatus" class="dash-data-status" role="status"></p><footer class="dash-footer"><p id="dashTimes"></p><details><summary>予測の前提・メーターの読み方</summary><p id="dashModel"></p><p>優勝・2位以内・6位以内の確率は重複します。昇格そのものの確率ではありません。得失点差は公式の実績で、0を中央に、20クラブの最大絶対値に合わせた左右対称の目盛りを使います。試し入力はこのダッシュボードには引き継ぎません。</p></details></footer>
+  </section>
   <div class="grid">
     <aside class="panel">
+      <a class="dash-nav-link" id="openDashboard" href="?view=dashboard" target="_blank" rel="noopener">Giravanz Dashboard を別タブで見る ↗</a>
       <p><a id="openTeamStats" href="team-stats/" target="_blank" rel="noopener">Giravanz Team Stats を別タブで見る →</a></p>
       <p><a href="progress-tracker/">Giravanz Promotion Tracker を見る →</a></p>
       <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">J3 Month-End Outlook を別タブで見る →</a></p>
@@ -169,6 +182,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <script src="official-api-config.js?v=2abf363444e1"></script>
 <script src="shared-results.js?v=b5977a3bc3d8"></script>
 <script src="forecast-insights.js?v=545777d6f80f"></script>
+<script src="dashboard.js?v=2685b79c14fc"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
@@ -192,6 +206,7 @@ const $=id=>document.getElementById(id);
 const MONTH_VIEW=typeof window.location?.search==='string'&&/(?:^|[?&])view=month-end(?:&|$)/.test(window.location.search);
 const GD_VIEW=typeof window.location?.search==='string'&&/(?:^|[?&])view=goal-difference(?:&|$)/.test(window.location.search);
 const LINE_VIEW=typeof window.location?.search==='string'&&/(?:^|[?&])view=promotion-lines(?:&|$)/.test(window.location.search);
+const DASH_VIEW=typeof window.location?.search==='string'&&/(?:^|[?&])view=dashboard(?:&|$)/.test(window.location.search);
 function decodeMonthTrials(hash,games=confirmed()){
   if(!hash||!hash.startsWith('#trial='))return [];
   if(hash.length>100000)throw Error('試し入力が長すぎます');
@@ -221,6 +236,7 @@ function chooseNextFixture(calendar,games=confirmed()){
     .sort((a,b)=>(a.date+'T'+(a.time||'23:59')).localeCompare(b.date+'T'+(b.time||'23:59'))||a.id.localeCompare(b.id))[0]||null;
 }
 function updateNextFixture(force=false){
+  renderDashboard();
   const label=$('nextFixtureStatus');
   if(force)manualFixture=false;
   if(!fixtureCalendar){if(force){$('home').value='北九州';$('away').value='';$('hg').value='0';$('ag').value='0';syncForm();}label.textContent='公式日程の取得未確認です。対戦カードは手動で選択できます。'+calendarIssue;return;}
@@ -333,7 +349,7 @@ function renderRankDistribution(){
   $('distributionSummary').textContent=`${row.club} ／ ${scenarios.length?'試し入力反映':'公式結果のみ'} ／ 2位以内 ${row.top2.toFixed(1)}％・6位以内 ${row.top6.toFixed(1)}％・最下位 ${row.last.toFixed(1)}％`;
 }
 function renderTable(){if(activeTab==='forecast'){$('thead').innerHTML='<tr><th>予測</th><th>クラブ</th><th>Elo</th><th>予想勝点</th><th>平均順位</th><th title="1位で終わった回数 ÷ 計算回数 × 100">優勝確率</th><th>2位以内</th><th>6位以内</th><th title="20位で終わった回数 ÷ 計算回数 × 100">最下位確率</th></tr>';$('tbody').innerHTML=lastForecast.map((r,i)=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank"><span class="zone ${i<2?'auto':i<6?'po':''}">${i+1}</span></td><td>${r.club}</td><td>${r.elo.toFixed(0)}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}</td><td>${r.distribution[0].toFixed(1)}%</td><td>${r.top2.toFixed(1)}%</td><td>${r.top6.toFixed(1)}%</td><td>${r.last.toFixed(1)}%</td></tr>`).join('')}else{$('thead').innerHTML='<tr><th>順位</th><th>クラブ</th><th>勝点</th><th>試合</th><th>勝</th><th>分</th><th>敗</th><th>得失</th></tr>';$('tbody').innerHTML=liveRows().map(r=>`<tr class="${r.club==='北九州'?'gira':''}"><td class="rank">${r.rank}${r.tied?'=':''}</td><td>${r.club}</td><td>${r.pts}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gd>0?'+':''}${r.gd}</td></tr>`).join('')}}
-function renderVerification(){const s=stateWithScenario(),i=ix['北九州'];const displayed={played:s.p[i],points:s.pts[i],wins:s.w[i],draws:s.d[i],losses:s.l[i],gf:s.gf[i],ga:s.ga[i]};const report=J3Results.verification(displayed,scenarios.length===0&&J3Results.resultId(confirmed())===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('autoStatus').textContent=J3Results.statusText(report.ok);}
+function renderVerification(){const s=stateWithScenario(),i=ix['北九州'];const displayed={played:s.p[i],points:s.pts[i],wins:s.w[i],draws:s.d[i],losses:s.l[i],gf:s.gf[i],ga:s.ga[i]};const report=J3Results.verification(displayed,scenarios.length===0&&J3Results.resultId(confirmed())===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('autoStatus').textContent=J3Results.statusText(report.ok);renderDashboard();}
 let leagueCalendar=null,loadingLeagueCalendar=false,leagueIssue='',lastMonthRenderDay='';
 const jstToday=()=>new Date(Date.now()+9*3600000).toISOString().slice(0,10);
 function validateLeagueCalendar(data){
@@ -554,6 +570,8 @@ async function syncAutomaticResults(force=false){
   if(changed||J3Results.resultId(completed)!==J3Results.resultId()||DATA_AS_OF!==state.asOfDate){completed=J3Results.initialGames.map(g=>g.slice());DATA_AS_OF=state.asOfDate;refreshSavedResults();const used=new Set(confirmed().map(key));scenarios=scenarios.filter(g=>!used.has(key(g)));baseline=null;renderInitialAudit();renderScenarios();run();}else renderVerification();
   }finally{updateNextFixture();syncingOfficial=false;$('refreshOfficial').disabled=false;$('refreshOfficial').textContent=J3Results.canRefreshOfficial?'公式結果を更新':'保存済み結果を再読み込み';}
 }
+function renderDashboard(){if(!DASH_VIEW||typeof J3Dashboard==='undefined')return;J3Dashboard.render({rows:liveRows([]),games:confirmed(),baseline,lineCounts:baseline?baselineLineCounts:null,runs:+$('runs').value,next:fixtureCalendar?chooseNextFixture(fixtureCalendar):null,calendar:fixtureCalendar,calendarIssue,prematch:prematchForecast,asOfDate:DATA_AS_OF,feedState:J3Results.feedState,statusText:J3Results.statusText(),resultId:J3Results.resultId()});}
+$('refreshDashboard').onclick=async()=>{const button=$('refreshDashboard');button.disabled=true;button.textContent='確認中…';try{await Promise.allSettled([syncAutomaticResults(true),refreshFixtureCalendar()]);}finally{button.disabled=false;button.textContent='最新結果・日程を確認';renderDashboard();}};
 $('refreshOfficial').onclick=()=>syncAutomaticResults(true);
 setInterval(()=>{if(!document.hidden){syncAutomaticResults();refreshFixtureCalendar();}},300000);
 function refreshSavedResults(){
@@ -571,6 +589,7 @@ if(LINE_VIEW){document.body?.classList.add('promotion-view');$('pageTitle').text
 if(GD_VIEW){document.body?.classList.add('gd-view');$('pageTitle').textContent='J3 Goal Difference';$('pageDescription').textContent='公式結果から、全20クラブの現在の得失点差を比較';document.title='J3 Goal Difference · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 
 if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='J3 Month-End Outlook';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='J3 Month-End Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
+if(DASH_VIEW){document.body?.classList.add('dashboard-view');$('dashboardSection').hidden=false;$('pageTitle').textContent='Giravanz Dashboard';$('pageDescription').textContent='北九州の現在地と、上位6位への見通し';document.title='Giravanz Dashboard · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>
