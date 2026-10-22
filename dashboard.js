@@ -11,7 +11,13 @@
     const needed=target===null?null:Math.max(0,target-north.pts);
     const recent=context.games.filter(g=>g[0]==='北九州'||g[1]==='北九州').slice(-5).map(g=>{const home=g[0]==='北九州',gf=g[home?2:3],ga=g[home?3:2];return{opponent:g[home?1:0],gf,ga,outcome:gf>ga?'勝':gf===ga?'分':'敗',points:gf>ga?3:gf===ga?1:0};});
     const gdLimit=Math.max(10,Math.ceil(Math.max(...context.rows.map(r=>Math.abs(r.gd)))/10)*10),gdRank=1+context.rows.filter(r=>r.gd>north.gd).length,gdTied=context.rows.filter(r=>r.gd===north.gd).length>1;
-    return {north,sixth,gap:sixth.pts-north.pts,remaining,forecast,target,needed,pace:remaining&&needed!==null?needed/remaining:null,maximum:north.pts+remaining*3,progress:target===null?null:target===0?100:Math.min(100,north.pts/target*100),recent,gdLimit,gdRank,gdTied,ga:north.gf-north.gd};
+    return {north,sixth,winRate:north.p?north.w/north.p*100:null,pointsPerGame:north.p?north.pts/north.p:null,gap:sixth.pts-north.pts,remaining,forecast,target,needed,pace:remaining&&needed!==null?needed/remaining:null,maximum:north.pts+remaining*3,progress:target===null?null:target===0?100:Math.min(100,north.pts/target*100),recent,gdLimit,gdRank,gdTied,ga:north.gf-north.gd};
+  }
+  function performanceGauge(value,maximum,label,unit,digits){
+    if(value===null)return '<div class="dash-gauge-empty">未消化のため算出前</div>';
+    if(!Number.isFinite(value)||!Number.isFinite(maximum)||maximum<=0||value<0||value>maximum)throw Error('Invalid performance rate');
+    const amount=value/maximum*100,display=value.toFixed(digits)+(unit==='%'?'%':''),tick=n=>String(n)+(unit==='%'?'%':'');
+    return `<svg viewBox="0 0 260 178" role="img" aria-label="${escape(label)} ${value.toFixed(digits)}${escape(unit)}。目盛り0から${maximum}${escape(unit)}" class="dash-gauge"><path d="M28 130 A102 102 0 0 1 232 130" pathLength="100" fill="none" stroke="#e9edf4" stroke-width="16" stroke-linecap="round"/><path d="M28 130 A102 102 0 0 1 232 130" pathLength="100" fill="none" stroke="#c99516" stroke-width="16" stroke-linecap="${value===0?'butt':'round'}" stroke-dasharray="${amount} 100"/><text x="130" y="111" text-anchor="middle" class="dash-gauge-value">${display}</text><text x="130" y="135" text-anchor="middle" class="dash-tick">${unit==='%'?'公式実績':escape(unit)}</text><text x="28" y="163" text-anchor="middle" class="dash-tick">${tick(0)}</text><text x="232" y="163" text-anchor="middle" class="dash-tick">${tick(maximum)}</text></svg>`;
   }
   function goalDifferenceGauge(value,limit){
     if(!Number.isFinite(value)||!Number.isFinite(limit)||limit<=0||Math.abs(value)>limit)throw Error('Invalid goal difference');
@@ -30,6 +36,10 @@
     if(context.baseline!==previousBaseline){previousBaseline=context.baseline;calculatedAt=context.baseline?new Date().toISOString():null;}
     $('dashRank').textContent=s.north.rank+'位'+(s.north.tied?'タイ':'');
     $('dashPoints').textContent=s.north.pts+'点';$('dashRecord').textContent=`${s.north.p}試合 · ${s.north.w}勝${s.north.d}分${s.north.l}敗`;
+    $('dashWinRateGauge').innerHTML=performanceGauge(s.winRate,100,'シーズン勝率','%',1);
+    $('dashPPGGauge').innerHTML=performanceGauge(s.pointsPerGame,3,'勝点ペース','点／試合',2);
+    $('dashWinRateFormula').textContent=s.north.p?`${s.north.w}勝 ÷ ${s.north.p}試合 × 100 ＝ ${s.winRate.toFixed(1)}%。引き分けも消化試合数に含みます。`:'公式確定試合がないため、勝率はまだ算出しません。';
+    $('dashPPGFormula').textContent=s.north.p?`${s.north.pts}点 ÷ ${s.north.p}試合 ＝ ${s.pointsPerGame.toFixed(2)}点／試合。1勝3点・引き分け1点・敗戦0点。`:'公式確定試合がないため、勝点ペースはまだ算出しません。';
     $('dashRemaining').textContent=s.remaining+'試合';$('dashPlayed').textContent=`全38試合中 ${s.north.p}試合終了`;
     $('dashGap').textContent=s.gap>0?'あと'+s.gap+'点':s.gap<0?Math.abs(s.gap)+'点先行':'同勝点';
     $('dashSixth').textContent=`現在6位：${s.sixth.club} ${s.sixth.pts}点／${s.sixth.p}試合`;
@@ -65,6 +75,6 @@
     $('dashTimes').textContent=`公式サイト確認：${timestamp(context.feedState.officialCheckedAt)} ／ 結果データ更新：${timestamp(context.feedState.updatedAt)} ／ 画面取得：${timestamp(context.feedState.checkedAt)} ／ 予測計算：${timestamp(calculatedAt)}（日本時間）`;
     $('dashModel').textContent=`Elo K=20・ホーム+60／Davidson方式。残り試合のEloは固定、順位計算用スコアは1–0・1–1・0–1。xG等のスタッツ、負傷・出場停止・天候は未反映。乱数誤差上限の95%目安：±${(98/Math.sqrt(context.runs)).toFixed(2)}ポイント。モデル自体の誤差は含みません。`;
   }
-  const api={summary,gauge,goalDifferenceGauge,percent,quantile,render};
+  const api={summary,gauge,performanceGauge,goalDifferenceGauge,percent,quantile,render};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.J3Dashboard=api;
 })(typeof window==='object'?window:globalThis);

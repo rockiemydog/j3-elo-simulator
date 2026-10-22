@@ -35,6 +35,9 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
   <section id="dashboardSection" class="dashboard-only" aria-label="北九州ダッシュボード" hidden>
     <div class="dash-toolbar"><div><span class="dash-mode">公式結果ベース</span><span id="dashDataDate" class="dash-data-date"></span></div><div><a class="dash-menu" href="#dashboardLinks">詳細ページを開く ↓</a><button class="dash-refresh" id="refreshDashboard" type="button">最新結果・日程を確認</button></div></div>
     <div class="dash-stats" aria-label="北九州の公式成績"><div class="dash-stat"><span>現在順位</span><strong id="dashRank">—</strong><small>公式確定結果から集計</small></div><div class="dash-stat"><span>現在勝点</span><strong id="dashPoints">—</strong><small id="dashRecord"></small></div><div class="dash-stat"><span>残り試合</span><strong id="dashRemaining">—</strong><small id="dashPlayed"></small></div><div class="dash-stat"><span>現在6位との勝点差</span><strong id="dashGap">—</strong><small id="dashSixth"></small></div></div>
+    <p class="dash-divider">これまでの公式実績</p>
+    <div class="dash-detail-row" aria-label="公式実績のメーター"><article class="dash-card"><span class="dash-label">SEASON WIN RATE</span><h2>シーズン勝率</h2><div id="dashWinRateGauge"></div><p class="dash-muted" id="dashWinRateFormula"></p></article><article class="dash-card"><span class="dash-label">POINTS PER GAME</span><h2>勝点ペース</h2><div id="dashPPGGauge"></div><p class="dash-muted" id="dashPPGFormula"></p></article></div>
+    <p class="dash-divider">ここからの最終順位予測</p>
     <div class="dash-meters" aria-label="最終順位の予測メーター"><article class="dash-card dash-meter-main"><span class="dash-label">PLAYOFF OUTLOOK</span><h2>6位以内確率</h2><div id="dashTop6Gauge"></div></article><article class="dash-card"><span class="dash-label">TOP TWO</span><h3>2位以内確率</h3><div id="dashTop2Gauge"></div></article><article class="dash-card"><span class="dash-label">TITLE CHANCE</span><h3>優勝確率</h3><div id="dashTitleGauge"></div></article></div>
     <p class="dash-forecast-note" id="dashForecastNote" aria-live="polite"></p>
     <div class="dash-detail-row"><article class="dash-card" aria-labelledby="dashNextTitle"><div class="dash-card-head"><div><span class="dash-label">NEXT MATCH</span><h2 id="dashNextTitle">次の一戦</h2></div><span id="dashNextStatus" class="dash-next-status" aria-live="polite">日程確認中</span></div><div id="dashFixture"></div><div id="dashMatchProb"></div><a class="dash-next-link" href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">公式日程・会場を確認 ↗</a><p id="dashCalendarNote" class="dash-muted"></p></article>
@@ -182,7 +185,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <script src="official-api-config.js?v=2abf363444e1"></script>
 <script src="shared-results.js?v=b5977a3bc3d8"></script>
 <script src="forecast-insights.js?v=545777d6f80f"></script>
-<script src="dashboard.js?v=2685b79c14fc"></script>
+<script src="dashboard.js?v=b413569cddba"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));
