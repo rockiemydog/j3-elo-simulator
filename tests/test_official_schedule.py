@@ -50,6 +50,17 @@ class Tests(unittest.TestCase):
   self.assertEqual(module.preserve_unresolved([rescheduled],[old]),[rescheduled])
   finished=dict(old,status='finished')
   self.assertEqual(module.preserve_unresolved([finished],[old]),[finished])
+ def test_actual_kickoff_preserves_observed_scheduled_time(self):
+  old=dict(id='2026102413',date='2026-10-24',time='14:00',home='群馬',away='讃岐',status='scheduled')
+  live=dict(old,time='14:03',status='unconfirmed')
+  live=module.preserve_unresolved([live],[old])[0]
+  self.assertEqual(live['scheduledTime'],'14:00');self.assertEqual(live['time'],'14:03')
+  finished=module.preserve_unresolved([dict(old,time='14:03',status='finished')],[live])[0]
+  self.assertEqual(finished['scheduledTime'],'14:00')
+  for previous in [dict(old,status='postponed'),dict(old,status='cancelled'),dict(old,id='2026102313',date='2026-10-23')]:
+   self.assertNotIn('scheduledTime',module.preserve_unresolved([dict(old,time='14:03',status='finished')],[previous])[0])
+  changed=module.preserve_unresolved([dict(old,time='16:00')],[live])[0]
+  self.assertNotIn('scheduledTime',changed)
  def run_import(self,age_seconds=0,old_status='scheduled'):
   with tempfile.TemporaryDirectory() as folder:
    base=Path(folder);fixture=base/'source.html';output=base/'schedule.json';result=base/'step-output'

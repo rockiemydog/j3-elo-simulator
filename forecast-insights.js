@@ -28,9 +28,9 @@
     for(const p of archive.predictions){
       const result=finished.get(p.fixtureId),f=fixtures.get(p.fixtureId),snapshot=archive.snapshots.find(s=>s.id===p.snapshotId);
       if(!result||!f||!f.time||f.status!=='finished'||result.game[0]!==p.home||result.game[1]!==p.away||f.home!==p.home||f.away!==p.away||p.model!==snapshot.model)continue;
-      const kickoff=Date.parse(f.date+'T'+f.time+':00+09:00');
+      const kickoff=Date.parse(f.date+'T'+(f.scheduledTime||f.time)+':00+09:00');
       // Re-timed / postponed fixtures require a new, matching kickoff record.
-      if(Date.parse(p.kickoff)!==kickoff||Date.parse(p.recordedAt)>=kickoff)continue;
+      if(Date.parse(p.kickoff)!==kickoff||Date.parse(p.recordedAt)>=kickoff||Date.parse(p.recordedAt)>=Date.parse(f.date+'T'+f.time+':00+09:00'))continue;
       const key=p.model+'|'+p.fixtureId,old=latest.get(key);
       if(!old||Date.parse(p.recordedAt)>Date.parse(old.recordedAt))latest.set(key,{...p,game:result.game.slice(),outcome:result.game[2]>result.game[3]?0:result.game[2]===result.game[3]?1:2});
     }

@@ -123,6 +123,17 @@ def main():
         with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write(f'changed={str(changed or league_changed).lower()}\n')
     print(f'Official schedule: {len(rows)} Kitakyushu fixtures; changed={changed}')
 def preserve_unresolved(rows,previous):
+    # The official card switches from the advertised time to the actual
+    # kickoff once play starts (e.g. 14:00 -> 14:03). Keep the last observed
+    # scheduled time for scoring, separately from the source's actual time.
+    # A new scheduled time, date/ID, or explicit cancellation breaks continuity.
+    old_by_id={r['id']:r for r in previous}
+    for row in rows:
+        old=old_by_id.get(row['id'])
+        if row['status'] not in ('finished','unconfirmed') or not old: continue
+        if any(row[k]!=old[k] for k in ('date','home','away')) or old['status'] in ('postponed','cancelled'): continue
+        scheduled=old.get('scheduledTime') or (old.get('time') if old['status']=='scheduled' else None)
+        if scheduled: row['scheduledTime']=scheduled
     # Match on official home/away, not the date-based ID which can change when
     # rescheduled. A vanished uncompleted card is unknown, never completed.
     present={(r['home'],r['away']) for r in rows}
