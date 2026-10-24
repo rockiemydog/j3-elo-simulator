@@ -112,3 +112,14 @@ test('missing known results or scheduled cards retain the previous complete disp
   for(const missing of ['official-results.json','league-schedule.json']){let dropped=false;const h=await journalHarness(async url=>{const file=url.split('/').at(-1).split('?')[0],data=payload(file);if(dropped&&file===missing)data.matches.shift();return response(data);});const chart=h.el('journalTrend').innerHTML;dropped=true;await h.el('refreshJournal').onclick();assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'));assert.equal(h.el('journalTrend').innerHTML,chart);}
 });
 test('journal HTML loads the current client instead of a cached previous version',()=>{const source=fs.readFileSync(path.join(root,'prediction-journal/journal.js')),hash=require('node:crypto').createHash('sha256').update(source).digest('hex').slice(0,12),html=fs.readFileSync(path.join(root,'prediction-journal/index.html'),'utf8');assert.ok(html.includes('journal.js?v='+hash+'"'));});
+
+test('observed scheduled kickoff survives the official actual kickoff change',async()=>{
+  const a=payload('prediction-journal.json'),f=payload('official-results.json'),c=payload('league-schedule.json');
+  f.matches.push({id:fixture.id,date:fixture.date,game:[fixture.home,fixture.away,2,1]});f.asOfDate=fixture.date;f.updatedAt='2026-10-24T08:00:00Z';
+  c.checkedAt=f.updatedAt;c.matches[0]={...fixture,status:'finished',scheduledTime:'15:00',time:'15:03'};
+  assert.equal(api.settledPredictions(a,f,c).length,1);
+  const h=await journalHarness(async url=>response(url.includes('prediction-journal.json')?a:url.includes('official-results.json')?f:c),()=>Date.parse('2026-10-24T10:00:00Z'));
+  assert.ok(h.el('matchArchive').innerHTML.includes('2–1'));assert.ok(h.el('scoreSummary').innerHTML.includes('100.0%'));
+  c.matches[0].scheduledTime='16:00';assert.equal(api.settledPredictions(a,f,c).length,0);
+  c.matches[0].scheduledTime='15:00';c.matches[0].date='2026-10-25';assert.equal(api.settledPredictions(a,f,c).length,0);
+});
