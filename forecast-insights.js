@@ -27,7 +27,9 @@
     const finished=new Map(feed.matches.map(m=>[m.id,m])),fixtures=new Map(calendar.matches.map(m=>[m.id,m])),latest=new Map();
     for(const p of archive.predictions){
       const result=finished.get(p.fixtureId),f=fixtures.get(p.fixtureId),snapshot=archive.snapshots.find(s=>s.id===p.snapshotId);
-      if(!result||!f||!f.time||f.status!=='finished'||result.game[0]!==p.home||result.game[1]!==p.away||f.home!==p.home||f.away!==p.away||p.model!==snapshot.model)continue;
+      if(feed.verified!==true||!result||!f||!f.time||!['finished','scheduled','unconfirmed'].includes(f.status)||result.game[0]!==p.home||result.game[1]!==p.away||f.home!==p.home||f.away!==p.away||p.model!==snapshot.model)continue;
+      // A validated finished-result feed can lead the separate schedule collector.
+      // Keep identity and kickoff checks, and never override postponement/cancellation.
       const kickoff=Date.parse(f.date+'T'+(f.scheduledTime||f.time)+':00+09:00');
       // Re-timed / postponed fixtures require a new, matching kickoff record.
       if(Date.parse(p.kickoff)!==kickoff||Date.parse(p.recordedAt)>=kickoff||Date.parse(p.recordedAt)>=Date.parse(f.date+'T'+f.time+':00+09:00'))continue;
