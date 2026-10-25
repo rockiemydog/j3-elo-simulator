@@ -39,20 +39,39 @@
     $('calibrationChart').innerHTML=score.n?`<svg viewBox="0 0 600 280" role="img" aria-label="予測確率と実現率の比較。点線に近いほど一致"><line x1="60" y1="230" x2="520" y2="35" stroke="#98a2b3" stroke-dasharray="5 5"/>${[0,50,100].map(p=>`<text x="45" y="${234-p*1.95}" text-anchor="end" font-size="12">${p}%</text><text x="${60+p*4.6}" y="252" text-anchor="middle" font-size="12">${p}%</text>`).join('')}${score.bins.filter(b=>b.n).map(b=>`<circle cx="${60+b.forecast*460}" cy="${230-b.actual*195}" r="6" fill="#17518b"><title>平均予測${pct(b.forecast)}／実現率${pct(b.actual)}／${b.n}記録</title></circle>`).join('')}<text x="10" y="20" font-size="12">実現率 ↑</text><text x="430" y="275" font-size="12">平均予測確率 →</text></svg>`:'';
     const latestCards=new Map();for(const p of archive.predictions.filter(p=>p.model===model)){const key=p.fixtureId+'|'+p.kickoff;const old=latestCards.get(key);if(!old||Date.parse(p.recordedAt)>Date.parse(old.recordedAt))latestCards.set(key,p);}
     const results=new Map(settled.map(p=>[p.fixtureId+'|'+p.kickoff,p]));
-    $('matchArchive').innerHTML=[...latestCards.values()].sort((a,b)=>a.kickoff.localeCompare(b.kickoff)).map(p=>{const r=results.get(p.fixtureId+'|'+p.kickoff),f=calendar.matches.find(f=>f.id===p.fixtureId),hold=!f||f.status!=='scheduled'||Date.parse(f.date+'T'+(f.scheduledTime||f.time||'00:00')+':00+09:00')!==Date.parse(p.kickoff);return `<tr><td>H ${escape(p.home)} — A ${escape(p.away)}<br><small>${escape(date(p.kickoff))}</small></td>${p.probabilities.map(v=>'<td>'+pct(v)+'</td>').join('')}<td>${r?r.game[2]+'–'+r.game[3]:hold?'未採点／開催・日時確認':'結果待ち'}</td><td>${escape(date(p.recordedAt))}</td></tr>`;}).join('')||'<tr><td colspan="6">次の7日間に日時確定した対象カードの記録を待っています。</td></tr>';
+    $('matchArchive').innerHTML=[...latestCards.values()].sort((a,b)=>a.kickoff.localeCompare(b.kickoff)).map(p=>{const r=results.get(p.fixtureId+'|'+p.kickoff),f=calendar.matches.find(f=>f.id===p.fixtureId),hold=!f||['postponed','cancelled'].includes(f.status)||Date.parse(f.date+'T'+(f.scheduledTime||f.time||'00:00')+':00+09:00')!==Date.parse(p.kickoff);return `<tr><td>H ${escape(p.home)} — A ${escape(p.away)}<br><small>${escape(date(p.kickoff))}</small></td>${p.probabilities.map(v=>'<td>'+pct(v)+'</td>').join('')}<td>${r?r.game[2]+'–'+r.game[3]:hold?'未採点／開催・日時確認':Date.parse(p.kickoff)<=Date.now()?'公式終了結果の反映待ち':'結果待ち'}</td><td>${escape(date(p.recordedAt))}</td></tr>`;}).join('')||'<tr><td colspan="6">次の7日間に日時確定した対象カードの記録を待っています。</td></tr>';
   }
   function renderRetrievalStatus(){
     const {archive,feed,calendar,origin,retrievedAt}=current,snapshots=archive.snapshots,latest=snapshots.at(-1);
     const pending=latest&&(latest.confirmed!==feed.matches.length||Date.parse(latest.sourceUpdatedAt)<Date.parse(feed.updatedAt));
     $('journalStatus').textContent=`${origin}\n記録${snapshots.length}回・試合前予測${archive.predictions.length}件（更新分を含む）\n${latest?'最新予測：'+date(latest.recordedAt)+' 日本時間／公式確定'+latest.confirmed+'試合':'まだ記録はありません。'}\n今回取得：${date(retrievedAt)} 日本時間／取得した公式結果${feed.matches.length}試合${pending?'。予測記録と結果の更新時点が異なります。':''}\n公式日程の確認：${date(calendar.checkedAt)} 日本時間。過去の予測値は更新で変えません。`;
   }
-  async function refresh(){
+  async function refresh(force=false){
     if(loading)return;loading=true;$('refreshJournal').disabled=true;
     try{
       const download=async base=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{return await Promise.all(['prediction-journal.json','official-results.json','league-schedule.json'].map(async file=>{const r=await fetch(base+file+'?t='+Date.now(),{cache:'no-store',credentials:'omit',signal:controller.signal});if(!r.ok)throw Error('HTTP '+r.status);return r.json();}));}finally{controller.abort();clearTimeout(timer);}};
-      let data,origin='GitHubの保存済み記録を取得（公式サイトを直接確認する操作ではありません）';
+      let data,origin='試合前予測・日程：GitHubの保存済み記録';
       try{data=await download('https://raw.githubusercontent.com/rockiemydog/j3-elo-simulator/main/');}catch(error){if(current)throw error;data=await download('../');origin='公開ページに同梱の記録を表示（GitHub最新記録の再取得は未確認）';}
-      const [archive,feed,calendar]=data;
+      const [archive,savedFeed,calendar]=data;
+      let feed=savedFeed,resultOrigin='GitHubの保存済み公式結果';
+      const base=window.J3OfficialApi?.baseUrl;
+      if(typeof base==='string'&&/^https:\/\/[a-z0-9.-]+\.chatgpt\.site$/.test(base)){
+        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),force===true?65000:15000);
+        try{
+          const response=await fetch(base+(force===true?'/api/refresh':'/api/results'),{cache:'no-store',credentials:'omit',signal:controller.signal,...(force===true?{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}:{})});
+          const body=await response.json();
+          if(!response.ok||!['ready','updated','unchanged'].includes(body.status))throw Error('公式更新APIに接続できません');
+          validateSources(body.feed,calendar);
+          if(!savedFeed.matches.every(r=>body.feed.matches.some(n=>n.id===r.id&&n.game[0]===r.game[0]&&n.game[1]===r.game[1])))throw Error('公式結果が不足しています');
+          // API and GitHub use independent update clocks; never undo newer corrections.
+          if(Date.parse(body.feed.updatedAt)>=Date.parse(savedFeed.updatedAt))feed=body.feed;
+          resultOrigin=feed===body.feed?'メイン画面と同じ公式更新API':'GitHubの新しい保存済み公式結果';
+        }catch(error){
+          resultOrigin='公式更新APIの確認に失敗。GitHubの保存済み公式結果';
+          if(current&&Date.parse(current.feed.updatedAt)>Date.parse(savedFeed.updatedAt)){feed=current.feed;resultOrigin='公式更新APIの確認に失敗。前回取得した公式結果を保持';}
+        }finally{controller.abort();clearTimeout(timer);}
+      }
+      origin+='／結果：'+resultOrigin;
       api.validArchive(archive);validateSources(feed,calendar);
       if(archive.snapshots.some(s=>s.clubs.some(r=>!clubs.includes(r.club)))||archive.predictions.some(p=>!clubs.includes(p.home)||!clubs.includes(p.away)))throw Error('記録のクラブ不一致');
       if(current&&(Date.parse(feed.updatedAt)<Date.parse(current.feed.updatedAt)||Date.parse(calendar.checkedAt)<Date.parse(current.calendar.checkedAt)||current.feed.matches.some(r=>!feed.matches.some(next=>next.game[0]===r.game[0]&&next.game[1]===r.game[1]))||current.calendar.matches.some(f=>!calendar.matches.some(next=>next.home===f.home&&next.away===f.away))))throw Error('古い、または欠落した公式データです');
@@ -62,6 +81,6 @@
     }catch(error){$('journalStatus').textContent='記録の取得・検証に失敗しました。'+(current?'前回の表示を保持しています。':'まだ記録を確認できません。')+' 再確認してください。';$('journalStatus').classList.add('insight-error');}
     finally{loading=false;$('refreshJournal').disabled=false;}
   }
-  $('journalClub').innerHTML=clubs.map(c=>'<option>'+c+'</option>').join('');$('journalClub').value='北九州';$('journalClub').onchange=render;$('refreshJournal').onclick=refresh;
+  $('journalClub').innerHTML=clubs.map(c=>'<option>'+c+'</option>').join('');$('journalClub').value='北九州';$('journalClub').onchange=render;$('refreshJournal').onclick=()=>refresh(true);
   setInterval(()=>{if(!document.hidden)refresh();},300000);window.addEventListener('focus',refresh);refresh();
 })();

@@ -26,7 +26,7 @@ test('a kickoff reached during computation cannot receive a backdated prediction
 test('invalid scores, duplicate cards, unverified and stale sources fail closed',()=>{for(const mutate of [f=>f.verified=false,f=>f.matches.push(f.matches[0]),f=>f.matches[0].game[2]=-1,f=>f.matches[0].date='bad']){const f=structuredClone(feed);mutate(f);assert.throws(()=>capture(empty(),f,mockCalendar(),now,fake));}const c=mockCalendar();c.checkedAt=new Date(+now-49*3600000).toISOString();assert.throws(()=>capture(empty(),feed,c,now,fake));});
 test('probability sums and strict pre-kickoff archive timestamps are validated',()=>{const a=capture(empty(),feed,mockCalendar(),now,fake);for(const mutate of [p=>p.probabilities=[.5,.5,.5],p=>p.recordedAt=p.kickoff,p=>p.probabilities=[NaN,.5,.5],p=>p.snapshotId='missing']){const b=structuredClone(a);mutate(b.predictions[0]);assert.throws(()=>api.validArchive(b));}});
 function finished(a){const f={verified:true,matches:[{id:fixture.id,game:['北九州','岐阜',2,1]}]},c=mockCalendar();c.matches[0]={...fixture,status:'finished'};return {f,c};}
-test('only official finished, matching H/A records settle',()=>{const a=capture(empty(),feed,mockCalendar(),now,fake),{f,c}=finished(a);const rows=api.settledPredictions(a,f,c);assert.equal(rows.length,1);assert.equal(rows[0].outcome,0);for(const status of ['scheduled','postponed','cancelled','unconfirmed']){c.matches[0].status=status;assert.equal(api.settledPredictions(a,f,c).length,0);}c.matches[0].status='finished';f.matches[0].game=['岐阜','北九州',2,1];assert.equal(api.settledPredictions(a,f,c).length,0);});
+test('only official finished, matching H/A records settle',()=>{const a=capture(empty(),feed,mockCalendar(),now,fake),{f,c}=finished(a);const rows=api.settledPredictions(a,f,c);assert.equal(rows.length,1);assert.equal(rows[0].outcome,0);for(const status of ['postponed','cancelled']){c.matches[0].status=status;assert.equal(api.settledPredictions(a,f,c).length,0);}c.matches[0].status='finished';f.matches[0].game=['岐阜','北九州',2,1];assert.equal(api.settledPredictions(a,f,c).length,0);});
 test('rescheduled kickoff is not scored using an obsolete prediction',()=>{const a=capture(empty(),feed,mockCalendar(),now,fake),{f,c}=finished(a);c.matches[0].time='16:00';assert.equal(api.settledPredictions(a,f,c).length,0);});
 test('last strictly pre-match revision is scored once per model',()=>{const a=capture(empty(),feed,mockCalendar(),now,fake),changed=structuredClone(feed);changed.matches[0].game[2]++;const b=capture(a,changed,mockCalendar(),new Date(+now+1000),fake),{f,c}=finished(b);const rows=api.settledPredictions(b,f,c);assert.equal(rows.length,1);assert.equal(rows[0].snapshotId,b.snapshots[1].id);});
 test('calibration independently checks accuracy, log loss, Brier and all three outcomes',()=>{const s=api.calibration([{probabilities:[.5,.3,.2],outcome:0},{probabilities:[.1,.2,.7],outcome:1}]);assert.equal(s.n,2);assert.equal(s.accuracy,.5);assert.equal(s.logLoss,(-Math.log(.5)-Math.log(.2))/2);assert.ok(Math.abs(s.brier-(.38+1.14)/2)<1e-12);assert.equal(s.bins.reduce((n,b)=>n+b.n,0),6);assert.equal(s.bins.reduce((n,b)=>n+b.hits,0),2);});
@@ -43,10 +43,10 @@ test('frontend uses actual-only baseline, handles invalid target and records no 
   el('compassTarget').value='custom';el('compassCustom').value='';vm.runInContext('renderCompass()',context);assert.ok(el('compassSummary').textContent.includes('整数'));
   assert.ok(html.includes('xG・被xG'));assert.ok(html.includes('現在の順位予測には使っていません'));assert.ok(!html.includes('localStorage.setItem(\'prediction'));
 });
-async function journalHarness(fetcher,clock=()=>+now){
+async function journalHarness(fetcher,clock=()=>+now,config=null){
   const els=new Map(),el=id=>{if(!els.has(id))els.set(id,{value:'',innerHTML:'',textContent:'',disabled:false,classList:{add(){},remove(){}}});return els.get(id);};
   class TestDate extends Date{constructor(...args){super(...(args.length?args:[clock()]));}static now(){return clock();}}
-  const context={document:{getElementById:el,hidden:false},window:{J3ForecastInsights:api,addEventListener(){}},fetch:fetcher,AbortController,setTimeout,clearTimeout,setInterval(){},Date:TestDate};
+  const context={document:{getElementById:el,hidden:false},window:{J3ForecastInsights:api,J3OfficialApi:config,addEventListener(){}},fetch:fetcher,AbortController,setTimeout,clearTimeout,setInterval(){},Date:TestDate};
   vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(root,'prediction-journal/journal.js'),'utf8'),context);
   for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));return {el};
 }
@@ -122,4 +122,24 @@ test('observed scheduled kickoff survives the official actual kickoff change',as
   assert.ok(h.el('matchArchive').innerHTML.includes('2–1'));assert.ok(h.el('scoreSummary').innerHTML.includes('100.0%'));
   c.matches[0].scheduledTime='16:00';assert.equal(api.settledPredictions(a,f,c).length,0);
   c.matches[0].scheduledTime='15:00';c.matches[0].date='2026-10-25';assert.equal(api.settledPredictions(a,f,c).length,0);
+});
+
+test('official finished feed settles individual cards while calendar still reports live or scheduled',()=>{
+  const a=capture(empty(),feed,mockCalendar(),now,fake),{f,c}=finished(a);
+  for(const status of ['scheduled','unconfirmed']){c.matches[0].status=status;assert.equal(api.settledPredictions(a,f,c).length,1);}
+  f.matches=[];assert.equal(api.settledPredictions(a,f,c).length,0);
+});
+test('journal uses main API results before GitHub catches up and button refreshes official source',async()=>{
+  const f=payload('official-results.json'),c=payload('league-schedule.json');
+  f.matches.push({id:fixture.id,date:fixture.date,game:[fixture.home,fixture.away,3,1]});f.asOfDate=fixture.date;f.updatedAt='2026-10-24T08:00:00Z';
+  c.matches[0]={...fixture,status:'unconfirmed',time:'15:03',scheduledTime:'15:00'};
+  let apiDown=false,posts=0;
+  const h=await journalHarness(async(url,options)=>{
+    if(url.includes('/api/')){if(apiDown)throw Error('offline');if(options.method==='POST')posts++;return response({status:'ready',feed:f});}
+    return response(url.includes('prediction-journal.json')?payload('prediction-journal.json'):url.includes('official-results.json')?payload('official-results.json'):c);
+  },()=>Date.parse('2026-10-24T10:00:00Z'),{baseUrl:'https://example.chatgpt.site'});
+  assert.ok(h.el('matchArchive').innerHTML.includes('3–1'));assert.ok(h.el('scoreSummary').innerHTML.includes('100.0%'));
+  assert.ok(h.el('journalStatus').textContent.includes('同じ公式更新API'));
+  await h.el('refreshJournal').onclick();assert.equal(posts,1);
+  apiDown=true;await h.el('refreshJournal').onclick();assert.ok(h.el('matchArchive').innerHTML.includes('3–1'));assert.ok(h.el('journalStatus').textContent.includes('前回取得した公式結果を保持'));
 });
