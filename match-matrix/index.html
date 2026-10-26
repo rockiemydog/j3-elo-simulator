@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>J3 Match Matrix</title><style>
-body{font:14px -apple-system,"Noto Sans JP",sans-serif;background:#f7f8fa;color:#172033;margin:0;padding:18px}main{max-width:1250px;margin:auto}.wrap{overflow:auto;max-height:75vh;background:white;border:1px solid #ddd;border-radius:10px}table{border-spacing:0;border-collapse:separate}th,td{padding:9px;border-right:1px solid #eee;border-bottom:1px solid #eee;white-space:nowrap;text-align:center;min-width:40px}thead th{position:sticky;top:0;background:#eef1f5;z-index:2}th:first-child{position:sticky;left:0;background:#eef1f5;z-index:3;text-align:left}thead th:first-child{z-index:4}.kita th,.kita td,.kitacol{background:#fff2b0!important}.win{color:#111827}.loss{color:#111827}.draw{color:#d62828}.result-symbol{display:inline-block;font-size:20px;line-height:1.1;font-weight:900}.result-symbol.win{color:#111827}.result-symbol.loss{color:#111827}.result-symbol.draw{color:#d62828}.match-mark{display:inline-flex;flex-direction:column;align-items:center;gap:2px;margin:0 2px}.venue-label{font-size:12px;line-height:1;font-weight:900;color:#344054}.match-mark.away .venue-label{color:#a24118}.match-mark.home .venue-label{color:#175c96}td button{display:inline-flex;align-items:center;justify-content:center;gap:3px}td button{border:0;background:transparent;font:inherit;font-weight:bold;color:inherit;cursor:pointer}#detail{min-height:36px}p{color:#667085}button#refresh{padding:9px;margin-bottom:12px}
-</style></head><body><main><a href="../">← シミュレーター</a><h1>Match Matrix｜J3対戦勝敗表</h1><p>全20クラブの公式確定結果。行のクラブから見て ○ 白星（黒枠）／● 黒星／△ 引き分け（赤枠）。未対戦は－、同一クラブは—。複数対戦は併記。記号の下の H＝ホーム、A＝アウェー（行のクラブ基準）。</p><button id="refresh">公式結果を確認</button><p id="status" role="status">読込中</p><div class="wrap"><table aria-label="20クラブ対戦勝敗表"><thead id="head"></thead><tbody id="body"></tbody></table></div><p id="detail" aria-live="polite">記号を押すとスコアを表示します。</p><p id="audit"></p></main><script src="../official-api-config.js"></script><script src="../shared-results.js"></script><script>
+body{font:14px -apple-system,"Noto Sans JP",sans-serif;background:#f7f8fa;color:#172033;margin:0;padding:18px}main{max-width:1250px;margin:auto}.wrap{overflow:auto;max-height:75vh;background:white;border:1px solid #ddd;border-radius:10px}table{border-spacing:0;border-collapse:separate}th,td{padding:9px;border-right:1px solid #eee;border-bottom:1px solid #eee;white-space:nowrap;text-align:center;min-width:40px}thead th{position:sticky;top:0;background:#eef1f5;z-index:2}th:first-child{position:sticky;left:0;background:#eef1f5;z-index:3;text-align:left}thead th:first-child{z-index:4}.kita th,.kita td,.kitacol{background:#fff2b0!important}.win{color:#111827}.loss{color:#111827}.draw{color:#d62828}.result-symbol{display:inline-block;font-size:20px;line-height:1.1;font-weight:900}.result-symbol.win{color:#111827}.result-symbol.loss{color:#111827}.result-symbol.draw{color:#d62828}.match-mark{display:inline-flex;align-items:center;justify-content:center;margin:0 2px} .venue-cell{font-size:12px;font-weight:900;min-width:26px}.venue-cell.home{color:#175c96}.venue-cell.away{color:#a24118}.club-name{font-weight:900}.club-row.away-row td,.club-row.away-row th{border-bottom:2px solid #c9d0dc}.club-row.home-row td,.club-row.home-row th{border-bottom:1px dashed #e2e6ee}.total-cell{font-weight:800}.venue-label{font-size:12px;line-height:1;font-weight:900;color:#344054}.match-mark.away .venue-label{color:#a24118}.match-mark.home .venue-label{color:#175c96}td button{display:inline-flex;align-items:center;justify-content:center;gap:3px}td button{border:0;background:transparent;font:inherit;font-weight:bold;color:inherit;cursor:pointer}#detail{min-height:36px}p{color:#667085}button#refresh{padding:9px;margin-bottom:12px}
+</style></head><body><main><a href="../">← シミュレーター</a><h1>Match Matrix｜J3対戦勝敗表</h1><p>全20クラブの公式確定結果。各クラブは上段H（ホーム）、下段A（アウェー）。○ 白星（黒枠）／● 黒星／△ 引き分け（赤枠）。未対戦は－、同一クラブは—。右端の勝・分・敗・勝点はホーム・アウェー合計。</p><button id="refresh">公式結果を確認</button><p id="status" role="status">読込中</p><div class="wrap"><table aria-label="20クラブ対戦勝敗表"><thead id="head"></thead><tbody id="body"></tbody></table></div><p id="detail" aria-live="polite">記号を押すとスコアを表示します。</p><p id="audit"></p></main><script src="../official-api-config.js"></script><script src="../shared-results.js"></script><script>
 const teams=["岐阜","愛媛","鹿児島","相模原","鳥取","FC大阪","長野","滋賀","熊本","栃木SC","琉球","讃岐","山口","奈良","高知","北九州","松本","金沢","群馬","福島"],$=id=>document.getElementById(id);
 function aggregate(games){
  const cells=new Map(teams.map(t=>[t,new Map()])),stats=new Map(teams.map(t=>[t,{w:0,d:0,l:0}]));
@@ -20,21 +20,28 @@ function render(){
   const games=J3Results.initialGames,{cells,stats}=aggregate(games);
   $('head').replaceChildren();$('body').replaceChildren();
   const hr=document.createElement('tr');
-  for(const name of ['クラブ＼対戦相手',...teams,'勝','分','敗','勝点']){const th=document.createElement('th');th.textContent=name;if(name==='北九州')th.className='kitacol';hr.append(th)}$('head').append(hr);
+  for(const name of ['クラブ＼対戦相手','H/A',...teams,'勝','分','敗','勝点']){const th=document.createElement('th');th.textContent=name;if(name==='北九州')th.className='kitacol';hr.append(th)}$('head').append(hr);
   for(const club of teams){
-   const tr=document.createElement('tr');if(club==='北九州')tr.className='kita';
-   const th=document.createElement('th');th.textContent=club;tr.append(th);
-   for(const opp of teams){
-    const td=document.createElement('td');if(opp==='北九州')td.classList.add('kitacol');
-    const ms=cells.get(club).get(opp)||[];
-    if(club===opp)td.textContent='—';else if(!ms.length)td.textContent='－';else{
-     const b=document.createElement('button');for(const m of ms){const mark=document.createElement('span');mark.className='match-mark '+(m.home?'home':'away');const span=document.createElement('span');span.className='result-symbol '+(m.symbol==='○'?'win':m.symbol==='●'?'loss':'draw');span.textContent=m.symbol;const venue=document.createElement('span');venue.className='venue-label';venue.textContent=m.home?'H':'A';mark.append(span,venue);b.append(mark)}
-     b.setAttribute('aria-label',club+'対'+opp+'：'+ms.map(m=>m.symbol+' '+(m.home?'ホーム':'アウェー')).join('、'));
-     b.onclick=()=>$('detail').textContent=club+' 対 '+opp+'：'+ms.map(m=>(m.home?'ホーム':'アウェー')+' '+m.gf+'－'+m.ga+'（'+m.symbol+'）').join(' ／ ');
-     td.classList.add(ms.at(-1).symbol==='○'?'win':ms.at(-1).symbol==='●'?'loss':'draw');td.append(b);
-    }tr.append(td);
+   const st=stats.get(club);
+   for(const home of [true,false]){
+    const tr=document.createElement('tr');tr.className='club-row '+(home?'home-row':'away-row')+(club==='北九州'?' kita':'');
+    if(home){const th=document.createElement('th');th.textContent=club;th.rowSpan=2;th.className='club-name';tr.append(th)}
+    const venue=document.createElement('th');venue.className='venue-cell '+(home?'home':'away');venue.textContent=home?'H':'A';venue.setAttribute('aria-label',home?'ホーム':'アウェー');tr.append(venue);
+    for(const opp of teams){
+     const td=document.createElement('td');if(opp==='北九州')td.classList.add('kitacol');
+     const ms=(cells.get(club).get(opp)||[]).filter(m=>m.home===home);
+     if(club===opp)td.textContent='—';else if(!ms.length)td.textContent='－';else{
+      const btn=document.createElement('button');
+      for(const m of ms){const mark=document.createElement('span');mark.className='match-mark';const sym=document.createElement('span');sym.className='result-symbol '+(m.symbol==='○'?'win':m.symbol==='●'?'loss':'draw');sym.textContent=m.symbol;mark.append(sym);btn.append(mark)}
+      btn.setAttribute('aria-label',club+'対'+opp+' '+(home?'ホーム':'アウェー')+'：'+ms.map(m=>m.symbol).join('、'));
+      btn.onclick=()=>$('detail').textContent=club+' 対 '+opp+'（'+(home?'ホーム':'アウェー')+'）：'+ms.map(m=>m.gf+'－'+m.ga+'（'+m.symbol+'）').join(' ／ ');
+      td.append(btn);
+     }
+     tr.append(td);
+    }
+    if(home){for(const n of [st.w,st.d,st.l,3*st.w+st.d]){const td=document.createElement('td');td.textContent=n;td.rowSpan=2;td.className='total-cell';tr.append(td)}}
+    $('body').append(tr);
    }
-   const s=stats.get(club);for(const n of [s.w,s.d,s.l,3*s.w+s.d]){const td=document.createElement('td');td.textContent=n;tr.append(td)}$('body').append(tr);
   }
   $('status').textContent=J3Results.statusText();$('audit').textContent='公式確定'+games.length+'試合／結果ID '+J3Results.resultId()+'／対象日 '+J3Results.baseDate;
  }catch(e){$('status').textContent='表示エラー：'+e.message}
