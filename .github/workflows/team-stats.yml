@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - scripts/update-team-stats.py
+      - scripts/update-football-lab.py
       - .github/workflows/team-stats.yml
   workflow_dispatch:
   schedule:
@@ -34,3 +35,11 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python scripts/publish-official-results.py
+      - name: Validate Football LAB collector
+        run: python tests/test_football_lab.py
+      - name: Check Football LAB published stats
+        run: python scripts/update-football-lab.py
+      - name: Publish changed Football LAB stats
+        env:
+          PUBLISH_FOOTBALL_LAB: 'true'
+        run: python scripts/publish-official-results.py
