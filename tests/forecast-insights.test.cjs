@@ -111,7 +111,7 @@ test('finished results and newer score corrections update the actual UI; replay 
 test('missing known results or scheduled cards retain the previous complete display',async()=>{
   for(const missing of ['official-results.json','league-schedule.json']){let dropped=false;const h=await journalHarness(async url=>{const file=url.split('/').at(-1).split('?')[0],data=payload(file);if(dropped&&file===missing)data.matches.shift();return response(data);});const chart=h.el('journalTrend').innerHTML;dropped=true;await h.el('refreshJournal').onclick();assert.ok(h.el('journalStatus').textContent.includes('検証に失敗'));assert.equal(h.el('journalTrend').innerHTML,chart);}
 });
-test('journal HTML loads the current client instead of a cached previous version',()=>{const source=fs.readFileSync(path.join(root,'prediction-journal/journal.js')),hash=require('node:crypto').createHash('sha256').update(source).digest('hex').slice(0,12),html=fs.readFileSync(path.join(root,'prediction-journal/index.html'),'utf8');assert.ok(html.includes('journal.js?v='+hash+'"'));});
+test('journal HTML loads the current client instead of a cached previous version',()=>{const source=fs.readFileSync(path.join(root,'prediction-journal/journal.js')),hash=require('node:crypto').createHash('sha1').update(Buffer.concat([Buffer.from('blob '+source.length+'\0'),source])).digest('hex').slice(0,12),html=fs.readFileSync(path.join(root,'prediction-journal/index.html'),'utf8');assert.ok(html.includes('journal.js?v='+hash+'"'));});
 
 test('observed scheduled kickoff survives the official actual kickoff change',async()=>{
   const a=payload('prediction-journal.json'),f=payload('official-results.json'),c=payload('league-schedule.json');
