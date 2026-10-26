@@ -33,7 +33,7 @@ for(const [group,info] of Object.entries(GROUPS)){
   const values=[a.value,b.value,avg],maximum=Math.max(...values,0.001);
   const card=document.createElement('article');card.className='official-compare-card';
   const title=document.createElement('h4');title.textContent=META[key][0];card.append(title);
-  for(const [i,label,color] of [['北九州','#ffd900'],[opponent,'#d83043'],['J3平均','#14213d']].map((r,i)=>[i,...r])){
+  for(const [i,label,color] of [['北九州','#ffd900'],[opponent,'#d4a900'],['J3平均','#1673d1']].map((r,i)=>[i,...r])){
    const row=document.createElement('div');row.className='official-compare-row';
    const name=document.createElement('span');name.className='official-compare-label';name.textContent=label;
    const track=document.createElement('div');track.className='official-compare-track';
