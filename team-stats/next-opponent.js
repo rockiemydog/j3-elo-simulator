@@ -9,7 +9,26 @@ function next(d){return d.matches.filter(m=>(m.home==='北九州'||m.away==='北
 function render(){if(!latest||!fixture)return;const m=next(fixture),status=$('officialCompareStatus'),box=$('officialCompare');box.replaceChildren();if(!m){status.textContent='公式日程に次戦がありません。終了・延期・未確定の試合は次戦として扱いません。';return;}const opponent=m.home==='北九州'?m.away:m.home;const dates=latest.samples;const same=dates?.['北九州']&&dates?.[opponent];if(!same){status.textContent='比較データが揃っていません。';return;}
 status.textContent='次戦 '+m.date+' '+(m.time||'時刻未定')+' ／ '+m.home+' vs '+m.away+' ／ 統計確認 '+new Date(latest.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+' ／ 日程確認 '+new Date(fixture.checkedAt).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'});
 const note=document.createElement('p');note.className='sub';note.textContent='Jリーグ公式統計（2026/27）。北九州 '+same.played+'試合、'+opponent+' '+dates[opponent].played+'試合。平均・率と累計を区別し、公式データの更新後に反映します。';box.append(note);
-for(const [group,info] of Object.entries(GROUPS)){const h=document.createElement('h3');h.textContent=info.label;box.append(h);const wrap=document.createElement('div');wrap.className='scroll';const table=document.createElement('table'),thead=document.createElement('thead');thead.innerHTML='<tr><th style="text-align:left">指標</th><th>北九州</th><th>'+opponent+'</th><th>J3平均</th></tr>';table.append(thead);const body=document.createElement('tbody');for(const key of info.keys){const rows=latest.league[key],a=rows.find(x=>x.club==='北九州'),b=rows.find(x=>x.club===opponent);if(!a||!b||rows.length!==20)continue;const avg=rows.reduce((sum,x)=>sum+x.value,0)/20;const tr=document.createElement('tr');const values=[META[key][0],a.value,b.value,avg];values.forEach((v,i)=>{const td=document.createElement('td');td.textContent=i===0?v:Number(v.toFixed(2)).toLocaleString('ja-JP',{maximumFractionDigits:2});if(i===0)td.style.textAlign='left';if(i===1){td.style.color='#ad1f2d';td.style.fontWeight='800';}tr.append(td);});body.append(tr);}table.append(body);wrap.append(table);box.append(wrap);}
+for(const [group,info] of Object.entries(GROUPS)){
+ const h=document.createElement('h3');h.textContent=info.label;box.append(h);
+ for(const key of info.keys){
+  const rows=latest.league[key],a=rows?.find(x=>x.club==='北九州'),b=rows?.find(x=>x.club===opponent);
+  if(!a||!b||rows.length!==20)continue;
+  const avg=rows.reduce((sum,x)=>sum+x.value,0)/20;
+  const values=[a.value,b.value,avg],maximum=Math.max(...values,0.001);
+  const card=document.createElement('article');card.className='official-compare-card';
+  const title=document.createElement('h4');title.textContent=META[key][0];card.append(title);
+  for(const [i,label,color] of [['北九州','#ffd900'],[opponent,'#d83043'],['J3平均','#14213d']].map((r,i)=>[i,...r])){
+   const row=document.createElement('div');row.className='official-compare-row';
+   const name=document.createElement('span');name.className='official-compare-label';name.textContent=label;
+   const track=document.createElement('div');track.className='official-compare-track';
+   const bar=document.createElement('div');bar.className='official-compare-bar';bar.style.width=(values[i]/maximum*100)+'%';bar.style.background=color;track.append(bar);
+   const number=document.createElement('strong');number.textContent=Number(values[i].toFixed(2)).toLocaleString('ja-JP',{maximumFractionDigits:2});
+   row.append(name,track,number);card.append(row);
+  }
+  box.append(card);
+ }
+}
 }
 async function refresh(){if(busy)return;busy=true;$('officialCompareRefresh').disabled=true;try{const [data,calendar]=await Promise.all([load('team-stats.json'),load('official-schedule.json')]);if(!data||data.schemaVersion!==3||data.verified!==true||data.season!=='2026/27'||!Array.isArray(data.metrics)||data.metrics.length!==16||!data.league||!data.samples||!Number.isFinite(Date.parse(data.checkedAt))||Date.parse(data.checkedAt)>Date.now()+300000)throw Error('公式統計の形式が不正');for(const key of ['scorePg','shotsPg','passCountPg','ballRate','cleanSheet']){if(!Array.isArray(data.league[key])||data.league[key].length!==20||!data.league[key].some(x=>x.club==='北九州'))throw Error('公式統計の20クラブ照合失敗');}fixture=fixtureCheck(calendar);if(latest&&Date.parse(data.checkedAt)<Date.parse(latest.checkedAt))throw Error('古い統計データ');latest=data;render();$('officialCompareError').textContent='';}catch(e){$('officialCompareError').textContent=(latest&&fixture?'最新データを取得できません。前回の比較を保持しています。':'公式統計・日程を確認できません。未検証の数値は表示しません。')+'（診断：'+String(e?.message||e).slice(0,160)+'）';}finally{busy=false;$('officialCompareRefresh').disabled=false;}}
 $('officialCompareRefresh').addEventListener('click',refresh);refresh();setInterval(()=>{if(!document.hidden)refresh();},6*3600000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
