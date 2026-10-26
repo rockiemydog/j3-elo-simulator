@@ -36,16 +36,8 @@
     <section class="panel inputs" aria-labelledby="sync-title">
       <p id="verification" class="input-note" aria-live="polite" style="white-space:pre-line"></p><button class="action secondary" id="refresh-official" type="button">最新結果を確認する</button><h2 id="sync-title">試合結果との連動</h2><p id="auto-status" class="input-note" aria-live="polite">公式結果の自動取得を確認中です。</p>
       <p id="sync-status" class="input-note" aria-live="polite"></p>
-      <p class="input-note">実際の成績は公式結果から自動集計します。試し入力は保存されず、公式の成績を変更しません。</p>
+      <p class="input-note">実際の成績は公式結果から自動集計します。</p>
       <a class="action secondary" href="../">J3 Season Outlook を見る</a>
-    </section>
-
-    <section class="panel inputs input-panel test" aria-labelledby="test-title">
-      <div class="section-head"><h2 id="test-title">試し入力（仮の成績）</h2><span class="hint">公式の成績は変更されません</span></div>
-      <div class="input-grid" id="test-fields"></div>
-      <div class="validation" id="test-validation" role="status" aria-live="polite"></div>
-      <div class="input-actions"><button class="action" id="show-test" type="button">試し入力で目安を見る</button><button class="action secondary" id="show-main" type="button">実際の成績に戻る</button></div>
-      <p class="input-note">試し入力は保存されません。公式結果が更新された場合や再読込時は最新の実績に戻ります。「実際の成績に戻る」でいつでも公式集計を表示できます。</p>
     </section>
 
     <div class="legend" aria-label="判定の説明">
@@ -79,25 +71,15 @@
     const $=id=>document.getElementById(id);
     const fields=[['played','消化試合',38],['points','勝点',114],['wins','勝',38],['draws','分',38],['losses','敗',38],['gf','得点',null],['ga','失点',null]];
     const defaults={asofDate:'2026-10-04',played:9,points:10,wins:2,draws:4,losses:3,gf:12,ga:16};
-    let mainStats={...defaults}, activeStats=mainStats, activeView='main', syncHasExtras=false, actualSignature=null;
+    let mainStats={...defaults}, activeStats=mainStats, activeView='linked', syncHasExtras=false;
     function refreshLinkedResults(force=false) {
       const data=J3Results.clubStats();
       const actual=data.stats;
       mainStats={...actual};
       $('sync-status').textContent=`公式実績：北九州 ${actual.played}試合・${actual.points}点（${actual.wins}勝${actual.draws}分${actual.losses}敗）／リーグ確定${data.games.length}試合`;
-      const signature=JSON.stringify([actual,data.games]);
-      if(force||signature!==actualSignature){
-        makeFields('test',actual);paint('test',[]);activeView='linked';
-      }
-      actualSignature=signature;
-      if(activeView!=='test')showResults(actual,'linked');
+      showResults(actual,'linked');
     }
 
-    function makeFields(prefix,values){
-      const date=`<div class="field"><label for="${prefix}-asofDate">入力成績の基準日</label><input id="${prefix}-asofDate" type="date" value="${values.asofDate||defaults.asofDate}"></div>`;
-      $(prefix+'-fields').innerHTML=date+fields.map(([id,label,max])=>`<div class="field"><label for="${prefix}-${id}">${label}</label><input id="${prefix}-${id}" type="number" min="0"${max===null?'':` max="${max}"`} value="${values[id]}"></div>`).join('');
-    }
-    function readStats(prefix){return {asofDate:$(`${prefix}-asofDate`).value,...Object.fromEntries(fields.map(([id])=>[id,$(`${prefix}-${id}`).value.trim()===''?NaN:Number($(`${prefix}-${id}`).value)]))};}
     function validate(s){
       const problems=[];
       if(fields.some(([id])=>!Number.isFinite(s[id])||!Number.isInteger(s[id])||s[id]<0)) problems.push('すべて0以上の整数で入力してください。');
@@ -107,14 +89,10 @@
       if(3*s.wins+s.draws!==s.points) problems.push('勝点は「勝×3＋分」と一致させてください。');
       return problems;
     }
-    function paint(prefix,problems){
-      $(`${prefix}-validation`).textContent=problems.join(' ');
-      return problems.length===0;
-    }
     function showResults(s,view){
       activeStats=s;activeView=view;
-      $('view-label').textContent=view==='test'?'試し入力の成績で表示中（実績は変更しません）':view==='linked'?'確定した試合結果から自動集計して表示中':'実際の成績で表示中';
-      $('view-label').className='view-label'+(view==='test'?' test-view':'');
+      $('view-label').textContent='確定した試合結果から自動集計して表示中';
+      $('view-label').className='view-label';
       render();renderVerification();
     }
     function renderVerification(){const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('auto-status').textContent=J3Results.statusText(report.ok);}
@@ -160,10 +138,6 @@
         </article>`;
       }).join('');
     }
-    makeFields('test',mainStats);
-    $('show-test').addEventListener('click',()=>{const s=readStats('test');if(paint('test',validate(s)))showResults(s,'test');});
-    $('show-main').textContent='実際の成績に戻る';
-    $('show-main').addEventListener('click',()=>{activeView='main';refreshLinkedResults();});
     let syncingOfficial=false;
     async function syncAutomaticResults(force=false){
       if(syncingOfficial)return;syncingOfficial=true;
@@ -189,5 +163,3 @@
   </script>
 </body>
 </html>
-
-

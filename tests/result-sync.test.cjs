@@ -143,11 +143,11 @@ check('busy, cooldown and invalid responses do not announce update completion',(
 apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test')");
 apiTracker.fetch=async()=>response(apiReply(apiTracker));await apiTracker.eval('syncAutomaticResults(true)');
 check('manual official refresh replaces old trial display with current actual stats',()=>{
- assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),expectedKit.played);assert.equal(apiTracker.eval('activeStats.losses'),expectedKit.losses);assert.equal(apiTracker.eval('activeStats.ga'),expectedKit.ga);assert(apiTracker.node('cards').innerHTML.includes((38-expectedKit.played)+'<small>試合'));assert(!apiTracker.node('cards').innerHTML.includes((39-expectedKit.played)+'<small>試合'));assert.equal(apiTracker.node('verification').dataset.verified,'true');assert(apiTracker.node('test-fields').innerHTML.includes('id="test-played" type="number" min="0" max="38" value="'+expectedKit.played+'"'));
+ assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),expectedKit.played);assert.equal(apiTracker.eval('activeStats.losses'),expectedKit.losses);assert.equal(apiTracker.eval('activeStats.ga'),expectedKit.ga);assert(apiTracker.node('cards').innerHTML.includes((38-expectedKit.played)+'<small>試合'));assert(!apiTracker.node('cards').innerHTML.includes((39-expectedKit.played)+'<small>試合'));assert.equal(apiTracker.node('verification').dataset.verified,'true');assert(!progress.includes('id="test-fields"'));
 });
 apiTracker.eval("showResults({...activeStats,played:9,losses:3,ga:16},'test');Date.now=()=>9999999999999");
 await apiTracker.eval('syncAutomaticResults()');
-check('automatic unchanged check preserves deliberate trial inputs',()=>{assert.equal(apiTracker.eval('activeView'),'test');assert.equal(apiTracker.eval('activeStats.played'),9);assert.equal(apiTracker.node('verification').dataset.verified,'false');});
+check('automatic unchanged check restores official display without trial mode',()=>{assert.equal(apiTracker.eval('activeView'),'linked');assert.equal(apiTracker.eval('activeStats.played'),expectedKit.played);assert.equal(apiTracker.node('verification').dataset.verified,'true');});
 const corrected=JSON.parse(JSON.stringify(apiFeed));const game=corrected.matches.find(r=>r.game[0]==='奈良'&&r.game[1]==='北九州');game.game[2]=3;
 for(const t of [apiMain,apiTracker]){t.fetch=async()=>response({...apiReply(t,'updated',corrected),corrected:1});await t.eval('syncAutomaticResults(true)');t.flushRender();}
 check('a score correction updates both models without duplicating the fixture',()=>{
