@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "season": "2026/27",
+  "source": "https://www.football-lab.jp/kiky",
+  "sourceUpdatedOn": "2026-10-23",
+  "metrics": [
+    {
+      "name": "ゴール",
+      "value": 1.3,
+      "average": 1.4,
+      "rank": 10,
+      "unit": "回／試合",
+      "display": "1.3",
+      "averageDisplay": "1.4"
+    },
+    {
+      "name": "シュート",
+      "value": 11.4,
+      "average": 13.2,
+      "rank": 17,
+      "unit": "回／試合",
+      "display": "11.4",
+      "averageDisplay": "13.2"
+    },
+    {
+      "name": "枠内シュート",
+      "value": 3.3,
+      "average": 4.2,
+      "rank": 17,
+      "unit": "回／試合",
+      "display": "3.3",
+      "averageDisplay": "4.2"
+    },
+    {
+      "name": "PKによるシュート",
+      "value": 0.3,
+      "average": 0.1,
+      "rank": 1,
+      "unit": "回／試合",
+      "display": "0.3",
+      "averageDisplay": "0.1"
+    },
+    {
+      "name": "パス",
+      "value": 441.9,
+      "average": 439.4,
+      "rank": 9,
+      "unit": "回／試合",
+      "display": "441.9",
+      "averageDisplay": "439.4"
+    },
+    {
+      "name": "クロス",
+      "value": 12.8,
+      "average": 15.3,
+      "rank": 16,
+      "unit": "回／試合",
+      "display": "12.8",
+      "averageDisplay": "15.3"
+    },
+    {
+      "name": "直接フリーキック",
+      "value": 11.3,
+      "average": 10.4,
+      "rank": 6,
+      "unit": "回／試合",
+      "display": "11.3",
+      "averageDisplay": "10.4"
+    },
+    {
+      "name": "間接フリーキック",
+      "value": 2.4,
+      "average": 1.8,
+      "rank": 3,
+      "unit": "回／試合",
+      "display": "2.4",
+      "averageDisplay": "1.8"
+    },
+    {
+      "name": "コーナーキック",
+      "value": 3.9,
+      "average": 5.2,
+      "rank": 20,
+      "unit": "回／試合",
+      "display": "3.9",
+      "averageDisplay": "5.2"
+    },
+    {
+      "name": "スローイン",
+      "value": 20.2,
+      "average": 23.6,
+      "rank": 17,
+      "unit": "回／試合",
+      "display": "20.2",
+      "averageDisplay": "23.6"
+    },
+    {
+      "name": "ドリブル",
+      "value": 8.5,
+      "average": 9.8,
+      "rank": 18,
+      "unit": "回／試合",
+      "display": "8.5",
+      "averageDisplay": "9.8"
+    },
+    {
+      "name": "タックル",
+      "value": 13.1,
+      "average": 15.6,
+      "rank": 20,
+      "unit": "回／試合",
+      "display": "13.1",
+      "averageDisplay": "15.6"
+    },
+    {
+      "name": "クリア",
+      "value": 26.2,
+      "average": 27.0,
+      "rank": 10,
+      "unit": "回／試合",
+      "display": "26.2",
+      "averageDisplay": "27.0"
+    },
+    {
+      "name": "インターセプト",
+      "value": 2.0,
+      "average": 1.2,
+      "rank": 2,
+      "unit": "回／試合",
+      "display": "2.0",
+      "averageDisplay": "1.2"
+    },
+    {
+      "name": "オフサイド",
+      "value": 1.8,
+      "average": 1.8,
+      "rank": 9,
+      "unit": "回／試合",
+      "display": "1.8",
+      "averageDisplay": "1.8"
+    },
+    {
+      "name": "警告",
+      "value": 1.0,
+      "average": 1.2,
+      "rank": 15,
+      "unit": "回／試合",
+      "display": "1.0",
+      "averageDisplay": "1.2"
+    },
+    {
+      "name": "退場",
+      "value": 0.0,
+      "average": 0.0,
+      "rank": 11,
+      "unit": "回／試合",
+      "display": "0",
+      "averageDisplay": "0.0"
+    },
+    {
+      "name": "30mライン進入回数",
+      "value": 31.6,
+      "average": 32.9,
+      "rank": 11,
+      "unit": "回／試合",
+      "display": "31.6",
+      "averageDisplay": "32.9"
+    },
+    {
+      "name": "ペナルティエリア進入回数",
+      "value": 9.8,
+      "average": 11.2,
+      "rank": 13,
+      "unit": "回／試合",
+      "display": "9.8",
+      "averageDisplay": "11.2"
+    },
+    {
+      "name": "攻撃回数",
+      "value": 115.3,
+      "average": 118.3,
+      "rank": 16,
+      "unit": "回／試合",
+      "display": "115.3",
+      "averageDisplay": "118.3"
+    },
+    {
+      "name": "ボール保持率",
+      "value": 50.7,
+      "average": 50.0,
+      "rank": 8,
+      "unit": "%",
+      "display": "50.7%",
+      "averageDisplay": "50.0%"
+    }
+  ],
+  "retrievedAt": "2026-10-26T01:34:21.350762+00:00"
+}
