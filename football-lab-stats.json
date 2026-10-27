@@ -2,33 +2,33 @@
   "schemaVersion": 1,
   "season": "2026/27",
   "source": "https://www.football-lab.jp/kiky",
-  "sourceUpdatedOn": "2026-10-23",
+  "sourceUpdatedOn": "2026-10-27",
   "metrics": [
     {
       "name": "ゴール",
-      "value": 1.3,
+      "value": 1.5,
       "average": 1.4,
-      "rank": 10,
+      "rank": 9,
       "unit": "回／試合",
-      "display": "1.3",
+      "display": "1.5",
       "averageDisplay": "1.4"
     },
     {
       "name": "シュート",
-      "value": 11.4,
+      "value": 12.2,
       "average": 13.2,
-      "rank": 17,
+      "rank": 14,
       "unit": "回／試合",
-      "display": "11.4",
+      "display": "12.2",
       "averageDisplay": "13.2"
     },
     {
       "name": "枠内シュート",
-      "value": 3.3,
+      "value": 3.5,
       "average": 4.2,
-      "rank": 17,
+      "rank": 16,
       "unit": "回／試合",
-      "display": "3.3",
+      "display": "3.5",
       "averageDisplay": "4.2"
     },
     {
@@ -42,110 +42,110 @@
     },
     {
       "name": "パス",
-      "value": 441.9,
-      "average": 439.4,
-      "rank": 9,
+      "value": 457.5,
+      "average": 438.1,
+      "rank": 8,
       "unit": "回／試合",
-      "display": "441.9",
-      "averageDisplay": "439.4"
+      "display": "457.5",
+      "averageDisplay": "438.1"
     },
     {
       "name": "クロス",
-      "value": 12.8,
+      "value": 13.1,
       "average": 15.3,
       "rank": 16,
       "unit": "回／試合",
-      "display": "12.8",
+      "display": "13.1",
       "averageDisplay": "15.3"
     },
     {
       "name": "直接フリーキック",
-      "value": 11.3,
-      "average": 10.4,
-      "rank": 6,
+      "value": 11.2,
+      "average": 10.5,
+      "rank": 7,
       "unit": "回／試合",
-      "display": "11.3",
-      "averageDisplay": "10.4"
+      "display": "11.2",
+      "averageDisplay": "10.5"
     },
     {
       "name": "間接フリーキック",
-      "value": 2.4,
+      "value": 2.3,
       "average": 1.8,
-      "rank": 3,
+      "rank": 5,
       "unit": "回／試合",
-      "display": "2.4",
+      "display": "2.3",
       "averageDisplay": "1.8"
     },
     {
       "name": "コーナーキック",
-      "value": 3.9,
+      "value": 4.5,
       "average": 5.2,
-      "rank": 20,
+      "rank": 16,
       "unit": "回／試合",
-      "display": "3.9",
+      "display": "4.5",
       "averageDisplay": "5.2"
     },
     {
       "name": "スローイン",
-      "value": 20.2,
+      "value": 20.3,
       "average": 23.6,
       "rank": 17,
       "unit": "回／試合",
-      "display": "20.2",
+      "display": "20.3",
       "averageDisplay": "23.6"
     },
     {
       "name": "ドリブル",
-      "value": 8.5,
-      "average": 9.8,
+      "value": 8.4,
+      "average": 9.7,
       "rank": 18,
       "unit": "回／試合",
-      "display": "8.5",
-      "averageDisplay": "9.8"
+      "display": "8.4",
+      "averageDisplay": "9.7"
     },
     {
       "name": "タックル",
-      "value": 13.1,
-      "average": 15.6,
-      "rank": 20,
+      "value": 13.8,
+      "average": 15.7,
+      "rank": 19,
       "unit": "回／試合",
-      "display": "13.1",
-      "averageDisplay": "15.6"
+      "display": "13.8",
+      "averageDisplay": "15.7"
     },
     {
       "name": "クリア",
-      "value": 26.2,
-      "average": 27.0,
+      "value": 25.8,
+      "average": 27.1,
       "rank": 10,
       "unit": "回／試合",
-      "display": "26.2",
-      "averageDisplay": "27.0"
+      "display": "25.8",
+      "averageDisplay": "27.1"
     },
     {
       "name": "インターセプト",
-      "value": 2.0,
+      "value": 1.8,
       "average": 1.2,
       "rank": 2,
       "unit": "回／試合",
-      "display": "2.0",
+      "display": "1.8",
       "averageDisplay": "1.2"
     },
     {
       "name": "オフサイド",
       "value": 1.8,
-      "average": 1.8,
-      "rank": 9,
+      "average": 1.7,
+      "rank": 10,
       "unit": "回／試合",
       "display": "1.8",
-      "averageDisplay": "1.8"
+      "averageDisplay": "1.7"
     },
     {
       "name": "警告",
-      "value": 1.0,
+      "value": 0.9,
       "average": 1.2,
       "rank": 15,
       "unit": "回／試合",
-      "display": "1.0",
+      "display": "0.9",
       "averageDisplay": "1.2"
     },
     {
@@ -159,40 +159,40 @@
     },
     {
       "name": "30mライン進入回数",
-      "value": 31.6,
-      "average": 32.9,
-      "rank": 11,
+      "value": 32.6,
+      "average": 33.0,
+      "rank": 10,
       "unit": "回／試合",
-      "display": "31.6",
-      "averageDisplay": "32.9"
+      "display": "32.6",
+      "averageDisplay": "33.0"
     },
     {
       "name": "ペナルティエリア進入回数",
-      "value": 9.8,
-      "average": 11.2,
-      "rank": 13,
+      "value": 10.2,
+      "average": 11.3,
+      "rank": 11,
       "unit": "回／試合",
-      "display": "9.8",
-      "averageDisplay": "11.2"
+      "display": "10.2",
+      "averageDisplay": "11.3"
     },
     {
       "name": "攻撃回数",
-      "value": 115.3,
-      "average": 118.3,
-      "rank": 16,
+      "value": 115.4,
+      "average": 118.6,
+      "rank": 15,
       "unit": "回／試合",
-      "display": "115.3",
-      "averageDisplay": "118.3"
+      "display": "115.4",
+      "averageDisplay": "118.6"
     },
     {
       "name": "ボール保持率",
-      "value": 50.7,
+      "value": 51.5,
       "average": 50.0,
       "rank": 8,
       "unit": "%",
-      "display": "50.7%",
+      "display": "51.5%",
       "averageDisplay": "50.0%"
     }
   ],
-  "retrievedAt": "2026-10-26T01:34:21.350762+00:00"
+  "retrievedAt": "2026-10-27T12:34:34.242329+00:00"
 }
