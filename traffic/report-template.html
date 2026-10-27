@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>GitHub アクセス履歴 | J3 Simulator</title>
+<style>
+:root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#142239;background:#f3f5f8}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:32px 20px}header{border-top:7px solid #ffd524;padding-top:22px;margin-bottom:24px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;color:#7e3040}h1{font-size:clamp(26px,5vw,38px);margin:8px 0}h2{font-size:19px;margin:0 0 16px}p{line-height:1.8}.muted{color:#566579;font-size:14px}.panel{background:#fff;border:1px solid #dfe5ed;border-radius:16px;padding:24px;margin:18px 0;box-shadow:0 4px 20px #14223905}.unlock{max-width:580px;margin:40px auto}.unlock input{width:100%;margin:10px 0 18px;padding:14px;border:1px solid #8a97a9;border-radius:8px;font-size:17px}button,select{font:inherit;border-radius:8px;border:1px solid #a4b0be;padding:11px 16px;background:#fff;color:#142239;cursor:pointer}button.primary{background:#142239;color:#fff;border-color:#142239}button:disabled{opacity:.55}label{font-weight:700}#message{min-height:25px;color:#a11d35}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{border-radius:14px;padding:22px;background:#142239;color:#fff}.card span{font-size:14px}.number{font-size:38px;font-weight:800;margin:8px 0}.card small{color:#ccd4df}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:12px 10px;text-align:right;border-bottom:1px solid #e5e9ef;white-space:nowrap}th{color:#526175;font-weight:600}th:first-child,td:first-child{text-align:left}td.wrap{white-space:normal;word-break:break-all;min-width:130px}svg{width:100%;height:auto;display:block}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:12px 0}.legend span:before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;background:var(--c)}.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.pair .panel{margin:0}.note{background:#fff9dc;border-left:4px solid #ffd524;padding:14px 18px;font-size:13px;line-height:1.8}.empty{text-align:center;color:#64748b;padding:20px}.status{color:#9b390d;font-size:12px}footer{font-size:12px;color:#64748b;margin:24px 0} [hidden]{display:none!important}@media(max-width:650px){main{padding:20px 12px}.panel{padding:18px}.cards,.pair{grid-template-columns:1fr}.card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px}.card small{grid-column:1/-1}.number{margin:0;font-size:32px}th,td{padding:10px 7px}}
+</style>
+<main>
+<header><div class="eyebrow">J3 SIMULATOR / REPOSITORY TRAFFIC</div><h1>GitHub アクセス履歴</h1><div class="muted">rockiemydog / j3-elo-simulator</div></header>
+<section class="panel unlock" id="unlock"><h2>ご自身のレポートを開く</h2><p class="muted">パスワードを入力すると、このファイル内のアクセス集計を復号します。入力内容や集計を外部に送信しません。</p><form id="unlock-form"><label for="password">レポート用パスワード</label><input id="password" type="password" autocomplete="off" required><button class="primary" id="open" type="submit">履歴を見る</button></form><p id="message" role="status" aria-live="polite"></p></section>
+<div id="report" hidden>
+<div class="toolbar"><p id="updated" class="muted"></p><button id="lock">閉じる</button></div>
+<div class="note">対象は GitHub のコード公開ページです。公開シミュレーターの利用回数ではありません。訪問者の氏名・IPアドレスや「他人だけ」の人数は分かりません。自動処理の影響を完全には区別できません。</div>
+<section class="panel"><div class="toolbar"><h2>直近14日間の集計</h2><span class="muted">GitHub API の期間集計</span></div><div class="cards"><div class="card"><span>閲覧数</span><div class="number" id="views"></div><small>ページが表示された回数</small></div><div class="card"><span>ユニーク訪問者数</span><div class="number" id="uniques"></div><small>14日間で重複を除いたAPIの集計値</small></div><div class="card"><span>クローン数</span><div class="number" id="clones"></div><small>コード一式が取得された回数</small></div></div></section>
+<section class="panel"><div class="toolbar"><h2>日別の推移</h2><label>表示期間 <select id="range"><option value="14">14日</option><option value="30">30日</option><option value="90">90日</option><option value="all">全期間</option></select></label></div><p class="muted" id="coverage"></p><div class="legend"><span style="--c:#e8b900">閲覧数</span><span style="--c:#c52e45">日別ユニーク訪問者数</span><span style="--c:#234a7b">クローン数</span></div><div id="chart"></div><div class="table-wrap"><table><thead><tr><th>集計日（UTC）</th><th>閲覧数</th><th>日別訪問者数</th><th>クローン数</th></tr></thead><tbody id="days"></tbody></table></div><p class="muted">「—」は未取得です。UTCの1日は日本時間の当日9:00〜翌日9:00です。当日分と直近日の数値は更新される可能性があります。日別訪問者数を足しても、期間全体のユニーク訪問者数にはなりません。</p></section>
+<div class="pair"><section class="panel"><h2>どこから訪れたか</h2><p class="muted">直近14日間の上位参照元</p><div class="table-wrap"><table><thead><tr><th>参照元</th><th>閲覧数</th><th>訪問者数</th></tr></thead><tbody id="referrers"></tbody></table></div></section><section class="panel"><h2>よく見られたページ</h2><p class="muted">直近14日間の上位ページ</p><div class="table-wrap"><table><thead><tr><th>ページ</th><th>閲覧数</th><th>訪問者数</th></tr></thead><tbody id="paths"></tbody></table></div></section></div>
+<footer>履歴は毎日取得した時点のスナップショットです。このファイルはダウンロード時点の内容で、自動更新されません。新しいレポートは GitHub Actions から取得してください。</footer>
+</div>
+</main>
+<script>
+'use strict';
+const envelope = __ENCRYPTED_PAYLOAD__;
+const $ = id => document.getElementById(id);
+let archive = null;
+function text(id, value){ $(id).textContent = value; }
+function bytes(value){ return Uint8Array.from(atob(value), c => c.charCodeAt(0)); }
+async function unlock(password){
+  if(envelope.version !== 1 || envelope.iterations !== 600000) throw Error('format');
+  const material = await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:bytes(envelope.salt),iterations:envelope.iterations},material,{name:'AES-GCM',length:256},false,['decrypt']);
+  const plain = await crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(envelope.nonce),additionalData:new TextEncoder().encode('j3-traffic-v1')},key,bytes(envelope.ciphertext));
+  const data = JSON.parse(new TextDecoder().decode(plain));
+  if(data.version !== 1 || !data.days || !data.snapshots) throw Error('schema');
+  return data;
+}
+function row(body, values){
+  const tr = document.createElement('tr');
+  values.forEach((v,i)=>{const td=document.createElement('td');td.textContent=String(v);if(i===0)td.className='wrap';tr.append(td);});
+  body.append(tr);
+}
+function list(id, records, field){
+  const body=$(id);body.replaceChildren();
+  records.forEach(r=>row(body,[r[field],r.count,r.uniques]));
+  if(!records.length)row(body,['データなし','—','—']);
+}
+function dateRange(last, count){
+  const end = Date.parse(last+'T00:00:00Z');
+  return Array.from({length:count},(_,i)=>new Date(end-(count-1-i)*86400000).toISOString().slice(0,10));
+}
+function drawChart(days){
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 960 260');svg.setAttribute('role','img');svg.setAttribute('aria-label','日別の閲覧数・訪問者数・クローン数。正確な数値は下の一覧に表示');
+  function el(name,attrs,content){const node=document.createElementNS(ns,name);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,v));if(content!==undefined)node.textContent=content;svg.append(node);return node;}
+  const series=[['views','count','#e8b900'],['views','uniques','#c52e45'],['clones','count','#234a7b']];
+  const max=Math.max(1,...days.flatMap(d=>series.map(([m,k])=>archive.days[d]?.[m]?.[k]??0)));
+  for(let n=0;n<=4;n++){let y=20+n*49;el('line',{x1:46,x2:940,y1:y,y2:y,stroke:'#e1e6ed'});el('text',{x:36,y:y+4,'text-anchor':'end',fill:'#64748b','font-size':12},Math.round(max*(4-n)/4));}
+  const x=i=>46+i*894/Math.max(1,days.length-1), y=v=>216-v/max*196;
+  series.forEach(([metric,key,color])=>{
+    let segment=[];
+    function flush(){if(segment.length){el('polyline',{points:segment.join(' '),fill:'none',stroke:color,'stroke-width':2.5});segment=[];}}
+    days.forEach((day,i)=>{const value=archive.days[day]?.[metric]?.[key];if(value===undefined){flush();return;}segment.push(`${x(i)},${y(value)}`);const point=el('circle',{cx:x(i),cy:y(value),r:2.7,fill:color});const title=document.createElementNS(ns,'title');title.textContent=`${day} / ${metric==='clones'?'クローン数':key==='uniques'?'日別訪問者数':'閲覧数'}: ${value}`;point.append(title);});flush();
+  });
+  if(days.length){el('text',{x:46,y:248,fill:'#64748b','font-size':12},days[0]);el('text',{x:940,y:248,'text-anchor':'end',fill:'#64748b','font-size':12},days.at(-1));}
+  $('chart').replaceChildren(svg);
+}
+function renderDays(){
+  const latest=archive.updated_at.slice(0,10), all=Object.keys(archive.days).sort();
+  const selected=$('range').value;
+  const span=all.length?Math.round((Date.parse(latest+'T00:00:00Z')-Date.parse(all[0]+'T00:00:00Z'))/86400000)+1:14;
+  const count=selected==='all'?span:Number(selected), dates=dateRange(latest,count);
+  const body=$('days');body.replaceChildren();
+  dates.slice().reverse().forEach(day=>{const r=archive.days[day]||{};row(body,[day+(day===latest?'（途中）':''),r.views?.count??'—',r.views?.uniques??'—',r.clones?.count??'—']);});
+  const known=dates.filter(d=>archive.days[d]?.views!==undefined&&archive.days[d]?.clones!==undefined).length;
+  const views=dates.reduce((s,d)=>s+(archive.days[d]?.views?.count??0),0);
+  text('coverage',`表示 ${dates.length}日 / 取得済み ${known}日 / 取得済み閲覧数の合計 ${views.toLocaleString('ja-JP')}回`);
+  drawChart(dates);
+}
+function render(){
+  const snapshot=archive.snapshots[archive.updated_at.slice(0,10)];
+  text('updated','取得日時：'+new Date(archive.updated_at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+'（日本時間）');
+  text('views',snapshot.views.count.toLocaleString('ja-JP'));text('uniques',snapshot.views.uniques.toLocaleString('ja-JP'));text('clones',snapshot.clones.count.toLocaleString('ja-JP'));
+  list('referrers',snapshot.referrers,'referrer');list('paths',snapshot.paths,'path');renderDays();
+}
+$('unlock-form').addEventListener('submit',async event=>{
+  event.preventDefault();$('open').disabled=true;text('message','開いています…');
+  try{archive=await unlock($('password').value);render();$('password').value='';$('report').hidden=false;$('unlock').hidden=true;text('message','');}
+  catch{archive=null;text('message','開けませんでした。パスワードとファイルをご確認ください。');}
+  finally{$('open').disabled=false;}
+});
+$('range').addEventListener('change',renderDays);
+$('lock').addEventListener('click',()=>location.reload());
+</script>
+</html>

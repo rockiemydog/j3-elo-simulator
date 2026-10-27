@@ -1,0 +1,63 @@
+name: Private repository traffic report
+on:
+  workflow_dispatch:
+  schedule:
+    # 09:37 JST; GitHub may delay scheduled jobs.
+    - cron: '37 0 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: private-traffic-report
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check configuration
+        id: config
+        env:
+          READ_TOKEN: ${{ secrets.TRAFFIC_READ_TOKEN }}
+          REPORT_PASSWORD: ${{ secrets.TRAFFIC_REPORT_PASSWORD }}
+        run: |
+          if [ -z "$READ_TOKEN" ] || [ -z "$REPORT_PASSWORD" ]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo '### 初期設定待ち' >> "$GITHUB_STEP_SUMMARY"
+            echo 'TRAFFIC_READ_TOKEN と TRAFFIC_REPORT_PASSWORD を登録してください。集計は開始していません。' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.ready == 'true'
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        if: steps.config.outputs.ready == 'true'
+        with:
+          python-version: '3.12'
+      - name: Install encryption library
+        if: steps.config.outputs.ready == 'true'
+        run: python -m pip install cryptography==46.0.3
+      - name: Test collection and encryption
+        if: steps.config.outputs.ready == 'true'
+        run: python tests/test_traffic.py
+      - name: Collect and save encrypted history
+        if: steps.config.outputs.ready == 'true'
+        env:
+          TRAFFIC_READ_TOKEN: ${{ secrets.TRAFFIC_READ_TOKEN }}
+          TRAFFIC_REPORT_PASSWORD: ${{ secrets.TRAFFIC_REPORT_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/collect-traffic.py
+      - uses: actions/upload-artifact@v4
+        if: steps.config.outputs.ready == 'true'
+        with:
+          name: private-traffic-report
+          path: ${{ runner.temp }}/j3-traffic-report/report.html
+          retention-days: 30
+          if-no-files-found: error
+      - name: Report location
+        if: steps.config.outputs.ready == 'true'
+        run: |
+          echo '### アクセス履歴を保存しました' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Artifacts の private-traffic-report をダウンロードし、report.html をブラウザーで開いてパスワードを入力してください。' >> "$GITHUB_STEP_SUMMARY"
+          echo '長期履歴は traffic-history ブランチに暗号化して保存しています。' >> "$GITHUB_STEP_SUMMARY"
