@@ -4,7 +4,7 @@
   "club": "北九州",
   "season": "2026/27",
   "source": "https://www.jleague.jp/club/kitakyushu/",
-  "checkedAt": "2026-10-29T06:14:49.601141+00:00",
+  "checkedAt": "2026-10-29T13:31:50.543794+00:00",
   "statsUpdatedAt": null,
   "metrics": [
     {
@@ -4823,7 +4823,7 @@
     "expectedGoals": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals/search-list/",
-      "checkedAt": "2026-10-29T06:14:49.601141+00:00",
+      "checkedAt": "2026-10-29T13:31:50.543794+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -4831,11 +4831,11 @@
           "value": 21.2
         },
         {
-          "club": "愛媛",
+          "club": "FC大阪",
           "value": 20.8
         },
         {
-          "club": "FC大阪",
+          "club": "愛媛",
           "value": 20.8
         },
         {
@@ -4867,11 +4867,11 @@
           "value": 18
         },
         {
-          "club": "琉球",
+          "club": "奈良",
           "value": 17.4
         },
         {
-          "club": "奈良",
+          "club": "琉球",
           "value": 17.4
         },
         {
@@ -4911,7 +4911,7 @@
     "expectedGoalsAgainst": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals_against/search-list/",
-      "checkedAt": "2026-10-29T06:14:49.601141+00:00",
+      "checkedAt": "2026-10-29T13:31:50.543794+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -4999,7 +4999,7 @@
     "chancesCreated": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/chance_create/search-list/",
-      "checkedAt": "2026-10-29T06:14:49.601141+00:00",
+      "checkedAt": "2026-10-29T13:31:50.543794+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -5023,11 +5023,11 @@
           "value": 154
         },
         {
-          "club": "熊本",
+          "club": "奈良",
           "value": 152
         },
         {
-          "club": "奈良",
+          "club": "熊本",
           "value": 152
         },
         {
