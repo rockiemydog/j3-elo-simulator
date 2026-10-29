@@ -21,6 +21,7 @@
     .target{font-size:13px;color:var(--muted)}.target b{font-size:16px;color:var(--ink)}.progress-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin:13px 0 5px;font-size:13px}.progress-head b{font-size:17px}.track{height:9px;border-radius:99px;background:#e8edf3;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue);width:0;transition:width .2s}.card.yellow .fill{background:var(--yellow)}.card.red .fill{background:var(--red)}
     .key-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.metric{background:#f5f7fa;border-radius:9px;padding:9px 10px}.metric span{display:block;color:var(--muted);font-size:12px}.metric b{display:block;font-size:22px;line-height:1.2;margin-top:2px}.metric b small{font-size:13px;font-weight:700}.subline{color:var(--muted);font-size:12px;margin-top:9px}.gd{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:13px;display:flex;justify-content:space-between;gap:8px}.gd b{font-size:16px;color:var(--ink)}
     .method{margin-top:16px;padding:13px 16px;color:#536176;font-size:13px;line-height:1.65}.method strong{color:var(--ink)}.method p{margin:2px 0}.asof{color:#e4eaf2;font-size:13px;margin-top:8px}dialog{width:min(520px,calc(100% - 28px));border:0;border-radius:14px;padding:22px;color:var(--ink);box-shadow:0 16px 50px #101d3566}dialog::backdrop{background:#101d3580}dialog h2{margin:0 0 8px;font-size:20px}dialog p{color:var(--muted);margin:0 0 14px} .confirm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 16px}.confirm-cell{background:#f5f7fa;padding:9px 11px;border-radius:8px}.confirm-cell span{display:block;color:var(--muted);font-size:13px}.confirm-cell b{font-size:17px}
+    .win-plans{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.win-plans summary{cursor:pointer;font-weight:800;font-size:14px;min-height:44px;padding:10px 0}.plan-summary{margin:0 0 8px;font-size:14px;font-weight:750}.plan-note{font-size:12px;color:var(--muted);margin:8px 0}.plan-table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}.plan-table caption{text-align:left;color:var(--muted);font-size:12px;padding:0 0 8px}.plan-table th,.plan-table td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--line)}.plan-table th{background:var(--navy);color:#fff}.plan-table tbody tr:nth-child(even){background:#f5f7fa}.plan-table td:first-child{font-weight:800}
     @media(max-width:850px){.input-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:560px){header{padding:18px 16px}main{padding:0 12px 26px;margin:14px auto}.inputs{padding:15px 13px}.section-head{align-items:flex-start;flex-direction:column;gap:2px}.input-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.cards{grid-template-columns:1fr;gap:10px}.card{padding:14px}.legend{gap:7px 12px}.metric b{font-size:20px}}
   </style>
@@ -51,6 +52,7 @@
     <section class="panel method" aria-label="計算方法">
       <p><strong>勝利数：</strong>2023〜2025年のJ3各順位の平均勝数を切り上げ、現在の勝数を差し引いた目安。</p>
       <p><strong>最大敗数：</strong>表示された平均勝数の目安をちょうど達成した場合、目標勝点にも届く最大敗数。必要な引分け数を差し引いて計算。勝数が増えれば許容敗数も変わります。</p>
+      <p><strong>あと何勝の組合せ：</strong>残り試合で「勝×3＋分」が必要勝点以上になる全組合せを、勝数ごとにまとめて表示します。最少勝数は引分けを含めた最少値、最大敗数は平均勝数の目安に縛られない最大値です。過去平均の目標勝点に届く条件であり、その順位や昇格を保証するものではありません。</p>
       <p><strong>得失点差：</strong>得点−失点。あと改善は、2023〜2025年のJ3順位別平均に届くまでの差。順位は相手成績や総得点でも変わります。</p>
     </section>
   </main>
@@ -96,12 +98,35 @@
       render();renderVerification();
     }
     function renderVerification(){const report=J3Results.verification(activeStats,activeView==='linked'&&J3Results.resultId(J3Results.readConfirmed().games)===J3Results.resultId());$('verification').textContent=report.text;$('verification').dataset.verified=String(report.ok);$('auto-status').textContent=J3Results.statusText(report.ok);}
+    function winningPlans(left,needPts){
+      const groups=[];let count=0;
+      for(let wins=0;wins<=left;wins++){
+        const minDraws=Math.max(0,needPts-3*wins),maxDraws=left-wins;
+        if(minDraws>maxDraws)continue;
+        const maxLosses=left-wins-minDraws;
+        groups.push({wins,minDraws,maxDraws,maxLosses});count+=maxDraws-minDraws+1;
+      }
+      return {groups,count,minWins:groups.length?groups[0].wins:null,maxLosses:groups.length?Math.max(...groups.map(g=>g.maxLosses)):null};
+    }
+    function renderWinningPlans(rank,target,s,left){
+      const need=Math.max(0,target-s.points),plan=winningPlans(left,need);
+      const range=(a,b)=>a===b?String(a):`${a}〜${b}`;
+      if(!plan.count)return `<details class="win-plans" data-plan-rank="${rank}"><summary>あと何勝？ 勝・分・敗の組合せ</summary><p class="plan-summary">到達できる組合せはありません</p><p class="plan-note">残り${left}試合で最大${3*left}点を加えても${s.points+3*left}点。目標${target}点には届きません。</p></details>`;
+      return `<details class="win-plans" data-plan-rank="${rank}"><summary>あと何勝？ 全${plan.count}通りの組合せ</summary>
+        <p class="plan-summary">${need===0?'目標勝点に到達済み<br>':''}最少あと${plan.minWins}勝 ／ 最大あと${plan.maxLosses}敗まで</p>
+        <p class="plan-note">現在${s.points}点 → 目標${target}点。残り${left}試合であと${need}点。最少勝数は、必要な引分けも確保する場合の値です。最大敗数とは別の組合せになる場合があります。</p>
+        <table class="plan-table"><caption>残り試合の成績。勝数ごとに全組合せを集約</caption><thead><tr><th scope="col">勝</th><th scope="col">分</th><th scope="col">敗</th></tr></thead><tbody>${plan.groups.map(g=>`<tr><td>${g.wins}勝</td><td>${range(g.minDraws,g.maxDraws)}分</td><td>${range(g.maxLosses,0)}敗</td></tr>`).join('')}</tbody></table>
+        <p class="plan-note">同じ行では、分が1増えると敗が1減ります。各範囲の左端同士・右端同士が対応し、すべて「勝＋分＋敗＝${left}」「${s.points}＋勝×3＋分≧${target}」を満たします。試合の順序は数えません。目標勝点への到達条件であり、順位・昇格の保証ではありません。</p>
+      </details>`;
+    }
+    let lastCardsMarkup='';
     function render(){
       const s=activeStats;
       const problems=validate(s);
-      if(problems.length){$('cards').innerHTML='';return;}
+      if(problems.length){$('cards').innerHTML='';lastCardsMarkup='';return;}
       const left=TOTAL-s.played, currentGD=s.gf-s.ga, asofDate=s.asofDate;
-      $('cards').innerHTML=history.map(h=>{
+      const openPlans=new Set(Array.from($('cards').querySelectorAll('details[data-plan-rank][open]'),el=>el.dataset.planRank));
+      const markup=history.map(h=>{
         const target=ceil(avg(h.pts));
         const needPts=Math.max(0,target-s.points);
         const winsNeed=Math.max(0,ceil(avg(h.w))-s.wins);
@@ -135,8 +160,17 @@
           ${winsImpossible?'<div class="subline">平均勝数の目安は残り試合では達成不可</div>':''}
           ${planImpossible&&!winsImpossible&&!pointsImpossible?'<div class="subline">表示の勝数をちょうど達成する組合せでは勝点目標に届かず、追加の勝利が必要です。</div>':''}
           <div class="gd"><span>得失点差 ${currentGD>=0?'+':''}${currentGD} → 平均 ${gdAvg>=0?'+':''}${gdAvg.toFixed(1)}</span><b>あと ${gdImprove>=0?'+':''}${gdImprove.toFixed(1)}</b></div>
+          ${renderWinningPlans(h.rank,target,s,left)}
         </article>`;
       }).join('');
+      // Preserve expanded rows and keyboard focus during the periodic result checks.
+      if(lastCardsMarkup!==markup){
+        const focused=document.activeElement;
+        const focusRank=focused?.tagName==='SUMMARY'?focused.parentElement?.dataset.planRank:null;
+        $('cards').innerHTML=markup;lastCardsMarkup=markup;
+        $('cards').querySelectorAll('details[data-plan-rank]').forEach(el=>{el.open=openPlans.has(el.dataset.planRank);});
+        if(focusRank)$('cards').querySelector(`details[data-plan-rank="${focusRank}"] > summary`)?.focus({preventScroll:true});
+      }
     }
     let syncingOfficial=false;
     async function syncAutomaticResults(force=false){
