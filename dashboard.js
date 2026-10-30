@@ -3,6 +3,24 @@
   'use strict';
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const percent=p=>p>0&&p<.05?'0.1%未満':p>99.95&&p<100?'99.9%超':p.toFixed(1)+'%';
+  function monthlyRecords(games,datedGames=[]){
+    const known=new Map(games.filter(g=>g[0]==='北九州'||g[1]==='北九州').map(g=>[g[0]+'|'+g[1],g]));
+    const months=new Map(),seen=new Set();
+    for(const row of datedGames){
+      const g=row.game;if(!Array.isArray(g))continue;
+      const key=g[0]+'|'+g[1],actual=known.get(key),date=row.date;
+      if(!actual||seen.has(key)||g[2]!==actual[2]||g[3]!==actual[3]||typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date)continue;
+      seen.add(key);const month=date.slice(0,7),r=months.get(month)||{month,played:0,wins:0,losses:0,draws:0,points:0};
+      const home=g[0]==='北九州',gf=g[home?2:3],ga=g[home?3:2];
+      r.played++;if(gf>ga)r.wins++;else if(gf<ga)r.losses++;else r.draws++;
+      r.points=r.wins*3+r.draws;months.set(month,r);
+    }
+    return {rows:[...months.values()].sort((a,b)=>b.month.localeCompare(a.month)).map(r=>({...r,winRate:r.wins/r.played*100})),missing:known.size-seen.size};
+  }
+  function monthlyTable(data){
+    if(!data.rows.length)return '<p class="dash-muted">'+(data.missing?'公式結果の開催日を確認中です。':'確定試合はありません。')+'</p>';
+    return '<div class="dash-monthly-scroll"><table class="dash-monthly-table"><caption>北九州の月別成績（J3リーグ・新しい月から順）</caption><thead><tr><th scope="col">開催月</th><th scope="col">試合</th><th scope="col">勝敗分</th><th scope="col">勝点</th><th scope="col">勝率</th></tr></thead><tbody>'+data.rows.map(r=>`<tr><th scope="row">${Number(r.month.slice(0,4))}年${Number(r.month.slice(5))}月</th><td>${r.played}</td><td><strong>${r.wins}勝${r.losses}敗${r.draws}分</strong></td><td>${r.points}</td><td>${r.winRate.toFixed(1)}%</td></tr>`).join('')+'</tbody></table></div>';
+  }
   function quantile(counts,fraction){if(!Array.isArray(counts)||counts.length!==115||counts.some(n=>!Number.isInteger(n)||n<0))return null;const total=counts.reduce((a,b)=>a+b,0);if(!total)return null;let sum=0;for(let i=0;i<counts.length;i++){sum+=counts[i];if(sum>=total*fraction)return i;}return null;}
   function summary(context){
     const north=context.rows.find(r=>r.club==='北九州'),sixth=context.rows[5];
@@ -69,12 +87,18 @@
     const recent=s.recent;
     $('dashRecent').innerHTML=recent.length?recent.map(r=>`<span class="dash-form-item" title="北九州 ${r.gf}–${r.ga} ${escape(r.opponent)}"><b data-result="${r.outcome}">${r.outcome}</b><small>${escape(r.opponent)}</small><small>${r.gf}–${r.ga}</small></span>`).join(''):'<p>確定試合はありません。</p>';
     $('dashRecentSummary').textContent=recent.length?`直近${recent.length}試合：勝点${recent.reduce((a,r)=>a+r.points,0)} · ${recent.reduce((a,r)=>a+r.gf,0)}得点／${recent.reduce((a,r)=>a+r.ga,0)}失点（左から古い順）`:'';
+    if($('dashMonthly')){
+      const monthly=monthlyRecords(context.games,context.datedGames);
+      $('dashMonthly').innerHTML=monthlyTable(monthly);
+      $('dashMonthlyNote').textContent='J3リーグの公式確定結果を実際の開催月で集計（延期試合も開催月へ）。勝点＝勝利数×3＋引き分け数。勝率＝勝利数÷終了試合数×100。'+(monthly.missing?`開催日未確認の${monthly.missing}試合は集計待ちです。`:'');
+    }
     $('dashDataDate').textContent=`公式結果の基準日 ${context.asOfDate} · リーグ確定 ${context.games.length}/380試合`;
     $('dashDataStatus').textContent=context.statusText;
     $('dashDataStatus').dataset.ready=String(context.feedState.state==='ready');
     $('dashTimes').textContent=`公式サイト確認：${timestamp(context.feedState.officialCheckedAt)} ／ 結果データ更新：${timestamp(context.feedState.updatedAt)} ／ 画面取得：${timestamp(context.feedState.checkedAt)} ／ 予測計算：${timestamp(calculatedAt)}（日本時間）`;
     $('dashModel').textContent=`Elo K=20・ホーム+60／Davidson方式。残り試合のEloは固定、順位計算用スコアは1–0・1–1・0–1。xG等のスタッツ、負傷・出場停止・天候は未反映。乱数誤差上限の95%目安：±${(98/Math.sqrt(context.runs)).toFixed(2)}ポイント。モデル自体の誤差は含みません。`;
   }
-  const api={summary,gauge,performanceGauge,goalDifferenceGauge,percent,quantile,render};
+  const api={summary,gauge,performanceGauge,goalDifferenceGauge,percent,quantile,monthlyRecords,monthlyTable,render};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.J3Dashboard=api;
 })(typeof window==='object'?window:globalThis);
+

@@ -15,6 +15,7 @@ const backupKey=storeKey+'-last-good';
 const feedKey='j3-official-feed-v1';
 const validDate=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d;
 let baseDate='2026-10-04';
+let officialMatches=[];
 const key=g=>g[0]+'|'+g[1];
 const valid=g=>Array.isArray(g)&&g.length===4&&teams.includes(g[0])&&teams.includes(g[1])&&g[0]!==g[1]&&g.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=30);
 function readConfirmed() {
@@ -85,6 +86,7 @@ function applyOfficialFeed(feed,persist=true){
   // or move the saved result-update timestamp backwards.
   const updatedAt=older?feedState.updatedAt:feed.updatedAt;
   if(changed)completed.splice(0,completed.length,...games);
+  if(!older)officialMatches=rows.map(r=>({id:r.id,date:r.date,game:r.game.slice()}));
   baseDate=feed.asOfDate;feedState={state:'ready',asOfDate:baseDate,count:completed.length,updatedAt,officialCheckedAt:feed.officialCheckedAt,checkedAt:new Date().toISOString()};
   if(persist)try{global.localStorage?.setItem(feedKey,JSON.stringify({...feed,updatedAt}));}catch{}
   return changed;
@@ -122,6 +124,7 @@ async function refreshOfficial(force=false){
   })();
   return fetching;
 }
-global.J3Results=Object.freeze({storeKey,backupKey,feedKey,historicalAuditGames,restoreCachedFeed,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
+global.J3Results=Object.freeze({storeKey,backupKey,feedKey,historicalAuditGames,restoreCachedFeed,canRefreshOfficial:!!apiBase,statusText,get baseDate(){return baseDate;},get officialMatches(){return officialMatches.map(r=>({...r,game:r.game.slice()}));},get initialGames(){return Object.freeze(completed.map(g=>Object.freeze(g.slice())));},readConfirmed,clubStats,resultId,verification,applyOfficialFeed,refreshOfficial,get feedState(){return {...feedState};}});
 })(window);
+
 

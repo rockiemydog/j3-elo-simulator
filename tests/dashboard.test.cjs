@@ -1,5 +1,32 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const api=require('../dashboard.js'),html=fs.readFileSync('index.html','utf8');
+test('monthly results use actual dates, away perspective and whole-game win rates',()=>{
+ const games=[['北九州','讃岐',0,0],['栃木SC','北九州',2,2],['琉球','北九州',3,0],['相模原','北九州',1,2],['北九州','高知',2,0]];
+ const dates=['2026-08-15','2026-08-22','2026-09-09','2026-09-20','2026-10-03'];
+ const dated=games.map((game,i)=>({date:dates[i],game}));dated.push(dated[0],{date:'2026-10-31',game:['北九州','岐阜',9,0]});
+ const m=api.monthlyRecords(games,dated);assert.equal(m.missing,0);
+ assert.deepEqual(m.rows.map(r=>[r.month,r.wins,r.losses,r.draws,r.points,r.winRate]),[['2026-10',1,0,0,3,100],['2026-09',1,1,0,3,50],['2026-08',0,0,2,2,0]]);
+ assert.equal(m.rows.reduce((n,r)=>n+r.played,0),games.length);assert.match(api.monthlyTable(m),/1勝1敗0分/);
+});
+test('missing dates and corrected scores never invent monthly records',()=>{
+ const games=[['北九州','讃岐',0,0]];
+ for(const dated of [[],[{date:'2026-02-30',game:games[0]}],[{date:'2026-08-15',game:['北九州','讃岐',1,0]}]]){
+  const m=api.monthlyRecords(games,dated);assert.equal(m.rows.length,0);assert.equal(m.missing,1);assert.match(api.monthlyTable(m),/確認中/);
+ }
+ assert.match(api.monthlyTable(api.monthlyRecords([])),/確定試合はありません/);
+});
+test('official feed monthly totals match season totals, refresh and protect date snapshots',()=>{
+ const a=app(),feed=JSON.parse(fs.readFileSync('official-results.json','utf8'));a.ctx.feed=feed;
+ a.eval('J3Results.applyOfficialFeed(feed,false);completed=J3Results.initialGames.map(g=>g.slice());renderDashboard()');
+ const m=a.eval('J3Dashboard.monthlyRecords(confirmed(),J3Results.officialMatches)'),north=a.eval("liveRows([]).find(r=>r.club==='北九州')");
+ assert.equal(m.missing,0);
+ for(const [field,total] of [['played','p'],['wins','w'],['losses','l'],['draws','d'],['points','pts']])assert.equal(m.rows.reduce((sum,r)=>sum+r[field],0),north[total]);
+ assert.match(a.el('dashMonthly').innerHTML,/2026年10月/);
+ const before=a.el('dashMonthly').innerHTML;a.eval("scenarios.push(['北九州','岐阜',9,0]);renderDashboard()");assert.equal(a.el('dashMonthly').innerHTML,before);
+ a.eval("const snapshot=J3Results.officialMatches;snapshot[0].date='2000-01-01';snapshot[0].game[2]=30");assert.notEqual(a.eval('J3Results.officialMatches[0].date'),'2000-01-01');
+ const northRow=feed.matches.find(r=>r.game.includes('北九州'));northRow.date='2026-09-01';northRow.id='2026090199';feed.updatedAt=new Date().toISOString();
+ a.eval('J3Results.applyOfficialFeed(feed,false);renderDashboard()');assert.notEqual(a.el('dashMonthly').innerHTML,before);
+});
 test('actual win rate includes draws and points per game counts their points',()=>{const rows=Array.from({length:20},(_,i)=>({club:i===0?'北九州':'club'+i,p:12,w:3,d:4,l:5,pts:13,gf:16,gd:-5}));const s=api.summary({rows,games:[]});assert.equal(s.winRate,25);assert.equal(s.pointsPerGame,13/12);rows[0]={...rows[0],p:4,w:0,d:4,l:0,pts:4};const draws=api.summary({rows,games:[]});assert.equal(draws.winRate,0);assert.equal(draws.pointsPerGame,1);});
 test('unplayed season does not invent zero win rate or divide by zero',()=>{const rows=Array.from({length:20},(_,i)=>({club:i===0?'北九州':'club'+i,p:0,w:0,pts:0,gf:0,gd:0}));const s=api.summary({rows,games:[]});assert.equal(s.winRate,null);assert.equal(s.pointsPerGame,null);assert.match(api.performanceGauge(s.winRate,100,'勝率','%',1),/算出前/);assert.match(api.performanceGauge(s.pointsPerGame,3,'勝点ペース','点／試合',2),/算出前/);});
 test('performance meters preserve distinct units, bounded scales and exact endpoints',()=>{assert.match(api.performanceGauge(25,100,'勝率','%',1),/25.0%/);const ppg=api.performanceGauge(13/12,3,'勝点ペース','点／試合',2);assert.match(ppg,/1.08/);assert.match(ppg,/目盛り0から3点／試合/);assert.ok(!ppg.includes('%'));for(const value of [0,3])assert.match(api.performanceGauge(value,3,'勝点ペース','点／試合',2),new RegExp(`stroke-dasharray="${value/3*100} 100"`));for(const value of [-1,4,NaN])assert.throws(()=>api.performanceGauge(value,3,'pace','点',2));});
@@ -19,3 +46,4 @@ test('goal target uses sixth-place median and never divides by zero at season en
 test('new official result updates GD and completed games without reusing an old forecast',()=>{const a=app(),before=a.eval("liveRows([]).find(r=>r.club==='北九州').gd");a.eval("completed.push(['北九州','岐阜',3,0]);baseline=null;renderDashboard()");assert.match(a.el('dashGDGauge').innerHTML,new RegExp(`公式得失点差 ${before+3>0?'\\+':''}${before+3}`));assert.match(a.el('dashTop6Gauge').innerHTML,/計算中/);a.eval('run()');a.flush();assert.match(a.el('dashTop6Gauge').innerHTML,/<svg/);});
 test('cancelled and postponed next cards retain H/A and suppress pre-match probabilities',()=>{for(const status of ['cancelled','postponed','unconfirmed']){const a=app();a.ctx.card={verified:true,season:'2026/27',checkedAt:'2026-10-21T00:00:00Z',matches:[{id:'2026110101',date:'2026-11-01',time:'14:00',home:'北九州',away:'岐阜',status}]};a.eval('fixtureCalendar=validateCalendar(card);updateNextFixture()');assert.match(a.el('dashFixture').innerHTML,/HOME<\/span><strong>北九州/);assert.match(a.el('dashFixture').innerHTML,/AWAY<\/span><strong>岐阜/);assert.ok(!a.el('dashMatchProb').innerHTML.includes('ホーム勝利'));assert.equal(a.el('dashNextStatus').dataset.hold,'true');}});
 test('main view remains unchanged and eight dashboard detail links open separate tabs',()=>{const a=app('');assert.ok(!a.classes.has('dashboard-view'));assert.equal(a.el('dashGDGauge').innerHTML,'');const nav=html.match(/<nav id="dashboardLinks"[\s\S]*?<\/nav>/)[0];assert.equal((nav.match(/class="dash-link"/g)||[]).length,8);assert.equal((nav.match(/target="_blank" rel="noopener"/g)||[]).length,8);});
+
