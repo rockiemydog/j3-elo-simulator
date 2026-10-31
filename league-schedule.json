@@ -3,7 +3,7 @@
   "scope": "all-clubs",
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-31T02:24:13.600517+00:00",
+  "checkedAt": "2026-10-31T08:54:36.361574+00:00",
   "coverageFrom": "2026-08-08",
   "coverageThrough": "2027-07-31",
   "matches": [
@@ -1060,74 +1060,83 @@
     {
       "id": "2026103124",
       "date": "2026-10-31",
-      "time": "14:00",
+      "time": "14:03",
       "home": "福島",
       "away": "松本",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026103125",
       "date": "2026-10-31",
-      "time": "14:00",
+      "time": "14:03",
       "home": "栃木SC",
       "away": "愛媛",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026103126",
       "date": "2026-10-31",
-      "time": "14:00",
+      "time": "14:03",
       "home": "金沢",
       "away": "群馬",
-      "status": "scheduled"
-    },
-    {
-      "id": "2026103127",
-      "date": "2026-10-31",
-      "time": "14:00",
-      "home": "岐阜",
-      "away": "FC大阪",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026103128",
       "date": "2026-10-31",
-      "time": "14:00",
+      "time": "14:03",
       "home": "高知",
       "away": "相模原",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
+    },
+    {
+      "id": "2026103127",
+      "date": "2026-10-31",
+      "time": "14:04",
+      "home": "岐阜",
+      "away": "FC大阪",
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026103133",
       "date": "2026-10-31",
-      "time": "14:00",
+      "time": "14:04",
       "home": "讃岐",
       "away": "奈良",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026103129",
       "date": "2026-10-31",
-      "time": "15:05",
+      "time": "15:09",
       "home": "山口",
       "away": "北九州",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "15:05"
     },
     {
       "id": "2026103130",
       "date": "2026-10-31",
-      "time": "16:00",
+      "time": "16:03",
       "home": "長野",
       "away": "滋賀",
-      "status": "scheduled"
+      "status": "unconfirmed",
+      "scheduledTime": "16:00"
     },
     {
       "id": "2026103131",
       "date": "2026-10-31",
-      "time": "16:00",
+      "time": "16:03",
       "home": "琉球",
       "away": "鳥取",
-      "status": "scheduled"
+      "status": "unconfirmed",
+      "scheduledTime": "16:00"
     },
     {
       "id": "2026103132",

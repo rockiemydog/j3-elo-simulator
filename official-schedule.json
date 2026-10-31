@@ -2,7 +2,7 @@
   "verified": true,
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-10-31T02:24:13.602647+00:00",
+  "checkedAt": "2026-10-31T08:54:36.363705+00:00",
   "matches": [
     {
       "id": "2026081519",
@@ -112,10 +112,11 @@
     {
       "id": "2026103129",
       "date": "2026-10-31",
-      "time": "15:05",
+      "time": "15:09",
       "home": "山口",
       "away": "北九州",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "15:05"
     },
     {
       "id": "2026110323",
