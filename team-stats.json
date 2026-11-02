@@ -4,7 +4,7 @@
   "club": "北九州",
   "season": "2026/27",
   "source": "https://www.jleague.jp/club/kitakyushu/",
-  "checkedAt": "2026-11-01T22:15:11.991033+00:00",
+  "checkedAt": "2026-11-02T06:37:40.859329+00:00",
   "statsUpdatedAt": null,
   "metrics": [
     {
@@ -5012,7 +5012,7 @@
     "expectedGoals": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals/search-list/",
-      "checkedAt": "2026-11-01T22:15:11.991033+00:00",
+      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -5100,7 +5100,7 @@
     "expectedGoalsAgainst": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals_against/search-list/",
-      "checkedAt": "2026-11-01T22:15:11.991033+00:00",
+      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -5188,7 +5188,7 @@
     "chancesCreated": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/chance_create/search-list/",
-      "checkedAt": "2026-11-01T22:15:11.991033+00:00",
+      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
       "updatedAt": "2026-10-27T18:03:00+09:00",
       "values": [
         {
@@ -5224,11 +5224,11 @@
           "value": 151
         },
         {
-          "club": "滋賀",
+          "club": "鹿児島",
           "value": 146
         },
         {
-          "club": "鹿児島",
+          "club": "滋賀",
           "value": 146
         },
         {
@@ -5256,11 +5256,11 @@
           "value": 116
         },
         {
-          "club": "群馬",
+          "club": "高知",
           "value": 114
         },
         {
-          "club": "高知",
+          "club": "群馬",
           "value": 114
         },
         {
