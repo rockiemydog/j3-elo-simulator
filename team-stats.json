@@ -4,7 +4,7 @@
   "club": "北九州",
   "season": "2026/27",
   "source": "https://www.jleague.jp/club/kitakyushu/",
-  "checkedAt": "2026-11-02T06:37:40.859329+00:00",
+  "checkedAt": "2026-11-02T21:52:05.467666+00:00",
   "statsUpdatedAt": null,
   "metrics": [
     {
@@ -20,7 +20,7 @@
       "key": "passCountPg",
       "label": "1試合平均パス数",
       "unit": "本／試合",
-      "value": 457.5,
+      "value": 452.5,
       "previous": 407.9,
       "rank": 8,
       "tied": false
@@ -29,7 +29,7 @@
       "key": "ballRate",
       "label": "平均ボール保持率",
       "unit": "％",
-      "value": 51.5,
+      "value": 51.4,
       "previous": 48.4,
       "rank": 8,
       "tied": false
@@ -38,7 +38,7 @@
       "key": "airBattleWinCountPg",
       "label": "1試合平均空中戦勝利",
       "unit": "回／試合",
-      "value": 19.2,
+      "value": 19.4,
       "previous": 19.6,
       "rank": 12,
       "tied": false
@@ -56,9 +56,9 @@
       "key": "cleanSheet",
       "label": "無失点試合総数",
       "unit": "試合",
-      "value": 2,
+      "value": 3,
       "previous": null,
-      "rank": 14,
+      "rank": 10,
       "tied": true
     },
     {
@@ -92,10 +92,10 @@
       "key": "shotsAgainstPg",
       "label": "1試合平均被シュート数",
       "unit": "本／試合",
-      "value": 13.428571428571429,
+      "value": 13.5,
       "previous": null,
-      "rank": 12,
-      "tied": false
+      "rank": 11,
+      "tied": true
     },
     {
       "key": "ckPg",
@@ -119,34 +119,34 @@
       "key": "shotsAgainstTotal",
       "label": "被シュート総数",
       "unit": "本",
-      "value": 188,
+      "value": 189,
       "previous": null,
-      "rank": 12,
-      "tied": false
+      "rank": 11,
+      "tied": true
     },
     {
       "key": "expectedGoals",
       "label": "ゴール期待値（xG）",
       "unit": "点相当",
-      "value": 18,
+      "value": 18.1,
       "previous": null,
-      "rank": 10,
-      "tied": false
+      "rank": 13,
+      "tied": true
     },
     {
       "key": "expectedGoalsAgainst",
       "label": "被ゴール期待値（xGA）",
       "unit": "点相当",
-      "value": 21.3,
+      "value": 22.5,
       "previous": null,
-      "rank": 18,
+      "rank": 17,
       "tied": false
     },
     {
       "key": "chancesCreated",
       "label": "チャンスクリエート総数",
       "unit": "回",
-      "value": 129,
+      "value": 133,
       "previous": null,
       "rank": 13,
       "tied": false
@@ -287,7 +287,7 @@
     "shots": 163,
     "ck": 64,
     "cleanSheets": 3,
-    "shotsAgainst": 188,
+    "shotsAgainst": 189,
     "through": "2026-10-31"
   },
   "samples": {
@@ -295,7 +295,7 @@
       "played": 14,
       "goals": 25,
       "conceded": 13,
-      "shots": 175,
+      "shots": 176,
       "ck": 83,
       "cleanSheets": 6,
       "shotsAgainst": 153,
@@ -305,40 +305,40 @@
       "played": 14,
       "goals": 30,
       "conceded": 21,
-      "shots": 184,
+      "shots": 188,
       "ck": 80,
       "cleanSheets": 3,
-      "shotsAgainst": 192,
+      "shotsAgainst": 194,
       "through": "2026-10-31"
     },
     "鹿児島": {
       "played": 14,
       "goals": 28,
       "conceded": 17,
-      "shots": 211,
+      "shots": 212,
       "ck": 67,
       "cleanSheets": 2,
-      "shotsAgainst": 144,
+      "shotsAgainst": 145,
       "through": "2026-10-31"
     },
     "相模原": {
       "played": 14,
       "goals": 24,
       "conceded": 15,
-      "shots": 210,
+      "shots": 217,
       "ck": 97,
       "cleanSheets": 4,
-      "shotsAgainst": 177,
+      "shotsAgainst": 179,
       "through": "2026-10-31"
     },
     "鳥取": {
       "played": 14,
       "goals": 15,
       "conceded": 28,
-      "shots": 152,
+      "shots": 154,
       "ck": 62,
       "cleanSheets": 3,
-      "shotsAgainst": 221,
+      "shotsAgainst": 223,
       "through": "2026-10-31"
     },
     "FC大阪": {
@@ -348,64 +348,64 @@
       "shots": 191,
       "ck": 66,
       "cleanSheets": 4,
-      "shotsAgainst": 168,
+      "shotsAgainst": 169,
       "through": "2026-10-31"
     },
     "長野": {
       "played": 14,
       "goals": 20,
       "conceded": 20,
-      "shots": 166,
+      "shots": 169,
       "ck": 57,
       "cleanSheets": 3,
-      "shotsAgainst": 201,
+      "shotsAgainst": 202,
       "through": "2026-10-31"
     },
     "滋賀": {
       "played": 14,
       "goals": 18,
       "conceded": 27,
-      "shots": 183,
+      "shots": 184,
       "ck": 79,
       "cleanSheets": 3,
-      "shotsAgainst": 209,
+      "shotsAgainst": 212,
       "through": "2026-10-31"
     },
     "熊本": {
       "played": 14,
       "goals": 16,
       "conceded": 8,
-      "shots": 179,
+      "shots": 180,
       "ck": 73,
       "cleanSheets": 8,
-      "shotsAgainst": 165,
+      "shotsAgainst": 166,
       "through": "2026-10-31"
     },
     "栃木SC": {
       "played": 14,
       "goals": 14,
       "conceded": 16,
-      "shots": 175,
+      "shots": 177,
       "ck": 87,
       "cleanSheets": 6,
-      "shotsAgainst": 155,
+      "shotsAgainst": 159,
       "through": "2026-10-31"
     },
     "琉球": {
       "played": 14,
       "goals": 21,
       "conceded": 17,
-      "shots": 191,
+      "shots": 193,
       "ck": 79,
       "cleanSheets": 4,
-      "shotsAgainst": 187,
+      "shotsAgainst": 189,
       "through": "2026-10-31"
     },
     "讃岐": {
       "played": 14,
       "goals": 15,
       "conceded": 27,
-      "shots": 166,
+      "shots": 167,
       "ck": 64,
       "cleanSheets": 2,
       "shotsAgainst": 210,
@@ -415,7 +415,7 @@
       "played": 14,
       "goals": 19,
       "conceded": 11,
-      "shots": 217,
+      "shots": 218,
       "ck": 65,
       "cleanSheets": 8,
       "shotsAgainst": 144,
@@ -428,17 +428,17 @@
       "shots": 196,
       "ck": 69,
       "cleanSheets": 4,
-      "shotsAgainst": 205,
+      "shotsAgainst": 206,
       "through": "2026-10-31"
     },
     "高知": {
       "played": 14,
       "goals": 6,
       "conceded": 31,
-      "shots": 152,
+      "shots": 154,
       "ck": 58,
       "cleanSheets": 2,
-      "shotsAgainst": 178,
+      "shotsAgainst": 185,
       "through": "2026-10-31"
     },
     "北九州": {
@@ -448,7 +448,7 @@
       "shots": 163,
       "ck": 64,
       "cleanSheets": 3,
-      "shotsAgainst": 188,
+      "shotsAgainst": 189,
       "through": "2026-10-31"
     },
     "松本": {
@@ -458,34 +458,34 @@
       "shots": 186,
       "ck": 95,
       "cleanSheets": 5,
-      "shotsAgainst": 186,
+      "shotsAgainst": 188,
       "through": "2026-10-31"
     },
     "金沢": {
       "played": 14,
       "goals": 27,
       "conceded": 19,
-      "shots": 219,
+      "shots": 222,
       "ck": 58,
       "cleanSheets": 3,
-      "shotsAgainst": 165,
+      "shotsAgainst": 167,
       "through": "2026-10-31"
     },
     "群馬": {
       "played": 14,
       "goals": 12,
       "conceded": 26,
-      "shots": 147,
+      "shots": 149,
       "ck": 57,
       "cleanSheets": 2,
-      "shotsAgainst": 213,
+      "shotsAgainst": 216,
       "through": "2026-10-31"
     },
     "福島": {
       "played": 14,
       "goals": 27,
       "conceded": 32,
-      "shots": 197,
+      "shots": 199,
       "ck": 81,
       "cleanSheets": 0,
       "shotsAgainst": 199,
@@ -617,7 +617,7 @@
         "opponent": "FC大阪",
         "gf": 1,
         "ga": 0,
-        "shots": 6,
+        "shots": 7,
         "ck": 3
       }
     ],
@@ -745,7 +745,7 @@
         "opponent": "栃木SC",
         "gf": 0,
         "ga": 2,
-        "shots": 5,
+        "shots": 9,
         "ck": 3
       }
     ],
@@ -873,7 +873,7 @@
         "opponent": "熊本",
         "gf": 1,
         "ga": 1,
-        "shots": 16,
+        "shots": 17,
         "ck": 2
       }
     ],
@@ -1001,7 +1001,7 @@
         "opponent": "高知",
         "gf": 3,
         "ga": 1,
-        "shots": 10,
+        "shots": 17,
         "ck": 6
       }
     ],
@@ -1129,7 +1129,7 @@
         "opponent": "琉球",
         "gf": 2,
         "ga": 5,
-        "shots": 16,
+        "shots": 18,
         "ck": 3
       }
     ],
@@ -1385,7 +1385,7 @@
         "opponent": "滋賀",
         "gf": 3,
         "ga": 1,
-        "shots": 11,
+        "shots": 14,
         "ck": 0
       }
     ],
@@ -1513,7 +1513,7 @@
         "opponent": "長野",
         "gf": 1,
         "ga": 3,
-        "shots": 10,
+        "shots": 11,
         "ck": 1
       }
     ],
@@ -1641,7 +1641,7 @@
         "opponent": "鹿児島",
         "gf": 1,
         "ga": 1,
-        "shots": 10,
+        "shots": 11,
         "ck": 5
       }
     ],
@@ -1769,7 +1769,7 @@
         "opponent": "愛媛",
         "gf": 2,
         "ga": 0,
-        "shots": 19,
+        "shots": 21,
         "ck": 13
       }
     ],
@@ -1897,7 +1897,7 @@
         "opponent": "鳥取",
         "gf": 5,
         "ga": 2,
-        "shots": 22,
+        "shots": 24,
         "ck": 3
       }
     ],
@@ -2025,7 +2025,7 @@
         "opponent": "奈良",
         "gf": 0,
         "ga": 2,
-        "shots": 14,
+        "shots": 15,
         "ck": 3
       }
     ],
@@ -2153,7 +2153,7 @@
         "opponent": "北九州",
         "gf": 0,
         "ga": 2,
-        "shots": 15,
+        "shots": 16,
         "ck": 6
       }
     ],
@@ -2409,7 +2409,7 @@
         "opponent": "相模原",
         "gf": 1,
         "ga": 3,
-        "shots": 8,
+        "shots": 10,
         "ck": 2
       }
     ],
@@ -2793,7 +2793,7 @@
         "opponent": "群馬",
         "gf": 4,
         "ga": 0,
-        "shots": 20,
+        "shots": 23,
         "ck": 2
       }
     ],
@@ -2921,7 +2921,7 @@
         "opponent": "金沢",
         "gf": 0,
         "ga": 4,
-        "shots": 6,
+        "shots": 8,
         "ck": 3
       }
     ],
@@ -3049,7 +3049,7 @@
         "opponent": "松本",
         "gf": 1,
         "ga": 3,
-        "shots": 14,
+        "shots": 16,
         "ck": 7
       }
     ]
@@ -3058,54 +3058,54 @@
     "scorePg": [
       {
         "club": "愛媛",
-        "value": 2.3,
+        "value": 2.1,
         "rank": 1,
         "tied": false
       },
       {
         "club": "鹿児島",
-        "value": 2.1,
+        "value": 2,
         "rank": 2,
         "tied": false
       },
       {
-        "club": "福島",
-        "value": 2,
+        "club": "金沢",
+        "value": 1.9,
         "rank": 3,
-        "tied": false
+        "tied": true
+      },
+      {
+        "club": "福島",
+        "value": 1.9,
+        "rank": 3,
+        "tied": true
       },
       {
         "club": "岐阜",
         "value": 1.8,
-        "rank": 4,
-        "tied": true
-      },
-      {
-        "club": "FC大阪",
-        "value": 1.8,
-        "rank": 4,
+        "rank": 5,
         "tied": true
       },
       {
         "club": "奈良",
         "value": 1.8,
-        "rank": 4,
-        "tied": true
-      },
-      {
-        "club": "金沢",
-        "value": 1.8,
-        "rank": 4,
+        "rank": 5,
         "tied": true
       },
       {
         "club": "相模原",
+        "value": 1.7,
+        "rank": 7,
+        "tied": false
+      },
+      {
+        "club": "FC大阪",
         "value": 1.6,
         "rank": 8,
         "tied": false
       },
       {
-        "club": "山口",
+        "club": "琉球",
         "value": 1.5,
         "rank": 9,
         "tied": true
@@ -3118,21 +3118,27 @@
       },
       {
         "club": "長野",
-        "value": 1.3,
+        "value": 1.4,
+        "rank": 11,
+        "tied": true
+      },
+      {
+        "club": "山口",
+        "value": 1.4,
         "rank": 11,
         "tied": true
       },
       {
         "club": "滋賀",
         "value": 1.3,
-        "rank": 11,
-        "tied": true
-      },
-      {
-        "club": "琉球",
-        "value": 1.2,
         "rank": 13,
         "tied": false
+      },
+      {
+        "club": "鳥取",
+        "value": 1.1,
+        "rank": 14,
+        "tied": true
       },
       {
         "club": "熊本",
@@ -3147,28 +3153,22 @@
         "tied": true
       },
       {
-        "club": "鳥取",
-        "value": 1,
-        "rank": 16,
-        "tied": false
+        "club": "松本",
+        "value": 1.1,
+        "rank": 14,
+        "tied": true
       },
       {
         "club": "栃木SC",
-        "value": 0.9,
-        "rank": 17,
-        "tied": true
-      },
-      {
-        "club": "松本",
-        "value": 0.9,
-        "rank": 17,
-        "tied": true
+        "value": 1,
+        "rank": 18,
+        "tied": false
       },
       {
         "club": "群馬",
         "value": 0.9,
-        "rank": 17,
-        "tied": true
+        "rank": 19,
+        "tied": false
       },
       {
         "club": "高知",
@@ -3180,109 +3180,109 @@
     "passCountPg": [
       {
         "club": "愛媛",
-        "value": 635.4,
+        "value": 629.4,
         "rank": 1,
         "tied": false
       },
       {
         "club": "福島",
-        "value": 590.2,
+        "value": 595.7,
         "rank": 2,
         "tied": false
       },
       {
         "club": "奈良",
-        "value": 574.7,
+        "value": 578.1,
         "rank": 3,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 513.5,
+        "value": 511.6,
         "rank": 4,
         "tied": false
       },
       {
         "club": "熊本",
-        "value": 488.4,
+        "value": 496.3,
         "rank": 5,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 484.7,
+        "value": 482.6,
         "rank": 6,
         "tied": false
       },
       {
         "club": "岐阜",
-        "value": 476.5,
+        "value": 472.4,
         "rank": 7,
         "tied": false
       },
       {
         "club": "北九州",
-        "value": 457.5,
+        "value": 452.5,
         "rank": 8,
         "tied": false
       },
       {
         "club": "群馬",
-        "value": 438.7,
+        "value": 436.8,
         "rank": 9,
         "tied": false
       },
       {
         "club": "山口",
-        "value": 438.2,
+        "value": 434.8,
         "rank": 10,
         "tied": false
       },
       {
         "club": "滋賀",
-        "value": 434.1,
+        "value": 433.7,
         "rank": 11,
         "tied": false
       },
       {
         "club": "金沢",
-        "value": 416.9,
+        "value": 422.3,
         "rank": 12,
         "tied": false
       },
       {
-        "club": "松本",
-        "value": 389.1,
+        "club": "鳥取",
+        "value": 385,
         "rank": 13,
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 383,
-        "rank": 14,
-        "tied": false
-      },
-      {
         "club": "栃木SC",
-        "value": 381.2,
-        "rank": 15,
-        "tied": false
+        "value": 383.7,
+        "rank": 14,
+        "tied": true
       },
       {
-        "club": "讃岐",
-        "value": 368.6,
+        "club": "松本",
+        "value": 383.7,
+        "rank": 14,
+        "tied": true
+      },
+      {
+        "club": "長野",
+        "value": 373.2,
         "rank": 16,
         "tied": false
       },
       {
-        "club": "長野",
-        "value": 364,
+        "club": "讃岐",
+        "value": 365.6,
         "rank": 17,
         "tied": false
       },
       {
         "club": "鹿児島",
-        "value": 328.2,
+        "value": 323.1,
         "rank": 18,
         "tied": false
       },
@@ -3294,7 +3294,7 @@
       },
       {
         "club": "FC大阪",
-        "value": 296.1,
+        "value": 297.2,
         "rank": 20,
         "tied": false
       }
@@ -3302,73 +3302,73 @@
     "ballRate": [
       {
         "club": "奈良",
-        "value": 59.8,
+        "value": 60,
         "rank": 1,
         "tied": false
       },
       {
         "club": "愛媛",
-        "value": 55.1,
+        "value": 55,
         "rank": 2,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 54.3,
+        "value": 54.2,
         "rank": 3,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 53.2,
+        "value": 53.6,
         "rank": 4,
+        "tied": false
+      },
+      {
+        "club": "熊本",
+        "value": 53.3,
+        "rank": 5,
+        "tied": false
+      },
+      {
+        "club": "福島",
+        "value": 52.9,
+        "rank": 6,
         "tied": false
       },
       {
         "club": "岐阜",
         "value": 52.6,
-        "rank": 5,
-        "tied": false
-      },
-      {
-        "club": "熊本",
-        "value": 52.3,
-        "rank": 6,
-        "tied": false
-      },
-      {
-        "club": "福島",
-        "value": 52.1,
         "rank": 7,
         "tied": false
       },
       {
         "club": "北九州",
-        "value": 51.5,
+        "value": 51.4,
         "rank": 8,
         "tied": false
       },
       {
-        "club": "松本",
-        "value": 50.6,
+        "club": "群馬",
+        "value": 49.9,
         "rank": 9,
         "tied": false
       },
       {
         "club": "滋賀",
-        "value": 50.1,
+        "value": 49.7,
         "rank": 10,
         "tied": false
       },
       {
-        "club": "群馬",
-        "value": 50,
+        "club": "松本",
+        "value": 49.5,
         "rank": 11,
         "tied": false
       },
       {
         "club": "山口",
-        "value": 48.8,
+        "value": 49,
         "rank": 12,
         "tied": false
       },
@@ -3379,44 +3379,44 @@
         "tied": false
       },
       {
-        "club": "相模原",
+        "club": "金沢",
         "value": 47.4,
         "rank": 14,
         "tied": false
       },
       {
         "club": "鳥取",
-        "value": 47.1,
+        "value": 47,
         "rank": 15,
-        "tied": true
+        "tied": false
       },
       {
-        "club": "金沢",
-        "value": 47.1,
-        "rank": 15,
-        "tied": true
-      },
-      {
-        "club": "讃岐",
-        "value": 45.6,
-        "rank": 17,
+        "club": "相模原",
+        "value": 46.8,
+        "rank": 16,
         "tied": false
       },
       {
         "club": "長野",
-        "value": 45.3,
+        "value": 46.1,
+        "rank": 17,
+        "tied": false
+      },
+      {
+        "club": "讃岐",
+        "value": 45,
         "rank": 18,
         "tied": false
       },
       {
         "club": "鹿児島",
-        "value": 43.1,
+        "value": 42.3,
         "rank": 19,
         "tied": false
       },
       {
         "club": "FC大阪",
-        "value": 41.8,
+        "value": 42.2,
         "rank": 20,
         "tied": false
       }
@@ -3424,7 +3424,7 @@
     "airBattleWinCountPg": [
       {
         "club": "FC大阪",
-        "value": 29,
+        "value": 28.3,
         "rank": 1,
         "tied": false
       },
@@ -3436,109 +3436,109 @@
       },
       {
         "club": "松本",
-        "value": 26,
+        "value": 24.9,
         "rank": 3,
         "tied": false
       },
       {
         "club": "栃木SC",
-        "value": 24.4,
+        "value": 24,
         "rank": 4,
         "tied": false
       },
       {
-        "club": "金沢",
-        "value": 23.5,
+        "club": "長野",
+        "value": 23.2,
         "rank": 5,
         "tied": false
       },
       {
-        "club": "山口",
-        "value": 22.5,
+        "club": "金沢",
+        "value": 22.9,
         "rank": 6,
         "tied": false
       },
       {
-        "club": "長野",
-        "value": 22.2,
+        "club": "山口",
+        "value": 22.6,
         "rank": 7,
-        "tied": true
-      },
-      {
-        "club": "讃岐",
-        "value": 22.2,
-        "rank": 7,
-        "tied": true
+        "tied": false
       },
       {
         "club": "鹿児島",
         "value": 21.1,
-        "rank": 9,
-        "tied": false
+        "rank": 8,
+        "tied": true
+      },
+      {
+        "club": "讃岐",
+        "value": 21.1,
+        "rank": 8,
+        "tied": true
       },
       {
         "club": "群馬",
-        "value": 21,
+        "value": 20.9,
         "rank": 10,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 19.5,
+        "value": 20.3,
         "rank": 11,
         "tied": false
       },
       {
         "club": "北九州",
-        "value": 19.2,
+        "value": 19.4,
         "rank": 12,
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 18.8,
+        "club": "滋賀",
+        "value": 19.1,
         "rank": 13,
         "tied": false
       },
       {
-        "club": "滋賀",
-        "value": 18.1,
+        "club": "鳥取",
+        "value": 18.6,
         "rank": 14,
         "tied": false
       },
       {
-        "club": "熊本",
-        "value": 15.5,
+        "club": "岐阜",
+        "value": 15.3,
         "rank": 15,
         "tied": false
+      },
+      {
+        "club": "熊本",
+        "value": 14.8,
+        "rank": 16,
+        "tied": true
       },
       {
         "club": "福島",
         "value": 14.8,
         "rank": 16,
-        "tied": false
-      },
-      {
-        "club": "岐阜",
-        "value": 14.3,
-        "rank": 17,
-        "tied": false
+        "tied": true
       },
       {
         "club": "奈良",
-        "value": 14.1,
+        "value": 14.3,
         "rank": 18,
         "tied": false
       },
       {
         "club": "愛媛",
-        "value": 13.5,
+        "value": 13.4,
         "rank": 19,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 12.5,
+        "value": 12.2,
         "rank": 20,
         "tied": false
       }
@@ -3546,7 +3546,7 @@
     "interceptCount": [
       {
         "club": "鹿児島",
-        "value": 26,
+        "value": 28,
         "rank": 1,
         "tied": false
       },
@@ -3557,104 +3557,104 @@
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 20,
-        "rank": 3,
-        "tied": true
-      },
-      {
         "club": "琉球",
-        "value": 20,
+        "value": 23,
         "rank": 3,
-        "tied": true
+        "tied": false
       },
       {
         "club": "岐阜",
-        "value": 19,
-        "rank": 5,
+        "value": 21,
+        "rank": 4,
+        "tied": true
+      },
+      {
+        "club": "鳥取",
+        "value": 21,
+        "rank": 4,
         "tied": true
       },
       {
         "club": "熊本",
         "value": 19,
-        "rank": 5,
+        "rank": 6,
+        "tied": true
+      },
+      {
+        "club": "松本",
+        "value": 19,
+        "rank": 6,
         "tied": true
       },
       {
         "club": "長野",
         "value": 18,
-        "rank": 7,
-        "tied": false
-      },
-      {
-        "club": "松本",
-        "value": 16,
         "rank": 8,
         "tied": false
       },
       {
-        "club": "FC大阪",
-        "value": 15,
+        "club": "相模原",
+        "value": 17,
         "rank": 9,
+        "tied": false
+      },
+      {
+        "club": "愛媛",
+        "value": 16,
+        "rank": 10,
+        "tied": true
+      },
+      {
+        "club": "FC大阪",
+        "value": 16,
+        "rank": 10,
+        "tied": true
+      },
+      {
+        "club": "高知",
+        "value": 16,
+        "rank": 10,
         "tied": true
       },
       {
         "club": "福島",
         "value": 15,
-        "rank": 9,
-        "tied": true
+        "rank": 13,
+        "tied": false
       },
       {
-        "club": "相模原",
+        "club": "栃木SC",
         "value": 14,
-        "rank": 11,
-        "tied": true
-      },
-      {
-        "club": "高知",
-        "value": 14,
-        "rank": 11,
+        "rank": 14,
         "tied": true
       },
       {
         "club": "金沢",
         "value": 14,
-        "rank": 11,
-        "tied": true
-      },
-      {
-        "club": "愛媛",
-        "value": 13,
         "rank": 14,
         "tied": true
       },
       {
         "club": "群馬",
-        "value": 13,
+        "value": 14,
         "rank": 14,
         "tied": true
       },
       {
-        "club": "栃木SC",
-        "value": 11,
-        "rank": 16,
-        "tied": true
-      },
-      {
         "club": "讃岐",
-        "value": 11,
-        "rank": 16,
-        "tied": true
+        "value": 12,
+        "rank": 17,
+        "tied": false
       },
       {
         "club": "山口",
-        "value": 10,
+        "value": 11,
         "rank": 18,
         "tied": false
       },
       {
         "club": "奈良",
-        "value": 9,
+        "value": 10,
         "rank": 19,
         "tied": false
       },
@@ -3680,21 +3680,21 @@
       },
       {
         "club": "岐阜",
-        "value": 5,
+        "value": 6,
         "rank": 3,
         "tied": true
       },
       {
         "club": "栃木SC",
-        "value": 5,
+        "value": 6,
         "rank": 3,
         "tied": true
       },
       {
         "club": "松本",
         "value": 5,
-        "rank": 3,
-        "tied": true
+        "rank": 5,
+        "tied": false
       },
       {
         "club": "相模原",
@@ -3715,69 +3715,69 @@
         "tied": true
       },
       {
+        "club": "奈良",
+        "value": 4,
+        "rank": 6,
+        "tied": true
+      },
+      {
         "club": "愛媛",
         "value": 3,
-        "rank": 9,
+        "rank": 10,
         "tied": true
       },
       {
         "club": "鳥取",
         "value": 3,
-        "rank": 9,
+        "rank": 10,
         "tied": true
       },
       {
         "club": "長野",
         "value": 3,
-        "rank": 9,
+        "rank": 10,
         "tied": true
       },
       {
         "club": "滋賀",
         "value": 3,
-        "rank": 9,
+        "rank": 10,
         "tied": true
       },
       {
-        "club": "奈良",
+        "club": "北九州",
         "value": 3,
-        "rank": 9,
+        "rank": 10,
+        "tied": true
+      },
+      {
+        "club": "金沢",
+        "value": 3,
+        "rank": 10,
         "tied": true
       },
       {
         "club": "鹿児島",
         "value": 2,
-        "rank": 14,
+        "rank": 16,
         "tied": true
       },
       {
         "club": "讃岐",
         "value": 2,
-        "rank": 14,
+        "rank": 16,
         "tied": true
       },
       {
         "club": "高知",
         "value": 2,
-        "rank": 14,
-        "tied": true
-      },
-      {
-        "club": "北九州",
-        "value": 2,
-        "rank": 14,
-        "tied": true
-      },
-      {
-        "club": "金沢",
-        "value": 2,
-        "rank": 14,
+        "rank": 16,
         "tied": true
       },
       {
         "club": "群馬",
         "value": 2,
-        "rank": 14,
+        "rank": 16,
         "tied": true
       },
       {
@@ -3790,31 +3790,31 @@
     "shotsPg": [
       {
         "club": "金沢",
-        "value": 15.642857142857142,
+        "value": 15.857142857142858,
         "rank": 1,
         "tied": false
       },
       {
         "club": "山口",
-        "value": 15.5,
+        "value": 15.571428571428571,
         "rank": 2,
         "tied": false
       },
       {
-        "club": "鹿児島",
-        "value": 15.071428571428571,
+        "club": "相模原",
+        "value": 15.5,
         "rank": 3,
         "tied": false
       },
       {
-        "club": "相模原",
-        "value": 15.0,
+        "club": "鹿児島",
+        "value": 15.142857142857142,
         "rank": 4,
         "tied": false
       },
       {
         "club": "福島",
-        "value": 14.071428571428571,
+        "value": 14.214285714285714,
         "rank": 5,
         "tied": false
       },
@@ -3825,64 +3825,64 @@
         "tied": false
       },
       {
+        "club": "琉球",
+        "value": 13.785714285714286,
+        "rank": 7,
+        "tied": false
+      },
+      {
         "club": "FC大阪",
         "value": 13.642857142857142,
-        "rank": 7,
-        "tied": true
-      },
-      {
-        "club": "琉球",
-        "value": 13.642857142857142,
-        "rank": 7,
-        "tied": true
-      },
-      {
-        "club": "松本",
-        "value": 13.285714285714286,
-        "rank": 9,
+        "rank": 8,
         "tied": false
       },
       {
         "club": "愛媛",
-        "value": 13.142857142857142,
+        "value": 13.428571428571429,
+        "rank": 9,
+        "tied": false
+      },
+      {
+        "club": "松本",
+        "value": 13.285714285714286,
         "rank": 10,
         "tied": false
       },
       {
         "club": "滋賀",
-        "value": 13.071428571428571,
+        "value": 13.142857142857142,
         "rank": 11,
         "tied": false
       },
       {
         "club": "熊本",
-        "value": 12.785714285714286,
+        "value": 12.857142857142858,
         "rank": 12,
         "tied": false
       },
       {
-        "club": "岐阜",
-        "value": 12.5,
+        "club": "栃木SC",
+        "value": 12.642857142857142,
         "rank": 13,
-        "tied": true
+        "tied": false
       },
       {
-        "club": "栃木SC",
-        "value": 12.5,
-        "rank": 13,
-        "tied": true
+        "club": "岐阜",
+        "value": 12.571428571428571,
+        "rank": 14,
+        "tied": false
       },
       {
         "club": "長野",
-        "value": 11.857142857142858,
+        "value": 12.071428571428571,
         "rank": 15,
-        "tied": true
+        "tied": false
       },
       {
         "club": "讃岐",
-        "value": 11.857142857142858,
-        "rank": 15,
-        "tied": true
+        "value": 11.928571428571429,
+        "rank": 16,
+        "tied": false
       },
       {
         "club": "北九州",
@@ -3892,19 +3892,19 @@
       },
       {
         "club": "鳥取",
-        "value": 10.857142857142858,
+        "value": 11.0,
         "rank": 18,
         "tied": true
       },
       {
         "club": "高知",
-        "value": 10.857142857142858,
+        "value": 11.0,
         "rank": 18,
         "tied": true
       },
       {
         "club": "群馬",
-        "value": 10.5,
+        "value": 10.642857142857142,
         "rank": 20,
         "tied": false
       }
@@ -3912,25 +3912,25 @@
     "shotConversion": [
       {
         "club": "愛媛",
-        "value": 16.304347826086957,
+        "value": 15.957446808510639,
         "rank": 1,
         "tied": false
       },
       {
         "club": "岐阜",
-        "value": 14.285714285714286,
+        "value": 14.204545454545455,
         "rank": 2,
         "tied": false
       },
       {
         "club": "福島",
-        "value": 13.705583756345177,
+        "value": 13.5678391959799,
         "rank": 3,
         "tied": false
       },
       {
         "club": "鹿児島",
-        "value": 13.270142180094787,
+        "value": 13.20754716981132,
         "rank": 4,
         "tied": false
       },
@@ -3948,85 +3948,85 @@
       },
       {
         "club": "金沢",
-        "value": 12.32876712328767,
+        "value": 12.162162162162161,
         "rank": 7,
-        "tied": false
-      },
-      {
-        "club": "長野",
-        "value": 12.048192771084338,
-        "rank": 8,
         "tied": false
       },
       {
         "club": "FC大阪",
         "value": 12.041884816753926,
+        "rank": 8,
+        "tied": false
+      },
+      {
+        "club": "長野",
+        "value": 11.834319526627219,
         "rank": 9,
         "tied": false
       },
       {
         "club": "相模原",
-        "value": 11.428571428571429,
+        "value": 11.059907834101383,
         "rank": 10,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 10.99476439790576,
+        "value": 10.880829015544041,
         "rank": 11,
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 9.868421052631579,
+        "club": "滋賀",
+        "value": 9.782608695652174,
         "rank": 12,
         "tied": false
       },
       {
-        "club": "滋賀",
-        "value": 9.836065573770492,
+        "club": "鳥取",
+        "value": 9.74025974025974,
         "rank": 13,
         "tied": false
       },
       {
         "club": "讃岐",
-        "value": 9.036144578313253,
+        "value": 8.982035928143713,
         "rank": 14,
         "tied": false
       },
       {
         "club": "熊本",
-        "value": 8.938547486033519,
+        "value": 8.88888888888889,
         "rank": 15,
         "tied": false
       },
       {
         "club": "山口",
-        "value": 8.755760368663594,
+        "value": 8.715596330275229,
         "rank": 16,
-        "tied": false
-      },
-      {
-        "club": "群馬",
-        "value": 8.16326530612245,
-        "rank": 17,
         "tied": false
       },
       {
         "club": "松本",
         "value": 8.064516129032258,
+        "rank": 17,
+        "tied": false
+      },
+      {
+        "club": "群馬",
+        "value": 8.053691275167786,
         "rank": 18,
         "tied": false
       },
       {
         "club": "栃木SC",
-        "value": 8.0,
+        "value": 7.909604519774011,
         "rank": 19,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 3.9473684210526314,
+        "value": 3.896103896103896,
         "rank": 20,
         "tied": false
       }
@@ -4155,16 +4155,16 @@
     ],
     "shotsAgainstPg": [
       {
-        "club": "鹿児島",
-        "value": 10.285714285714286,
-        "rank": 1,
-        "tied": true
-      },
-      {
         "club": "山口",
         "value": 10.285714285714286,
         "rank": 1,
-        "tied": true
+        "tied": false
+      },
+      {
+        "club": "鹿児島",
+        "value": 10.357142857142858,
+        "rank": 2,
+        "tied": false
       },
       {
         "club": "岐阜",
@@ -4174,61 +4174,61 @@
       },
       {
         "club": "栃木SC",
-        "value": 11.071428571428571,
+        "value": 11.357142857142858,
         "rank": 4,
         "tied": false
       },
       {
         "club": "熊本",
-        "value": 11.785714285714286,
+        "value": 11.857142857142858,
         "rank": 5,
-        "tied": true
+        "tied": false
       },
       {
         "club": "金沢",
-        "value": 11.785714285714286,
-        "rank": 5,
-        "tied": true
+        "value": 11.928571428571429,
+        "rank": 6,
+        "tied": false
       },
       {
         "club": "FC大阪",
-        "value": 12.0,
+        "value": 12.071428571428571,
         "rank": 7,
         "tied": false
       },
       {
         "club": "相模原",
-        "value": 12.642857142857142,
+        "value": 12.785714285714286,
         "rank": 8,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 12.714285714285714,
+        "value": 13.214285714285714,
         "rank": 9,
         "tied": false
       },
       {
         "club": "松本",
-        "value": 13.285714285714286,
+        "value": 13.428571428571429,
         "rank": 10,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 13.357142857142858,
+        "value": 13.5,
         "rank": 11,
-        "tied": false
+        "tied": true
       },
       {
         "club": "北九州",
-        "value": 13.428571428571429,
-        "rank": 12,
-        "tied": false
+        "value": 13.5,
+        "rank": 11,
+        "tied": true
       },
       {
         "club": "愛媛",
-        "value": 13.714285714285714,
+        "value": 13.857142857142858,
         "rank": 13,
         "tied": false
       },
@@ -4240,37 +4240,37 @@
       },
       {
         "club": "長野",
-        "value": 14.357142857142858,
+        "value": 14.428571428571429,
         "rank": 15,
         "tied": false
       },
       {
         "club": "奈良",
-        "value": 14.642857142857142,
+        "value": 14.714285714285714,
         "rank": 16,
-        "tied": false
-      },
-      {
-        "club": "滋賀",
-        "value": 14.928571428571429,
-        "rank": 17,
         "tied": false
       },
       {
         "club": "讃岐",
         "value": 15.0,
+        "rank": 17,
+        "tied": false
+      },
+      {
+        "club": "滋賀",
+        "value": 15.142857142857142,
         "rank": 18,
         "tied": false
       },
       {
         "club": "群馬",
-        "value": 15.214285714285714,
+        "value": 15.428571428571429,
         "rank": 19,
         "tied": false
       },
       {
         "club": "鳥取",
-        "value": 15.785714285714286,
+        "value": 15.928571428571429,
         "rank": 20,
         "tied": false
       }
@@ -4521,16 +4521,16 @@
     ],
     "shotsAgainstTotal": [
       {
-        "club": "鹿児島",
-        "value": 144,
-        "rank": 1,
-        "tied": true
-      },
-      {
         "club": "山口",
         "value": 144,
         "rank": 1,
-        "tied": true
+        "tied": false
+      },
+      {
+        "club": "鹿児島",
+        "value": 145,
+        "rank": 2,
+        "tied": false
       },
       {
         "club": "岐阜",
@@ -4540,61 +4540,61 @@
       },
       {
         "club": "栃木SC",
-        "value": 155,
+        "value": 159,
         "rank": 4,
         "tied": false
       },
       {
         "club": "熊本",
-        "value": 165,
+        "value": 166,
         "rank": 5,
-        "tied": true
+        "tied": false
       },
       {
         "club": "金沢",
-        "value": 165,
-        "rank": 5,
-        "tied": true
+        "value": 167,
+        "rank": 6,
+        "tied": false
       },
       {
         "club": "FC大阪",
-        "value": 168,
+        "value": 169,
         "rank": 7,
         "tied": false
       },
       {
         "club": "相模原",
-        "value": 177,
+        "value": 179,
         "rank": 8,
         "tied": false
       },
       {
         "club": "高知",
-        "value": 178,
+        "value": 185,
         "rank": 9,
         "tied": false
       },
       {
         "club": "松本",
-        "value": 186,
+        "value": 188,
         "rank": 10,
         "tied": false
       },
       {
         "club": "琉球",
-        "value": 187,
+        "value": 189,
         "rank": 11,
-        "tied": false
+        "tied": true
       },
       {
         "club": "北九州",
-        "value": 188,
-        "rank": 12,
-        "tied": false
+        "value": 189,
+        "rank": 11,
+        "tied": true
       },
       {
         "club": "愛媛",
-        "value": 192,
+        "value": 194,
         "rank": 13,
         "tied": false
       },
@@ -4606,37 +4606,37 @@
       },
       {
         "club": "長野",
-        "value": 201,
+        "value": 202,
         "rank": 15,
         "tied": false
       },
       {
         "club": "奈良",
-        "value": 205,
+        "value": 206,
         "rank": 16,
-        "tied": false
-      },
-      {
-        "club": "滋賀",
-        "value": 209,
-        "rank": 17,
         "tied": false
       },
       {
         "club": "讃岐",
         "value": 210,
+        "rank": 17,
+        "tied": false
+      },
+      {
+        "club": "滋賀",
+        "value": 212,
         "rank": 18,
         "tied": false
       },
       {
         "club": "群馬",
-        "value": 213,
+        "value": 216,
         "rank": 19,
         "tied": false
       },
       {
         "club": "鳥取",
-        "value": 221,
+        "value": 223,
         "rank": 20,
         "tied": false
       }
@@ -4644,189 +4644,67 @@
     "expectedGoals": [
       {
         "club": "金沢",
-        "value": 21.2,
+        "value": 22.8,
         "rank": 1,
         "tied": false
       },
       {
-        "club": "愛媛",
-        "value": 20.8,
+        "club": "福島",
+        "value": 22.3,
         "rank": 2,
+        "tied": false
+      },
+      {
+        "club": "愛媛",
+        "value": 21.4,
+        "rank": 3,
         "tied": true
       },
       {
         "club": "FC大阪",
-        "value": 20.8,
-        "rank": 2,
+        "value": 21.4,
+        "rank": 3,
         "tied": true
       },
       {
-        "club": "福島",
-        "value": 20.2,
-        "rank": 4,
-        "tied": false
-      },
-      {
-        "club": "岐阜",
-        "value": 19.9,
+        "club": "相模原",
+        "value": 20.9,
         "rank": 5,
         "tied": false
       },
       {
-        "club": "鹿児島",
-        "value": 19.2,
+        "club": "岐阜",
+        "value": 20.6,
         "rank": 6,
+        "tied": true
+      },
+      {
+        "club": "琉球",
+        "value": 20.6,
+        "rank": 6,
+        "tied": true
+      },
+      {
+        "club": "鹿児島",
+        "value": 20.5,
+        "rank": 8,
         "tied": false
       },
       {
         "club": "山口",
-        "value": 18.6,
-        "rank": 7,
-        "tied": false
-      },
-      {
-        "club": "相模原",
-        "value": 18.5,
-        "rank": 8,
+        "value": 19.9,
+        "rank": 9,
         "tied": false
       },
       {
         "club": "滋賀",
-        "value": 18.1,
-        "rank": 9,
-        "tied": false
-      },
-      {
-        "club": "北九州",
-        "value": 18,
+        "value": 18.9,
         "rank": 10,
         "tied": false
       },
       {
-        "club": "琉球",
-        "value": 17.4,
-        "rank": 11,
-        "tied": true
-      },
-      {
-        "club": "奈良",
-        "value": 17.4,
-        "rank": 11,
-        "tied": true
-      },
-      {
         "club": "松本",
-        "value": 17,
-        "rank": 13,
-        "tied": false
-      },
-      {
-        "club": "栃木SC",
-        "value": 16.5,
-        "rank": 14,
-        "tied": false
-      },
-      {
-        "club": "群馬",
-        "value": 14.9,
-        "rank": 15,
-        "tied": false
-      },
-      {
-        "club": "長野",
-        "value": 14.5,
-        "rank": 16,
-        "tied": false
-      },
-      {
-        "club": "高知",
-        "value": 14.2,
-        "rank": 17,
-        "tied": false
-      },
-      {
-        "club": "熊本",
-        "value": 13.8,
-        "rank": 18,
-        "tied": false
-      },
-      {
-        "club": "鳥取",
-        "value": 12.8,
-        "rank": 19,
-        "tied": false
-      },
-      {
-        "club": "讃岐",
-        "value": 12.4,
-        "rank": 20,
-        "tied": false
-      }
-    ],
-    "expectedGoalsAgainst": [
-      {
-        "club": "熊本",
-        "value": 11.9,
-        "rank": 1,
-        "tied": false
-      },
-      {
-        "club": "岐阜",
-        "value": 12,
-        "rank": 2,
-        "tied": false
-      },
-      {
-        "club": "栃木SC",
-        "value": 13.3,
-        "rank": 3,
-        "tied": false
-      },
-      {
-        "club": "山口",
-        "value": 13.9,
-        "rank": 4,
-        "tied": false
-      },
-      {
-        "club": "鹿児島",
-        "value": 14.9,
-        "rank": 5,
-        "tied": false
-      },
-      {
-        "club": "相模原",
-        "value": 15.4,
-        "rank": 6,
-        "tied": false
-      },
-      {
-        "club": "金沢",
-        "value": 15.7,
-        "rank": 7,
-        "tied": false
-      },
-      {
-        "club": "松本",
-        "value": 15.8,
-        "rank": 8,
-        "tied": false
-      },
-      {
-        "club": "琉球",
-        "value": 16.8,
-        "rank": 9,
-        "tied": false
-      },
-      {
-        "club": "愛媛",
-        "value": 17.1,
-        "rank": 10,
-        "tied": false
-      },
-      {
-        "club": "FC大阪",
-        "value": 18.2,
+        "value": 18.5,
         "rank": 11,
         "tied": false
       },
@@ -4837,50 +4715,172 @@
         "tied": false
       },
       {
-        "club": "長野",
-        "value": 19,
+        "club": "栃木SC",
+        "value": 18.1,
         "rank": 13,
-        "tied": false
+        "tied": true
       },
       {
-        "club": "群馬",
-        "value": 19.1,
-        "rank": 14,
-        "tied": false
+        "club": "北九州",
+        "value": 18.1,
+        "rank": 13,
+        "tied": true
       },
       {
-        "club": "福島",
-        "value": 19.4,
+        "club": "長野",
+        "value": 15.7,
         "rank": 15,
         "tied": false
       },
       {
-        "club": "滋賀",
-        "value": 19.9,
-        "rank": 16,
-        "tied": false
-      },
-      {
         "club": "高知",
-        "value": 20.3,
-        "rank": 17,
-        "tied": false
+        "value": 15.5,
+        "rank": 16,
+        "tied": true
       },
       {
-        "club": "北九州",
-        "value": 21.3,
+        "club": "群馬",
+        "value": 15.5,
+        "rank": 16,
+        "tied": true
+      },
+      {
+        "club": "鳥取",
+        "value": 15.3,
         "rank": 18,
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 21.7,
+        "club": "熊本",
+        "value": 14.4,
         "rank": 19,
         "tied": false
       },
       {
         "club": "讃岐",
-        "value": 22.4,
+        "value": 13.4,
+        "rank": 20,
+        "tied": false
+      }
+    ],
+    "expectedGoalsAgainst": [
+      {
+        "club": "岐阜",
+        "value": 12.5,
+        "rank": 1,
+        "tied": false
+      },
+      {
+        "club": "熊本",
+        "value": 13.2,
+        "rank": 2,
+        "tied": false
+      },
+      {
+        "club": "栃木SC",
+        "value": 13.9,
+        "rank": 3,
+        "tied": false
+      },
+      {
+        "club": "山口",
+        "value": 14.1,
+        "rank": 4,
+        "tied": false
+      },
+      {
+        "club": "鹿児島",
+        "value": 15.5,
+        "rank": 5,
+        "tied": false
+      },
+      {
+        "club": "金沢",
+        "value": 16.3,
+        "rank": 6,
+        "tied": false
+      },
+      {
+        "club": "相模原",
+        "value": 16.6,
+        "rank": 7,
+        "tied": false
+      },
+      {
+        "club": "松本",
+        "value": 17.9,
+        "rank": 8,
+        "tied": false
+      },
+      {
+        "club": "愛媛",
+        "value": 18.7,
+        "rank": 9,
+        "tied": false
+      },
+      {
+        "club": "FC大阪",
+        "value": 18.9,
+        "rank": 10,
+        "tied": false
+      },
+      {
+        "club": "琉球",
+        "value": 19.3,
+        "rank": 11,
+        "tied": false
+      },
+      {
+        "club": "奈良",
+        "value": 19.4,
+        "rank": 12,
+        "tied": false
+      },
+      {
+        "club": "長野",
+        "value": 19.8,
+        "rank": 13,
+        "tied": false
+      },
+      {
+        "club": "群馬",
+        "value": 20.7,
+        "rank": 14,
+        "tied": false
+      },
+      {
+        "club": "福島",
+        "value": 21,
+        "rank": 15,
+        "tied": false
+      },
+      {
+        "club": "滋賀",
+        "value": 21.1,
+        "rank": 16,
+        "tied": false
+      },
+      {
+        "club": "北九州",
+        "value": 22.5,
+        "rank": 17,
+        "tied": false
+      },
+      {
+        "club": "高知",
+        "value": 22.7,
+        "rank": 18,
+        "tied": false
+      },
+      {
+        "club": "讃岐",
+        "value": 23.3,
+        "rank": 19,
+        "tied": false
+      },
+      {
+        "club": "鳥取",
+        "value": 24.9,
         "rank": 20,
         "tied": false
       }
@@ -4888,121 +4888,121 @@
     "chancesCreated": [
       {
         "club": "福島",
-        "value": 206,
+        "value": 224,
         "rank": 1,
         "tied": false
       },
       {
         "club": "金沢",
-        "value": 170,
+        "value": 186,
         "rank": 2,
         "tied": false
       },
       {
-        "club": "山口",
-        "value": 159,
+        "club": "琉球",
+        "value": 172,
         "rank": 3,
         "tied": false
       },
       {
-        "club": "琉球",
-        "value": 156,
+        "club": "山口",
+        "value": 171,
         "rank": 4,
         "tied": false
       },
       {
-        "club": "岐阜",
-        "value": 154,
+        "club": "奈良",
+        "value": 167,
         "rank": 5,
         "tied": false
       },
       {
+        "club": "岐阜",
+        "value": 163,
+        "rank": 6,
+        "tied": false
+      },
+      {
         "club": "熊本",
-        "value": 152,
-        "rank": 6,
-        "tied": true
-      },
-      {
-        "club": "奈良",
-        "value": 152,
-        "rank": 6,
-        "tied": true
-      },
-      {
-        "club": "愛媛",
-        "value": 151,
-        "rank": 8,
+        "value": 162,
+        "rank": 7,
         "tied": false
       },
       {
         "club": "鹿児島",
-        "value": 146,
-        "rank": 9,
-        "tied": true
+        "value": 159,
+        "rank": 8,
+        "tied": false
       },
       {
-        "club": "滋賀",
-        "value": 146,
+        "club": "愛媛",
+        "value": 158,
         "rank": 9,
-        "tied": true
+        "tied": false
       },
       {
         "club": "相模原",
-        "value": 142,
+        "value": 153,
+        "rank": 10,
+        "tied": false
+      },
+      {
+        "club": "滋賀",
+        "value": 151,
         "rank": 11,
         "tied": false
       },
       {
         "club": "FC大阪",
-        "value": 134,
+        "value": 140,
         "rank": 12,
         "tied": false
       },
       {
         "club": "北九州",
-        "value": 129,
+        "value": 133,
         "rank": 13,
         "tied": false
       },
       {
         "club": "松本",
-        "value": 126,
+        "value": 132,
         "rank": 14,
         "tied": false
       },
       {
-        "club": "長野",
-        "value": 116,
+        "club": "讃岐",
+        "value": 129,
         "rank": 15,
-        "tied": true
+        "tied": false
       },
       {
-        "club": "讃岐",
-        "value": 116,
-        "rank": 15,
-        "tied": true
+        "club": "長野",
+        "value": 124,
+        "rank": 16,
+        "tied": false
       },
       {
         "club": "高知",
-        "value": 114,
+        "value": 123,
         "rank": 17,
-        "tied": true
-      },
-      {
-        "club": "群馬",
-        "value": 114,
-        "rank": 17,
-        "tied": true
+        "tied": false
       },
       {
         "club": "栃木SC",
-        "value": 109,
+        "value": 122,
+        "rank": 18,
+        "tied": false
+      },
+      {
+        "club": "群馬",
+        "value": 118,
         "rank": 19,
         "tied": false
       },
       {
         "club": "鳥取",
-        "value": 103,
+        "value": 117,
         "rank": 20,
         "tied": false
       }
@@ -5012,264 +5012,264 @@
     "expectedGoals": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals/search-list/",
-      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
-      "updatedAt": "2026-10-27T18:03:00+09:00",
+      "checkedAt": "2026-11-02T21:52:05.467666+00:00",
+      "updatedAt": "2026-11-02T21:21:00+09:00",
       "values": [
         {
           "club": "金沢",
-          "value": 21.2
+          "value": 22.8
+        },
+        {
+          "club": "福島",
+          "value": 22.3
         },
         {
           "club": "FC大阪",
-          "value": 20.8
+          "value": 21.4
         },
         {
           "club": "愛媛",
-          "value": 20.8
-        },
-        {
-          "club": "福島",
-          "value": 20.2
-        },
-        {
-          "club": "岐阜",
-          "value": 19.9
-        },
-        {
-          "club": "鹿児島",
-          "value": 19.2
-        },
-        {
-          "club": "山口",
-          "value": 18.6
+          "value": 21.4
         },
         {
           "club": "相模原",
-          "value": 18.5
+          "value": 20.9
         },
         {
-          "club": "滋賀",
-          "value": 18.1
-        },
-        {
-          "club": "北九州",
-          "value": 18
-        },
-        {
-          "club": "奈良",
-          "value": 17.4
+          "club": "岐阜",
+          "value": 20.6
         },
         {
           "club": "琉球",
-          "value": 17.4
+          "value": 20.6
         },
         {
-          "club": "松本",
-          "value": 17
+          "club": "鹿児島",
+          "value": 20.5
         },
         {
-          "club": "栃木SC",
-          "value": 16.5
-        },
-        {
-          "club": "群馬",
-          "value": 14.9
-        },
-        {
-          "club": "長野",
-          "value": 14.5
-        },
-        {
-          "club": "高知",
-          "value": 14.2
-        },
-        {
-          "club": "熊本",
-          "value": 13.8
-        },
-        {
-          "club": "鳥取",
-          "value": 12.8
-        },
-        {
-          "club": "讃岐",
-          "value": 12.4
-        }
-      ]
-    },
-    "expectedGoalsAgainst": {
-      "season": "2026/27",
-      "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals_against/search-list/",
-      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
-      "updatedAt": "2026-10-27T18:03:00+09:00",
-      "values": [
-        {
-          "club": "讃岐",
-          "value": 22.4
-        },
-        {
-          "club": "鳥取",
-          "value": 21.7
-        },
-        {
-          "club": "北九州",
-          "value": 21.3
-        },
-        {
-          "club": "高知",
-          "value": 20.3
-        },
-        {
-          "club": "滋賀",
+          "club": "山口",
           "value": 19.9
         },
         {
-          "club": "福島",
-          "value": 19.4
+          "club": "滋賀",
+          "value": 18.9
         },
         {
-          "club": "群馬",
-          "value": 19.1
-        },
-        {
-          "club": "長野",
-          "value": 19
+          "club": "松本",
+          "value": 18.5
         },
         {
           "club": "奈良",
           "value": 18.4
         },
         {
-          "club": "FC大阪",
-          "value": 18.2
-        },
-        {
-          "club": "愛媛",
-          "value": 17.1
-        },
-        {
-          "club": "琉球",
-          "value": 16.8
-        },
-        {
-          "club": "松本",
-          "value": 15.8
-        },
-        {
-          "club": "金沢",
-          "value": 15.7
-        },
-        {
-          "club": "相模原",
-          "value": 15.4
-        },
-        {
-          "club": "鹿児島",
-          "value": 14.9
-        },
-        {
-          "club": "山口",
-          "value": 13.9
+          "club": "北九州",
+          "value": 18.1
         },
         {
           "club": "栃木SC",
-          "value": 13.3
+          "value": 18.1
         },
         {
-          "club": "岐阜",
-          "value": 12
+          "club": "長野",
+          "value": 15.7
+        },
+        {
+          "club": "高知",
+          "value": 15.5
+        },
+        {
+          "club": "群馬",
+          "value": 15.5
+        },
+        {
+          "club": "鳥取",
+          "value": 15.3
         },
         {
           "club": "熊本",
-          "value": 11.9
+          "value": 14.4
+        },
+        {
+          "club": "讃岐",
+          "value": 13.4
+        }
+      ]
+    },
+    "expectedGoalsAgainst": {
+      "season": "2026/27",
+      "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals_against/search-list/",
+      "checkedAt": "2026-11-02T21:52:05.467666+00:00",
+      "updatedAt": "2026-11-02T21:21:00+09:00",
+      "values": [
+        {
+          "club": "鳥取",
+          "value": 24.9
+        },
+        {
+          "club": "讃岐",
+          "value": 23.3
+        },
+        {
+          "club": "高知",
+          "value": 22.7
+        },
+        {
+          "club": "北九州",
+          "value": 22.5
+        },
+        {
+          "club": "滋賀",
+          "value": 21.1
+        },
+        {
+          "club": "福島",
+          "value": 21
+        },
+        {
+          "club": "群馬",
+          "value": 20.7
+        },
+        {
+          "club": "長野",
+          "value": 19.8
+        },
+        {
+          "club": "奈良",
+          "value": 19.4
+        },
+        {
+          "club": "琉球",
+          "value": 19.3
+        },
+        {
+          "club": "FC大阪",
+          "value": 18.9
+        },
+        {
+          "club": "愛媛",
+          "value": 18.7
+        },
+        {
+          "club": "松本",
+          "value": 17.9
+        },
+        {
+          "club": "相模原",
+          "value": 16.6
+        },
+        {
+          "club": "金沢",
+          "value": 16.3
+        },
+        {
+          "club": "鹿児島",
+          "value": 15.5
+        },
+        {
+          "club": "山口",
+          "value": 14.1
+        },
+        {
+          "club": "栃木SC",
+          "value": 13.9
+        },
+        {
+          "club": "熊本",
+          "value": 13.2
+        },
+        {
+          "club": "岐阜",
+          "value": 12.5
         }
       ]
     },
     "chancesCreated": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/chance_create/search-list/",
-      "checkedAt": "2026-11-02T06:37:40.859329+00:00",
-      "updatedAt": "2026-10-27T18:03:00+09:00",
+      "checkedAt": "2026-11-02T21:52:05.467666+00:00",
+      "updatedAt": "2026-11-02T21:21:00+09:00",
       "values": [
         {
           "club": "福島",
-          "value": 206
+          "value": 224
         },
         {
           "club": "金沢",
-          "value": 170
-        },
-        {
-          "club": "山口",
-          "value": 159
+          "value": 186
         },
         {
           "club": "琉球",
-          "value": 156
+          "value": 172
         },
         {
-          "club": "岐阜",
-          "value": 154
+          "club": "山口",
+          "value": 171
         },
         {
           "club": "奈良",
-          "value": 152
+          "value": 167
+        },
+        {
+          "club": "岐阜",
+          "value": 163
         },
         {
           "club": "熊本",
-          "value": 152
-        },
-        {
-          "club": "愛媛",
-          "value": 151
+          "value": 162
         },
         {
           "club": "鹿児島",
-          "value": 146
+          "value": 159
         },
         {
-          "club": "滋賀",
-          "value": 146
+          "club": "愛媛",
+          "value": 158
         },
         {
           "club": "相模原",
-          "value": 142
+          "value": 153
+        },
+        {
+          "club": "滋賀",
+          "value": 151
         },
         {
           "club": "FC大阪",
-          "value": 134
+          "value": 140
         },
         {
           "club": "北九州",
-          "value": 129
+          "value": 133
         },
         {
           "club": "松本",
-          "value": 126
-        },
-        {
-          "club": "長野",
-          "value": 116
+          "value": 132
         },
         {
           "club": "讃岐",
-          "value": 116
+          "value": 129
+        },
+        {
+          "club": "長野",
+          "value": 124
         },
         {
           "club": "高知",
-          "value": 114
-        },
-        {
-          "club": "群馬",
-          "value": 114
+          "value": 123
         },
         {
           "club": "栃木SC",
-          "value": 109
+          "value": 122
+        },
+        {
+          "club": "群馬",
+          "value": 118
         },
         {
           "club": "鳥取",
-          "value": 103
+          "value": 117
         }
       ]
     }
