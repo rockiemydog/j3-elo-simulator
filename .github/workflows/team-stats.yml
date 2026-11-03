@@ -4,7 +4,6 @@ on:
     branches: [main]
     paths:
       - scripts/update-team-stats.py
-      - scripts/update-football-lab.py
       - .github/workflows/team-stats.yml
   workflow_dispatch:
   schedule:
@@ -26,7 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python tests/test_team_stats.py
-      - name: Collect six stats for all twenty J3 clubs
+      - name: Collect official stats for all twenty J3 clubs
         run: python scripts/update-team-stats.py
       - name: Publish validated stats without overwriting concurrent changes
         env:
@@ -35,11 +34,3 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python scripts/publish-official-results.py
-      - name: Validate Football LAB collector
-        run: python tests/test_football_lab.py
-      - name: Check Football LAB published stats
-        run: python scripts/update-football-lab.py
-      - name: Publish changed Football LAB stats
-        env:
-          PUBLISH_FOOTBALL_LAB: 'true'
-        run: python scripts/publish-official-results.py
