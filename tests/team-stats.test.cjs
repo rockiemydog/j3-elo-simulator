@@ -51,3 +51,30 @@ test('next opponent renders all 24 metrics with units, league means and failure 
  offline=true;await node('officialCompareRefresh').click();assert.match(node('officialCompareError').textContent,/前回の比較を保持/);
  assert.equal(node('officialCompare').children.filter(n=>n.className==='official-compare-card').length,24);
 });
+function opponentHarness(respond){
+ const vm=require('node:vm'),nodes=new Map(),requests=[];
+ const element=()=>({children:[],style:{},textContent:'',className:'',append(...items){this.children.push(...items);},replaceChildren(){this.children=[];},addEventListener(name,fn){this[name]=fn;}});
+ const node=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);};
+ const ctx={J3TeamStats:api,document:{getElementById:node,createElement:element,addEventListener(){},hidden:false},AbortController,setTimeout:()=>0,clearTimeout(){},setInterval(){},fetch:async url=>{requests.push(url);const data=await respond(url);return {ok:true,json:async()=>structuredClone(data)};}};ctx.window=ctx;vm.createContext(ctx);vm.runInContext(fs.readFileSync('team-stats/next-opponent.js','utf8'),ctx);
+ return {node,requests,ready:()=>new Promise(resolve=>setImmediate(resolve)),refresh:()=>node('officialCompareRefresh').click()};
+}
+const fixtureSample=()=>JSON.parse(fs.readFileSync('official-schedule.json','utf8'));
+test('comparison prioritizes latest published source and validates fallback before displaying',async()=>{
+ const a=opponentHarness(url=>url.includes('official-schedule')?fixtureSample():url.startsWith('https:')?{...sample(),season:'2025'}:sample());await a.ready();
+ assert(a.requests[0].startsWith('https://raw.githubusercontent.com/'));assert(a.requests.some(u=>u.startsWith('../team-stats.json')));
+ assert.equal(a.node('officialCompareError').textContent,'');assert.equal(a.node('officialCompare').children.filter(n=>n.className==='official-compare-card').length,24);
+});
+test('invalid dates, same-club fixtures and calendar regression retain the last complete comparison',async()=>{
+ let calendar=fixtureSample();const a=opponentHarness(url=>url.includes('official-schedule')?calendar:sample());await a.ready();const original=a.node('officialCompareStatus').textContent;
+ for(const mutation of ['date','sameClub','older']){calendar=fixtureSample();if(mutation==='date'){calendar.matches[0].date='2026-09-31';calendar.matches[0].id='2026093199';}if(mutation==='sameClub')calendar.matches[0].away=calendar.matches[0].home;if(mutation==='older')calendar.checkedAt=new Date(Date.parse(calendar.checkedAt)-1000).toISOString();await a.refresh();assert.match(a.node('officialCompareError').textContent,/前回の比較を保持/);assert.equal(a.node('officialCompareStatus').textContent,original);}
+});
+test('failed stats refresh cannot partially commit a newer calendar',async()=>{
+ let fail=false,calendar=fixtureSample();const originalCalendar=structuredClone(calendar);
+ const a=opponentHarness(url=>{if(url.includes('official-schedule'))return calendar;if(fail)throw Error('offline stats');return sample();});await a.ready();
+ calendar.checkedAt=new Date(Date.parse(calendar.checkedAt)+1000).toISOString();fail=true;await a.refresh();assert.match(a.node('officialCompareError').textContent,/前回の比較を保持/);
+ calendar=originalCalendar;fail=false;await a.refresh();assert.equal(a.node('officialCompareError').textContent,'');
+});
+test('newer retrieval timestamp cannot roll back known match coverage or official detail freshness',()=>{
+ for(const mutate of [d=>d.matchLogs['北九州'].pop(),d=>d.detailSources.expectedGoals.updatedAt='2026-08-08T00:00:00+09:00']){const d=sample();d.checkedAt=new Date(Date.parse(d.checkedAt)+1000).toISOString();mutate(d);assert.throws(()=>api.checkProgress(expanded,d));}
+ assert.doesNotThrow(()=>api.checkProgress(expanded,sample()));
+});
