@@ -20,7 +20,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
 <link rel="stylesheet" href="forecast-insights.css?v=4acffcdd2e3a">
-<link rel="stylesheet" href="dashboard.css?v=0327d05274d9">
+<link rel="stylesheet" href="dashboard.css?v=70de76502f90">
 </head>
 <body>
 <main class="shell">
@@ -38,6 +38,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
     <div class="dash-detail-row"><article class="dash-card" aria-labelledby="dashNextTitle"><div class="dash-card-head"><div><span class="dash-label">NEXT MATCH</span><h2 id="dashNextTitle">次の一戦</h2></div><span id="dashNextStatus" class="dash-next-status" aria-live="polite">日程確認中</span></div><div id="dashFixture"></div><div id="dashMatchProb"></div><a class="dash-next-link" href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">公式日程・会場を確認 ↗</a><p id="dashCalendarNote" class="dash-muted"></p></article>
     <article class="dash-card" aria-labelledby="dashTargetTitle"><span class="dash-label">PLAYOFF COMPASS</span><h2 id="dashTargetTitle">目標勝点への進捗</h2><div class="dash-target" id="dashTarget">—</div><p id="dashTargetHelp" class="dash-muted"></p><div id="dashProgress" class="dash-progress"></div><div class="dash-pace-row"><div><span>目標まで</span><strong id="dashNeeded">—</strong></div><div><span>残り試合の必要ペース</span><strong id="dashPace">—</strong></div></div><p id="dashTargetRange" class="dash-muted"></p><a class="dash-next-link" href="./" target="_blank" rel="noopener">目標勝点を変えて試す ↗</a></article></div>
     <p class="dash-divider">これまでの公式実績</p>
+    <article class="dash-card dash-venue-section" aria-labelledby="dashVenueTitle"><div class="dash-card-head"><div><span class="dash-label">HOME &amp; AWAY RECORDS</span><h2 id="dashVenueTitle">ホーム・アウェイ別の通算成績</h2></div><span class="dash-next-status">確定</span></div><div id="dashVenueRecords" class="dash-venue-grid" aria-live="polite"></div><p id="dashVenueNote" class="dash-muted"></p><p class="dash-muted"><span id="dashVenueUpdated"></span> ／ <a href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">Jリーグ公式結果 ↗</a></p></article>
     <div class="dash-detail-row" aria-label="公式実績のメーター"><article class="dash-card"><span class="dash-label">SEASON WIN RATE</span><h2>シーズン勝率</h2><div id="dashWinRateGauge"></div><p class="dash-muted" id="dashWinRateFormula"></p></article><article class="dash-card"><span class="dash-label">POINTS PER GAME</span><h2>勝点ペース</h2><div id="dashPPGGauge"></div><p class="dash-muted" id="dashPPGFormula"></p></article></div>
     <p class="dash-divider">ここからの最終順位予測</p>
     <div class="dash-meters" aria-label="最終順位の予測メーター"><article class="dash-card dash-meter-main"><span class="dash-label">PLAYOFF OUTLOOK</span><h2>6位以内確率</h2><div id="dashTop6Gauge"></div></article><article class="dash-card"><span class="dash-label">TOP TWO</span><h3>2位以内確率</h3><div id="dashTop2Gauge"></div></article><article class="dash-card"><span class="dash-label">TITLE CHANCE</span><h3>優勝確率</h3><div id="dashTitleGauge"></div></article></div>
@@ -187,7 +188,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <script src="official-api-config.js?v=2abf363444e1"></script>
 <script src="shared-results.js?v=7fc6302eb764"></script>
 <script src="forecast-insights.js?v=3aac95886a59"></script>
-<script src="dashboard.js?v=fd7cd8300233"></script>
+<script src="dashboard.js?v=412d2b555f48"></script>
 <script>
 const teams=['岐阜','愛媛','鹿児島','相模原','鳥取','FC大阪','長野','滋賀','熊本','栃木SC','琉球','讃岐','山口','奈良','高知','北九州','松本','金沢','群馬','福島'];
 const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));

@@ -3,6 +3,20 @@
   'use strict';
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const percent=p=>p>0&&p<.05?'0.1%未満':p>99.95&&p<100?'99.9%超':p.toFixed(1)+'%';
+  function venueRecords(games){
+    return ['ホーム','アウェイ'].map((label,index)=>{
+      const record={label,played:0,wins:0,draws:0,losses:0};
+      for(const g of games){
+        if(g[index]!=='北九州')continue;
+        const gf=g[index+2],ga=g[3-index];
+        record.played++;record[gf>ga?'wins':gf===ga?'draws':'losses']++;
+      }
+      return {...record,winRate:record.played?record.wins/record.played*100:null};
+    });
+  }
+  function venueCards(games){
+    return venueRecords(games).map((r,i)=>`<article class="dash-venue-card ${i?'dash-venue-away':'dash-venue-home'}"><h3>${r.label}<span>${r.played}試合</span></h3><p class="dash-venue-record"><strong>${r.wins}</strong>勝 <strong>${r.draws}</strong>分 <strong>${r.losses}</strong>敗</p><dl><div><dt>勝率</dt><dd>${r.winRate===null?'—':r.winRate.toFixed(1)+'%'}</dd></div></dl><p class="dash-muted">${r.played?`${r.wins}勝 ÷ ${r.played}試合 × 100`:'未消化のため勝率は未算出'}</p></article>`).join('');
+  }
   function monthlyRecords(games,datedGames=[]){
     const known=new Map(games.filter(g=>g[0]==='北九州'||g[1]==='北九州').map(g=>[g[0]+'|'+g[1],g]));
     const months=new Map(),seen=new Set();
@@ -57,6 +71,11 @@
     $('dashWinRateGauge').innerHTML=performanceGauge(s.winRate,100,'シーズン勝率','%',1);
     $('dashPPGGauge').innerHTML=performanceGauge(s.pointsPerGame,3,'勝点ペース','点／試合',2);
     $('dashWinRateFormula').textContent=s.north.p?`${s.north.w}勝 ÷ ${s.north.p}試合 × 100 ＝ ${s.winRate.toFixed(1)}%。引き分けも消化試合数に含みます。`:'公式確定試合がないため、勝率はまだ算出しません。';
+    if($('dashVenueRecords')){
+      $('dashVenueRecords').innerHTML=venueCards(context.games);
+      $('dashVenueNote').textContent=`2026/27シーズンのJ3リーグ確定結果（${context.asOfDate}時点）。勝率＝勝利数÷試合数×100。引き分けも試合数に含みます。`;
+      $('dashVenueUpdated').textContent=`結果データ更新：${timestamp(context.feedState.updatedAt)}（日本時間）`;
+    }
     $('dashPPGFormula').textContent=s.north.p?`${s.north.pts}点 ÷ ${s.north.p}試合 ＝ ${s.pointsPerGame.toFixed(2)}点／試合。1勝3点・引き分け1点・敗戦0点。`:'公式確定試合がないため、勝点ペースはまだ算出しません。';
     $('dashRemaining').textContent=s.remaining+'試合';$('dashPlayed').textContent=`全38試合中 ${s.north.p}試合終了`;
     $('dashGap').textContent=s.gap>0?'あと'+s.gap+'点':s.gap<0?Math.abs(s.gap)+'点先行':'同勝点';
@@ -98,7 +117,7 @@
     $('dashTimes').textContent=`公式サイト確認：${timestamp(context.feedState.officialCheckedAt)} ／ 結果データ更新：${timestamp(context.feedState.updatedAt)} ／ 画面取得：${timestamp(context.feedState.checkedAt)} ／ 予測計算：${timestamp(calculatedAt)}（日本時間）`;
     $('dashModel').textContent=`Elo K=20・ホーム+60／Davidson方式。残り試合のEloは固定、順位計算用スコアは1–0・1–1・0–1。xG等のスタッツ、負傷・出場停止・天候は未反映。乱数誤差上限の95%目安：±${(98/Math.sqrt(context.runs)).toFixed(2)}ポイント。モデル自体の誤差は含みません。`;
   }
-  const api={summary,gauge,performanceGauge,goalDifferenceGauge,percent,quantile,monthlyRecords,monthlyTable,render};
+  const api={summary,gauge,performanceGauge,goalDifferenceGauge,percent,quantile,monthlyRecords,monthlyTable,venueRecords,venueCards,render};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.J3Dashboard=api;
 })(typeof window==='object'?window:globalThis);
 

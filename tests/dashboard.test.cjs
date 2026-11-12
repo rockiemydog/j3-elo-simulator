@@ -1,5 +1,18 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const api=require('../dashboard.js'),html=fs.readFileSync('index.html','utf8');
+test('venue records use the away score perspective, include draws and exclude other clubs',()=>{
+ const games=[['北九州','讃岐',2,0],['北九州','高知',1,1],['北九州','滋賀',0,1],['岐阜','北九州',0,2],['琉球','北九州',3,0],['群馬','鳥取',1,0]];
+ const rows=api.venueRecords(games);
+ assert.deepEqual(rows.map(r=>[r.played,r.wins,r.draws,r.losses]),[[3,1,1,1],[2,1,0,1]]);assert.ok(Math.abs(rows[0].winRate-100/3)<1e-10);assert.equal(rows[1].winRate,50);
+ const empty=api.venueRecords([]);assert.ok(empty.every(r=>r.played===0&&r.winRate===null));assert.match(api.venueCards([]),/未消化のため勝率は未算出/);assert.ok(!api.venueCards([]).includes('NaN'));
+ assert.equal(api.venueRecords([['北九州','讃岐',0,0]])[0].winRate,0);
+});
+test('venue totals reconcile with season, ignore trial scores and refresh after official completion',()=>{
+ const a=app(),rows=a.eval('J3Dashboard.venueRecords(confirmed())'),north=a.eval("liveRows([]).find(r=>r.club==='北九州')");
+ for(const [field,total] of [['played','p'],['wins','w'],['draws','d'],['losses','l']])assert.equal(rows.reduce((n,r)=>n+r[field],0),north[total]);
+ const before=a.el('dashVenueRecords').innerHTML;a.eval("scenarios.push(['北九州','岐阜',9,0]);renderDashboard()");assert.equal(a.el('dashVenueRecords').innerHTML,before);
+ a.eval("completed.push(['高知','北九州',0,2]);renderDashboard()");const after=a.eval('J3Dashboard.venueRecords(confirmed())');assert.equal(after[1].wins,rows[1].wins+1);assert.notEqual(a.el('dashVenueRecords').innerHTML,before);assert.match(a.el('dashVenueNote').textContent,/引き分けも試合数に含みます/);
+});
 test('monthly results use actual dates, away perspective and whole-game win rates',()=>{
  const games=[['北九州','讃岐',0,0],['栃木SC','北九州',2,2],['琉球','北九州',3,0],['相模原','北九州',1,2],['北九州','高知',2,0]];
  const dates=['2026-08-15','2026-08-22','2026-09-09','2026-09-20','2026-10-03'];
