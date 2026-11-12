@@ -2,4 +2,24 @@
 
 .dash-monthly-card{margin-bottom:16px}.dash-monthly-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.dash-monthly-table{width:100%;margin-top:12px;font-variant-numeric:tabular-nums}.dash-monthly-table caption{text-align:left;font-size:12px;color:#66748a;padding-bottom:8px}.dash-monthly-table th,.dash-monthly-table td{position:static;text-align:right;white-space:nowrap;padding:10px 8px;border-bottom:1px solid #e4e7ec}.dash-monthly-table th:first-child{text-align:left}.dash-monthly-table td:nth-child(2){text-align:right;font-weight:400}.dash-monthly-table tbody th{font-size:12px;color:#17243e}.dash-monthly-table tbody tr:first-child{background:#fff4cc}.dash-monthly-table strong{color:#17243e}@media(max-width:560px){.dash-monthly-table th,.dash-monthly-table td{padding:10px 4px;font-size:11px}.dash-monthly-table tbody th{font-size:11px}}
 
-.dash-venue-section{margin-bottom:16px}.dash-venue-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:18px 0}.dash-venue-card{padding:20px;min-width:0;border:1px solid #dfc875;border-top:4px solid #ba8b00;border-radius:8px;background:#fff9e7;color:#17243e}.dash-venue-away{border-color:#b8c8db;border-top-color:#203657;background:#f0f4f9}.dash-venue-card h3{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:18px;margin:0 0 14px}.dash-venue-card h3 span{font-size:14px;font-weight:600}.dash-venue-record{font-size:17px;line-height:1.7;white-space:nowrap}.dash-venue-record strong{font-size:28px;font-variant-numeric:tabular-nums}.dash-venue-card dl{margin:14px 0}.dash-venue-card dl>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.dash-venue-card dt{font-size:15px;font-weight:700}.dash-venue-card dd{margin:0;font-size:36px;font-weight:850;font-variant-numeric:tabular-nums}.dash-venue-card .dash-muted,.dash-venue-section>.dash-muted{font-size:13px;color:#46556a}.dash-venue-section>.dash-muted:last-child{margin-bottom:0}@media(max-width:560px){.dash-venue-grid{grid-template-columns:1fr;gap:12px}.dash-venue-card{padding:17px}.dash-venue-card h3{font-size:18px}}
+/* Compact venue records: preserve readable figures without tall mobile cards. */
+.dash-venue-section{margin-bottom:16px;padding:14px}
+.dash-venue-section .dash-card-head{align-items:center;gap:8px}
+.dash-venue-section .dash-label{font-size:9px}
+.dash-venue-section h2{font-size:15px;line-height:1.4;margin:2px 0 0}
+.dash-venue-section .dash-next-status{flex-shrink:0;padding:3px 6px;font-size:10px}
+.dash-venue-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.dash-venue-card{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:4px 8px;padding:10px;min-width:0;border:1px solid #dfc875;border-top:3px solid #ba8b00;border-radius:7px;background:#fff9e7;color:#17243e}
+.dash-venue-away{border-color:#b8c8db;border-top-color:#203657;background:#f0f4f9}
+.dash-venue-card h3{display:flex;flex-direction:column;align-items:flex-start;gap:1px;font-size:14px;line-height:1.4;margin:0}
+.dash-venue-card h3 span{font-size:11px;font-weight:600}
+.dash-venue-record{font-size:12px;line-height:1.4;white-space:nowrap;margin:0}
+.dash-venue-record strong{font-size:20px;font-variant-numeric:tabular-nums}
+.dash-venue-card dl{margin:0}
+.dash-venue-card dl>div{display:flex;flex-direction:column;align-items:flex-end;gap:0}
+.dash-venue-card dt{font-size:10px;line-height:1.4;font-weight:700}
+.dash-venue-card dd{margin:0;font-size:23px;line-height:1.2;font-weight:850;font-variant-numeric:tabular-nums}
+.dash-venue-card .dash-muted{grid-column:1/-1;margin:2px 0 0;font-size:11px;line-height:1.4;color:#46556a}
+.dash-venue-section>.dash-muted{margin:6px 0 0;font-size:11px;line-height:1.5;color:#46556a}
+@media(max-width:700px){.dash-venue-grid{grid-template-columns:1fr}}
+@media(max-width:360px){.dash-venue-section{padding:10px}.dash-venue-card{grid-template-columns:58px minmax(0,1fr) auto;gap:4px 5px;padding:8px}.dash-venue-record strong{font-size:18px}.dash-venue-card dd{font-size:21px}}
