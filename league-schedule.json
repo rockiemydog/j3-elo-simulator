@@ -3,7 +3,7 @@
   "scope": "all-clubs",
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-11-15T02:40:16.100259+00:00",
+  "checkedAt": "2026-11-15T09:56:34.419819+00:00",
   "coverageFrom": "2026-08-08",
   "coverageThrough": "2027-07-31",
   "matches": [
@@ -1357,58 +1357,65 @@
     {
       "id": "2026111510",
       "date": "2026-11-15",
-      "time": "13:00",
+      "time": "13:03",
       "home": "鹿児島",
       "away": "鳥取",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "13:00"
     },
     {
       "id": "2026111511",
       "date": "2026-11-15",
-      "time": "14:00",
+      "time": "14:03",
       "home": "栃木SC",
       "away": "奈良",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026111512",
       "date": "2026-11-15",
-      "time": "14:00",
+      "time": "14:03",
       "home": "長野",
       "away": "愛媛",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026111513",
       "date": "2026-11-15",
-      "time": "14:00",
+      "time": "14:03",
       "home": "金沢",
       "away": "熊本",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026111514",
       "date": "2026-11-15",
-      "time": "14:00",
+      "time": "14:03",
       "home": "讃岐",
       "away": "山口",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "14:00"
     },
     {
       "id": "2026111515",
       "date": "2026-11-15",
-      "time": "16:00",
+      "time": "16:03",
       "home": "琉球",
       "away": "高知",
-      "status": "scheduled"
+      "status": "finished",
+      "scheduledTime": "16:00"
     },
     {
       "id": "2026111516",
       "date": "2026-11-15",
-      "time": "18:00",
+      "time": "18:03",
       "home": "滋賀",
       "away": "FC大阪",
-      "status": "scheduled"
+      "status": "unconfirmed",
+      "scheduledTime": "18:00"
     },
     {
       "id": "2026112119",
