@@ -26,13 +26,6 @@
 /* Local fonts keep the club-inspired title available without third-party requests.
    Only the dashboard title uses these faces; Japanese data labels retain the UI font. */
 @font-face {
-  font-family: 'Gira Lobster';
-  src: url('assets/fonts/Lobster-Regular.woff') format('woff');
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
   font-family: 'Gira Barlow';
   src: url('assets/fonts/BarlowCondensed-BoldItalic.woff') format('woff');
   font-style: italic;
@@ -44,17 +37,20 @@ body.dashboard-view header > div { min-width: 0; }
 body.dashboard-view #pageTitle {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 .22em;
+  align-items: center;
+  gap: 8px 14px;
   margin: 4px 0;
   font-size: clamp(36px, 10.7vw, 64px);
   line-height: 1.18;
   letter-spacing: 0;
 }
-body.dashboard-view .dash-brand-name {
-  font-family: 'Gira Lobster', 'Brush Script MT', cursive;
-  font-weight: 400;
-  padding-right: .06em;
+body.dashboard-view .dash-brand-wordmark {
+  display: block;
+  width: clamp(170px, 48vw, 300px);
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: 4px;
 }
 body.dashboard-view .dash-brand-section {
   font-family: 'Gira Barlow', 'Arial Narrow', sans-serif;
