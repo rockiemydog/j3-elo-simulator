@@ -23,3 +23,47 @@
 .dash-venue-section>.dash-muted{margin:6px 0 0;font-size:11px;line-height:1.5;color:#46556a}
 @media(max-width:700px){.dash-venue-grid{grid-template-columns:1fr}}
 @media(max-width:360px){.dash-venue-section{padding:10px}.dash-venue-card{grid-template-columns:58px minmax(0,1fr) auto;gap:4px 5px;padding:8px}.dash-venue-record strong{font-size:18px}.dash-venue-card dd{font-size:21px}}
+/* Local fonts keep the club-inspired title available without third-party requests.
+   Only the dashboard title uses these faces; Japanese data labels retain the UI font. */
+@font-face {
+  font-family: 'Gira Lobster';
+  src: url('assets/fonts/Lobster-Regular.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gira Barlow';
+  src: url('assets/fonts/BarlowCondensed-BoldItalic.woff') format('woff');
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+body.dashboard-view header { padding: 18px 28px; }
+body.dashboard-view header > div { min-width: 0; }
+body.dashboard-view #pageTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 .22em;
+  margin: 4px 0;
+  font-size: clamp(36px, 10.7vw, 64px);
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+body.dashboard-view .dash-brand-name {
+  font-family: 'Gira Lobster', 'Brush Script MT', cursive;
+  font-weight: 400;
+  padding-right: .06em;
+}
+body.dashboard-view .dash-brand-section {
+  font-family: 'Gira Barlow', 'Arial Narrow', sans-serif;
+  font-size: .68em;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: .015em;
+}
+body.dashboard-view #pageDescription { display: none; }
+@media (max-width: 560px) {
+  body.dashboard-view header { padding: 16px 18px; }
+}

@@ -20,7 +20,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
 <meta name="theme-color" content="#14213d">
 <link rel="stylesheet" href="giravanz-theme.css?v=20261006-1">
 <link rel="stylesheet" href="forecast-insights.css?v=4acffcdd2e3a">
-<link rel="stylesheet" href="dashboard.css?v=e20db5510491">
+<link rel="stylesheet" href="dashboard.css?v=20261117-brand-title">
 </head>
 <body>
 <main class="shell">
@@ -595,7 +595,7 @@ if(LINE_VIEW){document.body?.classList.add('promotion-view');$('pageTitle').text
 if(GD_VIEW){document.body?.classList.add('gd-view');$('pageTitle').textContent='J3 Goal Difference';$('pageDescription').textContent='公式結果から、全20クラブの現在の得失点差を比較';document.title='J3 Goal Difference · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 
 if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='J3 Month-End Outlook';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='J3 Month-End Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
-if(DASH_VIEW){document.body?.classList.add('dashboard-view');$('dashboardSection').hidden=false;$('pageTitle').textContent='Giravanz Dashboard';$('pageDescription').textContent='北九州の現在地と、上位6位への見通し';document.title='Giravanz Dashboard · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
+if(DASH_VIEW){document.body?.classList.add('dashboard-view');$('dashboardSection').hidden=false;$('pageTitle').innerHTML='<span class="dash-brand-name">Giravanz</span> <span class="dash-brand-section">Dashboard</span>';$('pageDescription').textContent='';$('pageDescription').hidden=true;document.title='Giravanz Dashboard · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 initSelects();syncForm();renderInitialAudit();renderPrematch();renderScenarios();run();syncAutomaticResults();refreshFixtureCalendar();
 </script>
 </body>
