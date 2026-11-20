@@ -407,6 +407,7 @@ function renderMonthRankChart(rows){
   }).join('');
   $('monthRankChart').innerHTML=`<svg viewBox="0 0 770 844" role="img" aria-labelledby="monthChartTitle monthChartDesc" xmlns="http://www.w3.org/2000/svg"><title id="monthChartTitle">${$('monthEnd').value}の平均予想順位と現在の確定順位</title><desc id="monthChartDesc">左が1位、右が20位。白丸は公式結果だけの現在順位、色付き丸は月末の平均予想順位。矢印は現在順位から月末予測への移動を示します。順位差は現在順位から小数第1位で表示した平均予想順位を引きます。</desc><defs>${[['up','#175cd3'],['down','#d83043']].map(([id,color])=>`<marker id="monthArrow-${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`).join('')}</defs>${grid}${lines}</svg>`;
 }
+const plannerComparisonComplete='比較が完了しました。反映ボタンで月末予測へ適用できます。';
 let patternComparison=null,nextValueComparison=null,plannerBusy=false;
 const fixtureKey=r=>r.home+'|'+r.away;
 function monthPlannerContext(){
@@ -455,6 +456,7 @@ function calculateNextValue(n=+$('runs').value){
   nextValueComparison={signature:plannerSignature(context,'next'),rows};return nextValueComparison;
 }
 function clearMonthPlanner(message){
+  if($('plannerNotice').textContent===plannerComparisonComplete)$('plannerNotice').textContent='';
   for(const id of ['comparePatterns','compareNextValue','rivalFixture','rivalHomeWin','rivalDraw','rivalAwayWin','rivalClear'])$(id).disabled=true;
   for(const id of ['patternRows','kitPlanRows','nextValueRows','nextValueChart'])$(id).innerHTML='';
   $('plannerStatus').textContent=message;$('patternStatus').textContent='';$('nextValueFixture').textContent=message;$('nextValueStatus').textContent='';$('rivalStatus').textContent=message;
@@ -468,11 +470,16 @@ function renderMonthPlanner(context=monthPlannerContext()){
   const choices=[['auto','指定なし（Elo予測）'],['win','北九州の勝ち'],['draw','引分け'],['loss','北九州の負け']];
   $('kitPlanRows').innerHTML=context.kit.map(row=>{const game=scenarios.find(g=>key(g)===fixtureKey(row)),outcome=!game?'auto':game[2]===game[3]?'draw':(game[2]>game[3])===(row.home==='北九州')?'win':'loss';return `<tr><td>${row.date}</td><td>${row.home} 対 ${row.away}</td><td><select data-kit="${fixtureKey(row)}" aria-label="${row.date} ${row.home}対${row.away}の北九州の結果">${choices.map(([value,label])=>`<option value="${value}"${value===outcome?' selected':''}>${label}</option>`).join('')}</select></td></tr>`;}).join('');
   $('kitPlanRows').querySelectorAll('[data-kit]').forEach(select=>select.onchange=()=>{try{const row=monthPlannerContext().kit.find(r=>fixtureKey(r)===select.dataset.kit);if(!row)throw Error('日程が変更されました');replaceMonthTrials(select.value==='auto'?[]:[northOutcome(row,select.value)],select.value==='auto'?[fixtureKey(row)]:[]);$('plannerNotice').textContent='試合別の指定を月末予測に反映しました。';}catch(error){$('plannerNotice').textContent=error.message;}});
-  if(patternComparison?.signature!==plannerSignature(context,'pattern'))patternComparison=null;
+  const patternInvalid=patternComparison&&patternComparison.signature!==plannerSignature(context,'pattern');
+  const nextValueInvalid=nextValueComparison&&nextValueComparison.signature!==plannerSignature(context,'next');
+  if(patternInvalid)patternComparison=null;
+  if(nextValueInvalid)nextValueComparison=null;
+  if((patternInvalid||nextValueInvalid)&&$('plannerNotice').textContent===plannerComparisonComplete){
+    $('plannerNotice').textContent='条件が変わりました。該当する比較をもう一度実行してください。';
+  }
   $('patternRows').innerHTML=patternComparison?patternComparison.rows.map(({spec,forecast:r},i)=>`<tr><td>${spec[0]}勝${spec[1]}分${spec[2]}敗</td><td>＋${3*spec[0]+spec[1]}</td><td>${r.points.toFixed(0)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td><button class="btn" data-pattern="${i}" type="button">このパターンを反映</button></td></tr>`).join(''):'';
   $('patternStatus').textContent=patternComparison?'他クラブの指定は共通条件です。反映ボタンで下のグラフ・表を更新します。':context.kit.length?'比較ボタンで全勝などのパターンを並べます。':'対象の北九州の試合はありません。';
   $('patternRows').querySelectorAll('[data-pattern]').forEach(button=>button.onclick=()=>{try{const fresh=monthPlannerContext();if(!patternComparison||patternComparison.signature!==plannerSignature(fresh,'pattern'))throw Error('条件が変わったため、もう一度比較してください');replaceMonthTrials(patternComparison.rows[+button.dataset.pattern].changes);$('plannerNotice').textContent='勝敗パターンを月末予測に反映しました。試合別に変更できます。';}catch(error){$('plannerNotice').textContent=error.message;}});
-  if(nextValueComparison?.signature!==plannerSignature(context,'next'))nextValueComparison=null;
   const labels={win:'北九州の勝ち',draw:'引分け',loss:'北九州の負け'},colors={win:'#175cd3',draw:'#e5ac00',loss:'#d83043'};
   $('nextValueRows').innerHTML=nextValueComparison?nextValueComparison.rows.map(({outcome,forecast:r},i)=>`<tr><td>${labels[outcome]}</td><td>${r.points.toFixed(1)}</td><td>${r.rank.toFixed(1)}位</td><td>${r.top6.toFixed(1)}％</td><td><button class="btn" data-next-value="${i}" type="button">この結果を反映</button></td></tr>`).join(''):'';
   const ceiling=nextValueComparison?Math.max(5,Math.ceil(Math.max(...nextValueComparison.rows.map(r=>r.forecast.top6))/5)*5):100;
@@ -499,7 +506,7 @@ function setRivalOutcome(outcome){
 }
 function requestMonthComparison(kind){
   if(plannerBusy)return;plannerBusy=true;$('comparePatterns').disabled=true;$('compareNextValue').disabled=true;$('plannerNotice').textContent='勝敗別に計算しています…';
-  setTimeout(()=>{try{if(kind==='pattern')calculatePatterns();else calculateNextValue();renderMonthPlanner();$('plannerNotice').textContent='比較が完了しました。反映ボタンで月末予測へ適用できます。';}catch(error){$('plannerNotice').textContent=error.message;}finally{plannerBusy=false;try{renderMonthPlanner();}catch{renderMonthForecast();}}},20);
+  setTimeout(()=>{try{if(kind==='pattern')calculatePatterns();else calculateNextValue();renderMonthPlanner();$('plannerNotice').textContent=plannerComparisonComplete;}catch(error){$('plannerNotice').textContent=error.message;}finally{plannerBusy=false;try{renderMonthPlanner();}catch{renderMonthForecast();}}},20);
 }
 $('comparePatterns').onclick=()=>requestMonthComparison('pattern');$('compareNextValue').onclick=()=>requestMonthComparison('next');$('rivalFixture').onchange=renderRivalStatus;
 for(const [id,outcome] of [['rivalHomeWin',0],['rivalDraw',1],['rivalAwayWin',2],['rivalClear','auto']])$(id).onclick=()=>{try{setRivalOutcome(outcome);}catch(error){$('plannerNotice').textContent=error.message;}};
@@ -554,7 +561,7 @@ function renderCompass(){
 }
 if($('compassTarget'))$('compassTarget').onchange=renderCompass;
 if($('compassCustom'))$('compassCustom').oninput=renderCompass;
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(1)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts={second:Array(115).fill(0),sixth:Array(115).fill(0)};baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts?{second:baselineLineCounts.second.slice(),sixth:baselineLineCounts.sixth.slice()}:null;}renderPrematch();renderScenarios();renderHero();renderCompass();renderRankChart();renderRankDistribution();renderTitleDistribution();if(LINE_VIEW)renderPromotionLines();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(2)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts={second:Array(115).fill(0),sixth:Array(115).fill(0)};baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts?{second:baselineLineCounts.second.slice(),sixth:baselineLineCounts.sixth.slice()}:null;}renderPrematch();renderScenarios();renderHero();renderCompass();renderRankChart();renderRankDistribution();renderTitleDistribution();if(LINE_VIEW)renderPromotionLines();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
