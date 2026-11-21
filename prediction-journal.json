@@ -1183,6 +1183,97 @@
           "top6": 0
         }
       ]
+    },
+    {
+      "id": "88a76267a2be1caa444b8547",
+      "sourceId": "9c6359e059d7c18697315022",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "recordedAt": "2026-11-21T13:03:02.049Z",
+      "sourceUpdatedAt": "2026-11-21T13:02:54.527131+00:00",
+      "confirmed": 177,
+      "runs": 10000,
+      "clubs": [
+        {
+          "club": "岐阜",
+          "top6": 87.35
+        },
+        {
+          "club": "相模原",
+          "top6": 84.08
+        },
+        {
+          "club": "山口",
+          "top6": 75.19
+        },
+        {
+          "club": "FC大阪",
+          "top6": 67.77
+        },
+        {
+          "club": "奈良",
+          "top6": 61.9
+        },
+        {
+          "club": "鹿児島",
+          "top6": 60.99
+        },
+        {
+          "club": "琉球",
+          "top6": 34.67
+        },
+        {
+          "club": "愛媛",
+          "top6": 28.73
+        },
+        {
+          "club": "長野",
+          "top6": 27.73
+        },
+        {
+          "club": "金沢",
+          "top6": 24.21
+        },
+        {
+          "club": "栃木SC",
+          "top6": 22.21
+        },
+        {
+          "club": "熊本",
+          "top6": 15.44
+        },
+        {
+          "club": "北九州",
+          "top6": 5.36
+        },
+        {
+          "club": "福島",
+          "top6": 3.1
+        },
+        {
+          "club": "滋賀",
+          "top6": 0.82
+        },
+        {
+          "club": "松本",
+          "top6": 0.18
+        },
+        {
+          "club": "鳥取",
+          "top6": 0.17
+        },
+        {
+          "club": "讃岐",
+          "top6": 0.1
+        },
+        {
+          "club": "群馬",
+          "top6": 0
+        },
+        {
+          "club": "高知",
+          "top6": 0
+        }
+      ]
     }
   ],
   "predictions": [
@@ -3788,6 +3879,202 @@
         0.4596453901311637,
         0.1982668923351005,
         0.3420877175337358
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112203",
+      "home": "熊本",
+      "away": "北九州",
+      "kickoff": "2026-11-22T04:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.672Z",
+      "probabilities": [
+        0.48435126414058677,
+        0.1997432760210915,
+        0.31590545983832174
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112204",
+      "home": "山口",
+      "away": "滋賀",
+      "kickoff": "2026-11-22T05:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.672Z",
+      "probabilities": [
+        0.5592697729866906,
+        0.19088111483321438,
+        0.24984911218009492
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112205",
+      "home": "FC大阪",
+      "away": "讃岐",
+      "kickoff": "2026-11-22T06:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.673Z",
+      "probabilities": [
+        0.5716421618324019,
+        0.1889181173469343,
+        0.23943972082066367
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112518",
+      "home": "琉球",
+      "away": "熊本",
+      "kickoff": "2026-11-25T03:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.673Z",
+      "probabilities": [
+        0.4793332540147758,
+        0.2001506783699261,
+        0.32051606761529805
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112519",
+      "home": "北九州",
+      "away": "金沢",
+      "kickoff": "2026-11-25T05:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.673Z",
+      "probabilities": [
+        0.4464989728570632,
+        0.20222971049429517,
+        0.3512713166486416
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112520",
+      "home": "滋賀",
+      "away": "高知",
+      "kickoff": "2026-11-25T09:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.673Z",
+      "probabilities": [
+        0.5212252594212249,
+        0.19603028107028952,
+        0.2827444595084854
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112521",
+      "home": "相模原",
+      "away": "愛媛",
+      "kickoff": "2026-11-25T09:30:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.674Z",
+      "probabilities": [
+        0.5214481686389445,
+        0.19600400394507955,
+        0.2825478274159759
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112522",
+      "home": "長野",
+      "away": "鹿児島",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.674Z",
+      "probabilities": [
+        0.44258759425018696,
+        0.2024087978145067,
+        0.3550036079353063
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112523",
+      "home": "岐阜",
+      "away": "群馬",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.674Z",
+      "probabilities": [
+        0.6133245220497409,
+        0.18125222582125505,
+        0.2054232521290041
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112524",
+      "home": "FC大阪",
+      "away": "栃木SC",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.674Z",
+      "probabilities": [
+        0.4949378122950719,
+        0.19880657011329927,
+        0.3062556175916289
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112525",
+      "home": "奈良",
+      "away": "松本",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.674Z",
+      "probabilities": [
+        0.5442757773901358,
+        0.19307009238400094,
+        0.2626541302258633
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112526",
+      "home": "山口",
+      "away": "福島",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.675Z",
+      "probabilities": [
+        0.5310848759762026,
+        0.19482412607550917,
+        0.27409099794828834
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112527",
+      "home": "讃岐",
+      "away": "鳥取",
+      "kickoff": "2026-11-25T10:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.675Z",
+      "probabilities": [
+        0.46981207389910273,
+        0.20085868578951352,
+        0.3293292403113837
+      ]
+    },
+    {
+      "snapshotId": "88a76267a2be1caa444b8547",
+      "model": "elo-davidson-k20-home60-fixed-v1-97c577b2b10900a8",
+      "fixtureId": "2026112810",
+      "home": "高知",
+      "away": "奈良",
+      "kickoff": "2026-11-28T05:00:00.000Z",
+      "recordedAt": "2026-11-21T13:03:03.675Z",
+      "probabilities": [
+        0.3414313162062254,
+        0.20168282580385244,
+        0.45688585798992215
       ]
     }
   ]
