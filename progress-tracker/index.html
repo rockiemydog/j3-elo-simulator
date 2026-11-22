@@ -109,21 +109,14 @@
       return {groups,count,minWins:groups.length?groups[0].wins:null,maxLosses:groups.length?Math.max(...groups.map(g=>g.maxLosses)):null};
     }
     function renderRequiredRates(left,need){
-      if(left===0)return '<p class="plan-summary">必要勝率：'+(need===0?'目標到達済み':'到達不可')+'</p>';
-      function row(label,wins,draws,losses){
-        let value='到達不可';
-        if(losses>left)value='残り4試合未満';
-        else if(draws>=0&&losses>=0)value=(100*wins/left).toLocaleString('ja-JP',{maximumFractionDigits:1})+'％（'+wins+'勝'+draws+'分'+losses+'敗）';
-        return '<tr><th scope="row">'+label+'</th><td>'+value+'</td></tr>';
-      }
-      function fixedLosses(label,losses){
-        const available=left-losses;
-        const wins=Math.max(0,Math.ceil((need-available)/2));
-        return row(label,wins,available-wins,losses);
-      }
-      const wins=Math.ceil(need/3);
-      return '<table class="plan-table"><caption>必要勝率（必要勝数 ÷ 残り'+left+'試合）</caption><tbody>'+
-        fixedLosses('残り無敗',0)+fixedLosses('あと4敗',4)+row('引き分けなし',wins,0,left-wins)+'</tbody></table>';
+      if(need===0)return '<p class="plan-summary">目標勝点に到達済み</p>';
+      if(need>3*left)return '<p class="plan-summary">目標勝点には到達不可</p>';
+      const wins=Math.max(0,Math.ceil((need-left)/2));
+      const draws=Math.max(0,need-3*wins);
+      const losses=left-wins-draws;
+      const rate=(100*wins/left).toLocaleString('ja-JP',{maximumFractionDigits:1});
+      return `<p class="plan-summary">最低必要勝率 <strong>${rate}％</strong>（残り${left}試合で${wins}勝）</p>
+        <p class="plan-note">この勝数で目標に届く成績例：${wins}勝${draws}分${losses}敗</p>`;
     }
     function renderWinningPlans(rank,target,s,left){
       const need=Math.max(0,target-s.points),plan=winningPlans(left,need);
