@@ -108,6 +108,23 @@
       }
       return {groups,count,minWins:groups.length?groups[0].wins:null,maxLosses:groups.length?Math.max(...groups.map(g=>g.maxLosses)):null};
     }
+    function renderRequiredRates(left,need){
+      if(left===0)return '<p class="plan-summary">必要勝率：'+(need===0?'目標到達済み':'到達不可')+'</p>';
+      function row(label,wins,draws,losses){
+        let value='到達不可';
+        if(losses>left)value='残り4試合未満';
+        else if(draws>=0&&losses>=0)value=(100*wins/left).toLocaleString('ja-JP',{maximumFractionDigits:1})+'％（'+wins+'勝'+draws+'分'+losses+'敗）';
+        return '<tr><th scope="row">'+label+'</th><td>'+value+'</td></tr>';
+      }
+      function fixedLosses(label,losses){
+        const available=left-losses;
+        const wins=Math.max(0,Math.ceil((need-available)/2));
+        return row(label,wins,available-wins,losses);
+      }
+      const wins=Math.ceil(need/3);
+      return '<table class="plan-table"><caption>必要勝率（必要勝数 ÷ 残り'+left+'試合）</caption><tbody>'+
+        fixedLosses('残り無敗',0)+fixedLosses('あと4敗',4)+row('引き分けなし',wins,0,left-wins)+'</tbody></table>';
+    }
     function renderWinningPlans(rank,target,s,left){
       const need=Math.max(0,target-s.points),plan=winningPlans(left,need);
       const range=(a,b)=>a===b?String(a):`${a}〜${b}`;
@@ -160,6 +177,7 @@
           ${winsImpossible?'<div class="subline">平均勝数の目安は残り試合では達成不可</div>':''}
           ${planImpossible&&!winsImpossible&&!pointsImpossible?'<div class="subline">表示の勝数をちょうど達成する組合せでは勝点目標に届かず、追加の勝利が必要です。</div>':''}
           <div class="gd"><span>得失点差 ${currentGD>=0?'+':''}${currentGD} → 平均 ${gdAvg>=0?'+':''}${gdAvg.toFixed(1)}</span><b>あと ${gdImprove>=0?'+':''}${gdImprove.toFixed(1)}</b></div>
+          ${renderRequiredRates(left,needPts)}
           ${renderWinningPlans(h.rank,target,s,left)}
         </article>`;
       }).join('');
