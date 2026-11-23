@@ -7,7 +7,7 @@ const ROOT=path.resolve(__dirname,'..');
 function engine(games){
   const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
   const teamLine=html.split('\n').find(l=>l.startsWith('const teams='));
-  const names=['applyGame','stateWithScenario','key','mulberry32','eloProb','eloRatings','representativeScore','h2h','sortOrder','simulate'];
+  const names=['applyGame','stateFromGames','stateWithScenario','key','mulberry32','eloProb','eloRatings','representativeScore','h2h','sortOrder','simulate'];
   const lines=names.map(name=>{const line=html.split('\n').find(l=>l.startsWith('function '+name+'('));if(!line||!line.endsWith('}'))throw Error('Forecast adapter requires review: '+name);return line;});
   const constants=html.split('\n').find(l=>l.startsWith('const ELO_START='));
   if(!teamLine||!constants)throw Error('Forecast model metadata missing');

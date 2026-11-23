@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 function harness(html,shared,initial={}){
  const map=new Map(Object.entries(initial)),els=new Map(),events={},timers=[];
- const el=id=>{if(!els.has(id))els.set(id,{value:id==='runs'?'10':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(n,f){events[id+':'+n]=f},querySelectorAll:()=>[],close(){},showModal(){},click(){this.onclick?.()}});return els.get(id)};
+ const el=id=>{if(!els.has(id))els.set(id,{id,previousElementSibling:{textContent:''},value:id==='runs'?'10':'0',textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},addEventListener(n,f){events[id+':'+n]=f},querySelectorAll:()=>[],close(){},showModal(){},click(){this.onclick?.()}});return els.get(id)};
  const ctx={localStorage:{getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)},document:{hidden:false,getElementById:el,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener:(n,f)=>events[n]=f,dispatchEvent(){}},Event:class{constructor(type){this.type=type}},confirm:()=>true,setTimeout:f=>timers.push(f),setInterval:f=>events.poll=f};ctx.window.localStorage=ctx.localStorage;
  vm.createContext(ctx);vm.runInContext(shared,ctx);ctx.J3Results=ctx.window.J3Results;
  vm.runInContext(html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],ctx);
