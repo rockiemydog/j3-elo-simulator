@@ -36,7 +36,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
   <section id="dashboardSection" class="dashboard-only" aria-label="北九州ダッシュボード" hidden>
     <div class="dash-toolbar"><div><span class="dash-mode">公式結果ベース</span><span id="dashDataDate" class="dash-data-date"></span></div><div><a class="dash-menu" href="#dashboardLinks">詳細ページを開く ↓</a><button class="dash-refresh" id="refreshDashboard" type="button">最新結果・日程を確認</button></div></div>
     <div class="dash-stats" aria-label="北九州の公式成績"><div class="dash-stat"><span>現在順位</span><strong id="dashRank">—</strong><small>公式確定結果から集計</small></div><div class="dash-stat"><span>現在勝点</span><strong id="dashPoints">—</strong><small id="dashRecord"></small></div><div class="dash-stat"><span>残り試合</span><strong id="dashRemaining">—</strong><small id="dashPlayed"></small></div><div class="dash-stat"><span>現在6位との勝点差</span><strong id="dashGap">—</strong><small id="dashSixth"></small></div></div>
-    <article class="dash-card"><h2>昇格レース・勝点別クラブ分布</h2><div class="points-race" tabindex="0" role="region" aria-label="勝点別クラブ分布（横スクロール）" id="dashPointsRace"></div></article>
+    <article class="dash-card"><h2>昇格レース・勝点別クラブ分布</h2><p class="sub"></p><div class="points-race" tabindex="0" role="region" aria-label="勝点別クラブ分布（横スクロール）" id="dashPointsRace"></div></article>
     <article class="dash-card dash-venue-section" aria-labelledby="dashVenueTitle"><div class="dash-card-head"><div><span class="dash-label">HOME &amp; AWAY RECORDS</span><h2 id="dashVenueTitle">ホーム・アウェイ別の通算成績</h2></div><span class="dash-next-status">確定</span></div><div id="dashVenueRecords" class="dash-venue-grid" aria-live="polite"></div><p id="dashVenueNote" class="dash-muted"></p><p class="dash-muted"><span id="dashVenueUpdated"></span> ／ <a href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">Jリーグ公式結果 ↗</a></p></article>
     <div class="dash-detail-row"><article class="dash-card" aria-labelledby="dashNextTitle"><div class="dash-card-head"><div><span class="dash-label">NEXT MATCH</span><h2 id="dashNextTitle">次の一戦</h2></div><span id="dashNextStatus" class="dash-next-status" aria-live="polite">日程確認中</span></div><div id="dashFixture"></div><div id="dashMatchProb"></div><a class="dash-next-link" href="https://www.jleague.jp/j3/match/" target="_blank" rel="noopener">公式日程・会場を確認 ↗</a><p id="dashCalendarNote" class="dash-muted"></p></article>
     <article class="dash-card" aria-labelledby="dashTargetTitle"><span class="dash-label">PLAYOFF COMPASS</span><h2 id="dashTargetTitle">目標勝点への進捗</h2><div class="dash-target" id="dashTarget">—</div><p id="dashTargetHelp" class="dash-muted"></p><div id="dashProgress" class="dash-progress"></div><div class="dash-pace-row"><div><span>目標まで</span><strong id="dashNeeded">—</strong></div><div><span>残り試合の必要ペース</span><strong id="dashPace">—</strong></div></div><p id="dashTargetRange" class="dash-muted"></p><a class="dash-next-link" href="./" target="_blank" rel="noopener">目標勝点を変えて試す ↗</a></article></div>
@@ -183,7 +183,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
       </section>
       <details class="rankviz final-only" open><summary>平均最終順位グラフ</summary><div class="rank-axis"><span></span><div class="ticks"><span>1位</span><span>6位</span><span>10位</span><span>15位</span><span>20位</span></div><span></span></div><div id="rankChart" aria-label="全クラブの平均最終順位"></div></details>
       <div class="tabs final-only"><button class="tab active" data-tab="forecast">最終順位予測</button><button class="tab" data-tab="live">現在順位・試し入力反映</button><span class="spinner" id="spinner">計算中…</span></div>
-      <div class="final-only"><div id="liveRacePanel" hidden><article class="dash-card"><h2>昇格レース・勝点別クラブ分布</h2><div class="points-race" tabindex="0" role="region" aria-label="勝点別クラブ分布（横スクロール）" id="livePointsRace"></div></article></div></div>
+      <div class="final-only"><div id="liveRacePanel" hidden><article class="dash-card"><h2>昇格レース・勝点別クラブ分布</h2><p class="sub"></p><div class="points-race" tabindex="0" role="region" aria-label="勝点別クラブ分布（横スクロール）" id="livePointsRace"></div></article></div></div>
       <div class="table-wrap final-only"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
     </section>
   </div>
@@ -269,7 +269,8 @@ async function refreshFixtureCalendar(){
 $('showNextFixture').onclick=()=>{updateNextFixture(true);refreshFixtureCalendar();};
 function applyGame(s,g){const [h,a,hg,ag]=g,i=ix[h],j=ix[a];s.gf[i]+=hg;s.ga[i]+=ag;s.gf[j]+=ag;s.ga[j]+=hg;s.p[i]++;s.p[j]++;if(hg>ag){s.pts[i]+=3;s.w[i]++;s.l[j]++}else if(hg<ag){s.pts[j]+=3;s.w[j]++;s.l[i]++}else{s.pts[i]++;s.pts[j]++;s.d[i]++;s.d[j]++}}
 const confirmed=()=>[...completed,...confirmedExtra];
-function stateWithScenario(what=scenarios){const s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};[...confirmed(),...what].forEach(g=>applyGame(s,g));return s}
+function stateWithScenario(what=scenarios){return stateFromGames([...confirmed(),...what])}
+function stateFromGames(games){const s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};games.forEach(g=>applyGame(s,g));return s}
 function key(g){return `${g[0]}|${g[1]}`}
 function auditInitialData(){const issues=[],seen=new Set(),s={pts:Array(20).fill(0),gf:Array(20).fill(0),ga:Array(20).fill(0),p:Array(20).fill(0),w:Array(20).fill(0),d:Array(20).fill(0),l:Array(20).fill(0)};if(teams.length!==20||new Set(teams).size!==20)issues.push(`クラブ一覧が20クラブ・重複なしではありません（${teams.length}件）`);for(const g of completed){if(!validStored(g))issues.push(`不正な試合：${g.join(',')}`);if(seen.has(key(g)))issues.push(`重複：${key(g)}`);seen.add(key(g));}historicalAuditGames.forEach(g=>applyGame(s,g));if(historicalAuditGames.length!==70)issues.push(`確定試合数が70ではありません（${completed.length}）`);const round7=historicalAuditGames.slice(60,70).map(key).sort(),expectedRound7=EXPECTED_ROUND_7_CARDS.slice().sort();if(round7.length!==expectedRound7.length||round7.some((card,i)=>card!==expectedRound7[i]))issues.push('第7節の公式ホーム／アウェーカードが一致しません');for(const club of teams){const i=ix[club];if(s.p[i]!==7)issues.push(`${club}の試合数が7ではありません（${s.p[i]}）`)}for(const [club,expected] of Object.entries(OFFICIAL_CHECK)){const i=ix[club],actual=[s.pts[i],s.p[i],s.w[i],s.d[i],s.l[i],s.gf[i],s.ga[i]];if(!i&&i!==0)issues.push(`公式照合表に未知のクラブ：${club}`);if(actual.some((v,n)=>v!==expected[n]))issues.push(`${club}の集計不一致`)}if(Object.keys(OFFICIAL_CHECK).length!==20)issues.push(`公式照合表が20クラブ分ではありません（${Object.keys(OFFICIAL_CHECK).length}件）`);const theoretical=teams.length*(teams.length-1);if(theoretical!==380)issues.push('全対戦数が380になりません');return{ok:issues.length===0,issues,count:completed.length,remaining:380-completed.length}}
 function renderInitialAudit(){const a=auditInitialData(),title=$('dataReadyTitle'),text=$('dataReadyText'),bar=$('dataReady');title.textContent=a.ok?'Elo版の初期データ準備完了':'初期データに問題があります';text.textContent=a.ok?`${DATA_AS_OF}更新・確定${a.count}試合・未消化${a.remaining}試合・集計照合OK`:`${a.issues.length}件の不整合を検出しました。データを確認してください。`;bar.classList.toggle('ok',a.ok);$('acceptInitial').disabled=!a.ok;$('dataAudit').innerHTML=`更新基準：${DATA_AS_OF}<br>クラブ：${teams.length}/20<br>確定試合：${a.count}/380<br>未消化：${a.remaining}<br>Elo初期値：${ELO_START}<br>K値：${ELO_K}<br>ホーム補正：+${ELO_HOME}<br>重複・形式・集計検査：${a.ok?'正常':'要確認'}${a.issues.length?`<br><span class="error">${a.issues.join('<br>')}</span>`:''}`;let accepted=false;try{accepted=localStorage.getItem(SETUP_STORE)===DATA_AS_OF}catch{}bar.style.display=accepted?'none':'flex';return a}
@@ -305,7 +306,8 @@ function save(){
 }
 function renderScenarios(){updateMonthLink();const box=$('scenarios'),real=380-confirmed().length,sim=remainingFixtures().length;$('stampData').textContent=`Elo版・確定 ${confirmed().length}試合`;$('statusline').textContent=`Elo K=${ELO_K}・ホーム+${ELO_HOME} ｜ 確定 ${confirmed().length}/380 ｜ 未消化 ${real} ｜ 試し入力 ${scenarios.length} ｜ 計算対象 ${sim}`;$('resetScenario').disabled=!scenarios.length;if(!scenarios.length){box.innerHTML='<div class="empty">試し入力はありません</div>';syncForm();return}box.innerHTML=scenarios.map((g,i)=>`<div class="scenario"><span><span class="tag">試し入力</span> ${g[0]} <strong>${g[2]}–${g[3]}</strong> ${g[1]}</span><button class="remove" data-i="${i}" aria-label="${g[0]}対${g[1]}の試し入力を削除">×</button></div>`).join('');box.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{scenarios.splice(+b.dataset.i,1);renderScenarios();run()});syncForm()}
 function renderHero(){const f=lastForecast.find(x=>x.club==='北九州'),b=baseline?.find(x=>x.club==='北九州'),live=liveRows().find(x=>x.club==='北九州');const delta=(v,bv,s='')=>b?`${v-bv>=0?'+':''}${(v-bv).toFixed(1)}${s} vs 現在`:'';$('hero').innerHTML=`<div class="metric"><div class="label">北九州 現在Elo</div><div class="value">${f.elo.toFixed(0)}</div><div class="delta">暫定勝点 ${live.pts}</div></div><div class="metric"><div class="label">最終予想勝点</div><div class="value">${f.points.toFixed(1)}</div><div class="delta">${delta(f.points,b?.points)}</div></div><div class="metric"><div class="label">平均最終順位</div><div class="value">${f.rank.toFixed(1)}位</div><div class="delta">${b?`${(b.rank-f.rank)>=0?'+':''}${(b.rank-f.rank).toFixed(1)}順位改善`:''}</div></div><div class="metric"><div class="label">6位以内確率</div><div class="value">${f.top6.toFixed(1)}%</div><div class="delta">${delta(f.top6,b?.top6,'pt')}</div></div>`}
-function liveRows(what=scenarios){const s=stateWithScenario(what),games=[...confirmed(),...what],finished=games.length===380,order=finished?sortOrder(s.pts,s.gf,s.ga,games):[...Array(20).keys()].sort((a,b)=>s.pts[b]-s.pts[a]||(s.gf[b]-s.ga[b])-(s.gf[a]-s.ga[a])||s.gf[b]-s.gf[a]||a-b),hh=h2h(games),sig=i=>{if(!finished)return `${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}`;const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i],ga:s.ga[i]}})}
+function liveRows(what=scenarios){return standingsFromGames([...confirmed(),...what])}
+function standingsFromGames(games){const s=stateFromGames(games),finished=games.length===380,order=finished?sortOrder(s.pts,s.gf,s.ga,games):[...Array(20).keys()].sort((a,b)=>s.pts[b]-s.pts[a]||(s.gf[b]-s.ga[b])-(s.gf[a]-s.ga[a])||s.gf[b]-s.gf[a]||a-b),hh=h2h(games),sig=i=>{if(!finished)return `${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}`;const group=order.filter(j=>s.pts[j]===s.pts[i]&&s.gf[j]-s.ga[j]===s.gf[i]-s.ga[i]&&s.gf[j]===s.gf[i]);let p=0,gd=0,go=0;for(const j of group)if(i!==j){p+=hh.p[i*20+j];gd+=hh.gd[i*20+j];go+=hh.go[i*20+j]}return`${s.pts[i]}|${s.gf[i]-s.ga[i]}|${s.gf[i]}|${p}|${gd}|${go}`},first={};return order.map((i,r)=>{const k=sig(i);if(first[k]===undefined)first[k]=r+1;return{club:teams[i],rank:first[k],tied:order.filter(j=>sig(j)===k).length>1,pts:s.pts[i],p:s.p[i],w:s.w[i],d:s.d[i],l:s.l[i],gd:s.gf[i]-s.ga[i],gf:s.gf[i],ga:s.ga[i]}})}
 function renderRankChart(){$('rankChart').innerHTML=lastForecast.map(r=>`<div class="rank-row ${r.club==='北九州'?'gira':''}"><div class="rank-club">${r.club}</div><div class="rank-track"><span class="rank-dot" style="left:${Math.max(0,Math.min(100,(r.rank-1)/19*100)).toFixed(1)}%"></span></div><div class="rank-value">${r.rank.toFixed(1)}位</div></div>`).join('')}
 function titlePointsStats(counts){
   if(!Array.isArray(counts)||counts.length!==115||counts.some(v=>!Number.isInteger(v)||v<0))return null;
@@ -357,7 +359,34 @@ function renderRankDistribution(){
   $('rankDistribution').innerHTML=`<svg viewBox="0 0 680 274" role="img" aria-labelledby="distributionSvgTitle distributionSvgDesc" xmlns="http://www.w3.org/2000/svg"><title id="distributionSvgTitle">${row.club}の最終順位確率分布</title><desc id="distributionSvgDesc">${description}</desc><text x="8" y="18" font-size="11" fill="#667085">確率（％）</text>${grid}${bars}<text x="356" y="266" text-anchor="middle" font-size="11" fill="#667085">最終順位</text></svg>`;
   $('distributionSummary').textContent=`${row.club} ／ ${scenarios.length?'試し入力反映':'公式結果のみ'} ／ 2位以内 ${row.top2.toFixed(1)}％・6位以内 ${row.top6.toFixed(1)}％・最下位 ${row.last.toFixed(1)}％`;
 }
+function raceWeek() {
+  const matches = J3Results.officialMatches;
+  if (!matches.length || matches.length !== confirmed().length) return null;
+  const monday = new Date(matches[matches.length - 1].date + 'T00:00:00Z');
+  monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7);
+  const start = monday.toISOString().slice(0, 10);
+  const previous = standingsFromGames(matches.filter(m => m.date < start).map(m => m.game));
+  const ranks = new Map(previous.map(row => [row.club, row.rank]));
+  const results = new Map();
+  for (const {date, game: [home, away, hg, ag]} of matches) {
+    if (date < start) continue;
+    for (const [club, diff] of [[home, hg-ag], [away, ag-hg]]) {
+      const label = diff > 0 ? '🟢勝' : diff < 0 ? '🔴負' : '🟡分';
+      results.set(club, [...(results.get(club) || []), label]);
+    }
+  }
+  return {start, ranks, results};
+}
+function raceStatus(row, week) {
+  if (!week) return '<span>週別データなし</span>';
+  const change = week.ranks.get(row.club) - row.rank;
+  const arrow = change > 0 ? '↑' + change + '位' : change < 0 ? '↓' + (-change) + '位' : '→ 変化なし';
+  return `<span>${arrow}</span><span>${(week.results.get(row.club) || ['未消化']).join(' ')}</span>`;
+}
 function renderPointsRace(rows, target) {
+  const week = raceWeek();
+  const trial = target.id === 'livePointsRace' && scenarios.length > 0;
+  target.previousElementSibling.textContent = week ? week.start + ' の週（月曜始まり）｜順位は前週末比' + (trial ? '・試し入力込み' : '') + '｜勝敗は公式結果' : '';
   const groups = new Map();
   for (const row of rows) {
     if (!groups.has(row.pts)) groups.set(row.pts, []);
@@ -365,7 +394,7 @@ function renderPointsRace(rows, target) {
   }
   const columns = [];
   for (let points = rows[0].pts; points >= rows[rows.length - 1].pts; points--) {
-    const cards = (groups.get(points) || []).map(row => `<div class="race-team ${row.club === '北九州' ? 'race-gira' : ''}"><strong>${row.rank}位 ${row.club}</strong><span>${row.w}勝 ${row.d}分 ${row.l}敗</span><span>得点 ${row.gf}　失点 ${row.ga}</span></div>`).join('');
+    const cards = (groups.get(points) || []).map(row => `<div class="race-team ${row.club === '北九州' ? 'race-gira' : ''}"><strong>${row.rank}位 ${row.club}</strong>${raceStatus(row, week)}<span>${row.w}勝 ${row.d}分 ${row.l}敗</span><span>得点 ${row.gf}　失点 ${row.ga}</span></div>`).join('');
     columns.push(`<div><b class="race-points">${points}点</b>${cards}</div>`);
   }
   target.innerHTML = columns.join('');
