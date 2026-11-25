@@ -3,7 +3,7 @@
   "scope": "all-clubs",
   "season": "2026/27",
   "source": "https://www.jleague.jp/j3/match/",
-  "checkedAt": "2026-11-25T10:30:51.406308+00:00",
+  "checkedAt": "2026-11-25T12:59:25.107406+00:00",
   "coverageFrom": "2026-08-08",
   "coverageThrough": "2027-07-31",
   "matches": [
@@ -1531,7 +1531,7 @@
       "time": "18:03",
       "home": "滋賀",
       "away": "高知",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "18:00"
     },
     {
@@ -1540,7 +1540,7 @@
       "time": "18:33",
       "home": "相模原",
       "away": "愛媛",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "18:30"
     },
     {
@@ -1549,7 +1549,7 @@
       "time": "19:03",
       "home": "長野",
       "away": "鹿児島",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
@@ -1558,7 +1558,7 @@
       "time": "19:03",
       "home": "岐阜",
       "away": "群馬",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
@@ -1567,7 +1567,7 @@
       "time": "19:03",
       "home": "FC大阪",
       "away": "栃木SC",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
@@ -1576,7 +1576,7 @@
       "time": "19:03",
       "home": "奈良",
       "away": "松本",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
@@ -1585,7 +1585,7 @@
       "time": "19:03",
       "home": "山口",
       "away": "福島",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
@@ -1594,7 +1594,7 @@
       "time": "19:03",
       "home": "讃岐",
       "away": "鳥取",
-      "status": "unconfirmed",
+      "status": "finished",
       "scheduledTime": "19:00"
     },
     {
