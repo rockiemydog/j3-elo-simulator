@@ -380,19 +380,28 @@ function renderPromotionLines(){
 function pointsProbabilityCeiling(probabilities){
   return Math.min(100,Math.max(5,Math.ceil(Math.max(...probabilities)/5)*5));
 }
+function formatPointsProbability(probability){
+  if(probability>0&&probability<0.01)return '0.01％未満';
+  if(probability>99.99&&probability<100)return '99.99％超';
+  return probability.toFixed(2)+'％';
+}
 function renderPointsDistribution(counts,prefix,label,axes=null,stats=titlePointsStats(counts)){
   if(!stats){$(prefix+'Summary').textContent=label+'の勝点分布を計算中です。';$(prefix+'Chart').innerHTML='';$(prefix+'Rows').innerHTML='';return;}
   const {min,max,ceiling}=axes??{min:stats.min,max:stats.max,ceiling:pointsProbabilityCeiling(stats.probabilities)};
-  const left=52,bottom=230,height=176,width=616,step=width/(max-min+1),tick=Math.max(1,Math.ceil((max-min+1)/12)),x=points=>left+(points-min+.5)*step;
-  const grid=[0,ceiling/2,ceiling].map(value=>{const y=bottom-value/ceiling*height;return `<line x1="${left}" y1="${y}" x2="668" y2="${y}" stroke="#e4e7ec"/><text x="42" y="${y+4}" text-anchor="end" fill="#667085" font-size="11">${value}</text>`;}).join('');
+  const left=52,right=668,bottom=230,height=176,step=(right-left)/(max-min+1);
+  const tick=Math.max(1,Math.ceil((max-min+1)/12)),x=points=>left+(points-min+.5)*step;
+  const tickLabelGap=24,medianLabelHalfWidth=38;
+  const medianX=x(stats.median),medianAnchor=right-medianX<medianLabelHalfWidth?'end':'middle';
+  const grid=[0,ceiling/2,ceiling].map(value=>{const y=bottom-value/ceiling*height;return `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#e4e7ec"/><text x="42" y="${y+4}" text-anchor="end" fill="#667085" font-size="11">${value}</text>`;}).join('');
   let bars='';for(let points=min;points<=max;points++){
     const probability=stats.probabilities[points],barWidth=Math.min(28,step*.8),h=probability/ceiling*height,color=points>=stats.low&&points<=stats.high?'#e5ac00':'#98a2b3';
-    bars+=`<g>${h?`<title>勝点${points}：${probability.toFixed(2)}％（${counts[points]}回）</title><rect x="${x(points)-barWidth/2}" y="${bottom-h}" width="${barWidth}" height="${h}" fill="${color}" rx="2"/>`:''}${(points-min)%tick===0||points===max?`<text x="${x(points)}" y="250" text-anchor="middle" fill="#344054" font-size="11">${points}</text>`:''}</g>`;
+    const showTick=points===max||((points-min)%tick===0&&(max-points)*step>=tickLabelGap);
+    bars+=`<g>${h?`<title>勝点${points}：${formatPointsProbability(probability)}（${counts[points]}回）</title><rect x="${x(points)-barWidth/2}" y="${bottom-h}" width="${barWidth}" height="${h}" fill="${color}" rx="2"/>`:''}${showTick?`<text x="${x(points)}" y="250" text-anchor="middle" fill="#344054" font-size="11">${points}</text>`:''}</g>`;
   }
-  const description=counts.map((count,points)=>count?`勝点${points} ${stats.probabilities[points].toFixed(2)}％`:'').filter(Boolean).join('、');
-  $(prefix+'Chart').innerHTML=`<svg viewBox="0 0 680 284" role="img" aria-labelledby="${prefix}SvgTitle ${prefix}SvgDesc" xmlns="http://www.w3.org/2000/svg"><title id="${prefix}SvgTitle">${label}の最終勝点の確率分布</title><desc id="${prefix}SvgDesc">${stats.samples}回の計算。中央値${stats.median}点、中央80％の目安${stats.low}～${stats.high}点。${description}</desc><text x="8" y="18" fill="#667085" font-size="11">確率（％）</text>${grid}${bars}<line x1="${x(stats.median)}" y1="36" x2="${x(stats.median)}" y2="${bottom}" stroke="#d83043" stroke-width="2" stroke-dasharray="5 4"/><text x="${x(stats.median)}" y="30" text-anchor="middle" fill="#d83043" font-size="11">中央値 ${stats.median}点</text><text x="360" y="274" text-anchor="middle" fill="#667085" font-size="11">${label}の最終勝点</text></svg>`;
+  const description=counts.map((count,points)=>count?`勝点${points} ${formatPointsProbability(stats.probabilities[points])}`:'').filter(Boolean).join('、');
+  $(prefix+'Chart').innerHTML=`<svg viewBox="0 0 680 284" role="img" aria-labelledby="${prefix}SvgTitle ${prefix}SvgDesc" xmlns="http://www.w3.org/2000/svg"><title id="${prefix}SvgTitle">${label}の最終勝点の確率分布</title><desc id="${prefix}SvgDesc">${stats.samples}回の計算。中央値${stats.median}点、中央80％の目安${stats.low}～${stats.high}点。${description}</desc><text x="8" y="18" fill="#667085" font-size="11">確率（％）</text>${grid}${bars}<line x1="${medianX}" y1="36" x2="${medianX}" y2="${bottom}" stroke="#d83043" stroke-width="2" stroke-dasharray="5 4"/><text x="${medianX}" y="30" text-anchor="${medianAnchor}" fill="#d83043" font-size="11">中央値 ${stats.median}点</text><text x="360" y="274" text-anchor="middle" fill="#667085" font-size="11">${label}の最終勝点</text></svg>`;
   $(prefix+'Summary').textContent=`${scenarios.length?'試し入力反映':'公式結果のみ'} ／ 中央値 ${stats.median}点 ／ 中央80％の目安 ${stats.low}～${stats.high}点 ／ 最頻値 ${stats.modes.join('・')}点 ／ 平均 ${stats.mean.toFixed(1)}点 ／ ${stats.samples.toLocaleString('ja-JP')}回計算`;
-  $(prefix+'Rows').innerHTML=counts.map((count,points)=>count?`<tr><td>${points}点</td><td>${stats.probabilities[points].toFixed(2)}％</td><td>${count}</td></tr>`:'').join('');
+  $(prefix+'Rows').innerHTML=counts.map((count,points)=>count?`<tr><td>${points}点</td><td>${formatPointsProbability(stats.probabilities[points])}</td><td>${count}</td></tr>`:'').join('');
 }
 function clubGoalDifferenceRows(){
   const state=stateWithScenario([]);

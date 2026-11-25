@@ -108,4 +108,22 @@ check('histograms count the correct final points for every place from first thro
   }
 });
 
+check('points charts distinguish rare outcomes from certainty and leave room for the end labels',()=>{
+  const h=harness(main,shared);
+  h.eval(`lastTitleCounts=Array(115).fill(0);
+    lastTitleCounts[102]=1;lastTitleCounts[114]=49999;
+    lastLineCounts=makeLineCounts();for(const counts of Object.values(lastLineCounts))counts[53]=50000;
+    renderPromotionLines()`);
+  const chart=h.els.get('titlePointsChart').innerHTML;
+  const labels=[...chart.matchAll(/<text[^>]* y="250"[^>]*>([0-9]+)<\/text>/g)].map(([,label])=>Number(label));
+  assert.equal(labels[0],53);
+  assert.equal(labels.at(-1),114);
+  assert(!labels.includes(113));
+  assert(/text-anchor="end"[^>]*>中央値 114点/.test(chart));
+  assert(chart.includes('0.01％未満')&&chart.includes('99.99％超'));
+  const rows=h.els.get('titlePointsRows').innerHTML;
+  assert(rows.includes('0.01％未満')&&rows.includes('99.99％超'));
+  assert(h.els.get('sixthPointsRows').innerHTML.includes('100.00％'));
+});
+
 console.log(passed+' regression checks passed');
