@@ -47,7 +47,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
     <p class="dash-forecast-note" id="dashForecastNote" aria-live="polite"></p>
     <div class="dash-detail-row"><article class="dash-card"><span class="dash-label">GOAL BALANCE</span><h2>公式得失点差</h2><div id="dashGDGauge"></div><p id="dashGDSummary" class="dash-muted"></p><a class="dash-next-link" href="?view=goal-difference" target="_blank" rel="noopener">全20クラブの得失点差を比較 ↗</a></article><article class="dash-card"><span class="dash-label">TEAM FORM</span><h2>直近5試合</h2><div id="dashRecent" class="dash-form"></div><p id="dashRecentSummary" class="dash-muted"></p><a class="dash-next-link" href="team-stats/" target="_blank" rel="noopener">攻撃・守備のスタッツを見る ↗</a></article></div>
     <article class="dash-card dash-monthly-card" aria-labelledby="dashMonthlyTitle"><span class="dash-label">MONTHLY RESULTS</span><h2 id="dashMonthlyTitle">月別成績</h2><div id="dashMonthly" aria-live="polite"></div><p id="dashMonthlyNote" class="dash-muted"></p></article>
-    <nav id="dashboardLinks" aria-labelledby="dashLinksTitle"><div class="dash-links-heading"><h2 id="dashLinksTitle">詳しく見る</h2></div><p class="dash-links-note">各ボタンから詳細ページを開きます。</p><div class="dash-link-grid"><a class="dash-link" href="match-matrix/" target="_blank" rel="noopener"><small>MATCH MATRIX</small><strong>全20クラブの対戦勝敗表</strong><span>公式結果の○×△と勝点</span></a><a class="dash-link" href="./" target="_blank" rel="noopener"><small>SEASON OUTLOOK</small><strong>最終順位・確率分布</strong><span>全20クラブの予測と、試し入力による比較</span></a><a class="dash-link" href="?view=month-end#monthSection"><small>MONTH-END OUTLOOK</small><strong>月末の順位を予測</strong><span>月ごとの見通し・勝敗パターンを確認</span></a><a class="dash-link" href="?view=promotion-lines" target="_blank" rel="noopener"><small>PROMOTION OUTLOOK</small><strong>優勝・2位・6位の勝点ライン</strong><span>各ラインの予測勝点と確率分布を比較</span></a><a class="dash-link" href="team-stats/" target="_blank" rel="noopener"><small>TEAM STATS</small><strong>チームスタッツ</strong><span>xG・被シュートなど、20クラブ中の順位</span></a><a class="dash-link" href="?view=goal-difference" target="_blank" rel="noopener"><small>GOAL DIFFERENCE</small><strong>全クラブの得失点差</strong><span>公式結果から、20クラブの現在地を比較</span></a><a class="dash-link" href="prediction-journal/?v=3008f9b" target="_blank" rel="noopener"><small>FORECAST JOURNAL</small><strong>予測履歴・答え合わせ</strong><span>確率の推移と、試合前予測の検証結果</span></a><a class="dash-link" href="progress-tracker/" target="_blank" rel="noopener"><small>PROMOTION TRACKER</small><strong>上位6位ラインへの現在地</strong><span>過去の順位別勝点を目安に、到達ペースを確認</span></a><a class="dash-link" href="https://j3-elo-private.hideakiito382.chatgpt.site/players" target="_blank" rel="noopener"><small>PLAYER RECORDS</small><strong>選手情報・個人成績</strong><span>年齢・ポジション・出場・先発・サブ・得点・警告・退場</span></a></div></nav>
+    <nav id="dashboardLinks" aria-labelledby="dashLinksTitle"><div class="dash-links-heading"><h2 id="dashLinksTitle">詳しく見る</h2></div><p class="dash-links-note">各ボタンから詳細ページを開きます。</p><div class="dash-link-grid"><a class="dash-link" href="match-matrix/" target="_blank" rel="noopener"><small>MATCH MATRIX</small><strong>全20クラブの対戦勝敗表</strong><span>公式結果の○×△と勝点</span></a><a class="dash-link" href="./" target="_blank" rel="noopener"><small>SEASON OUTLOOK</small><strong>最終順位・確率分布</strong><span>全20クラブの予測と、試し入力による比較</span></a><a class="dash-link" href="?view=month-end#monthSection"><small>MONTH-END OUTLOOK</small><strong>月末の順位を予測</strong><span>月ごとの見通し・勝敗パターンを確認</span></a><a class="dash-link" href="?view=promotion-lines" target="_blank" rel="noopener"><small>PROMOTION OUTLOOK</small><strong>1〜6位の勝点ライン</strong><span>各ラインの予測勝点と確率分布を比較</span></a><a class="dash-link" href="team-stats/" target="_blank" rel="noopener"><small>TEAM STATS</small><strong>チームスタッツ</strong><span>xG・被シュートなど、20クラブ中の順位</span></a><a class="dash-link" href="?view=goal-difference" target="_blank" rel="noopener"><small>GOAL DIFFERENCE</small><strong>全クラブの得失点差</strong><span>公式結果から、20クラブの現在地を比較</span></a><a class="dash-link" href="prediction-journal/?v=3008f9b" target="_blank" rel="noopener"><small>FORECAST JOURNAL</small><strong>予測履歴・答え合わせ</strong><span>確率の推移と、試合前予測の検証結果</span></a><a class="dash-link" href="progress-tracker/" target="_blank" rel="noopener"><small>PROMOTION TRACKER</small><strong>上位6位ラインへの現在地</strong><span>過去の順位別勝点を目安に、到達ペースを確認</span></a><a class="dash-link" href="https://j3-elo-private.hideakiito382.chatgpt.site/players" target="_blank" rel="noopener"><small>PLAYER RECORDS</small><strong>選手情報・個人成績</strong><span>年齢・ポジション・出場・先発・サブ・得点・警告・退場</span></a></div></nav>
     <p id="dashDataStatus" class="dash-data-status" role="status"></p><footer class="dash-footer"><p id="dashTimes"></p><details><summary>予測の前提・メーターの読み方</summary><p id="dashModel"></p><p>優勝・2位以内・6位以内の確率は重複します。昇格そのものの確率ではありません。得失点差は公式の実績で、0を中央に、20クラブの最大絶対値に合わせた左右対称の目盛りを使います。試し入力はこのダッシュボードには引き継ぎません。</p></details></footer>
   </section>
   <div class="grid">
@@ -57,7 +57,7 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
       <p><a href="progress-tracker/">Giravanz Promotion Tracker を見る →</a></p>
       <p class="month-navigation"><a id="openMonthForecast" href="?view=month-end" target="_blank" rel="noopener">J3 Month-End Outlook を別タブで見る →</a></p>
       <p class="gd-navigation"><a id="openGoalDifference" href="?view=goal-difference" target="_blank" rel="noopener">20クラブの得失点差を別タブで見る →</a></p>
-      <p class="promotion-navigation"><a id="openPromotionLines" href="?view=promotion-lines" target="_blank" rel="noopener">優勝・2位・プレーオフラインを別タブで見る →</a></p>
+      <p class="promotion-navigation"><a id="openPromotionLines" href="?view=promotion-lines" target="_blank" rel="noopener">1〜6位の勝点ラインを別タブで見る →</a></p>
       <p class="promotion-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
       <p class="gd-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
       <p class="month-only"><a href="./">J3 Season Outlook へ戻る →</a></p>
@@ -143,35 +143,21 @@ body.gd-view #trialInput,body.gd-view #trialInput+h3,body.gd-view #scenarios,bod
         <div class="distribution-legend"><span style="--zone:#e5ac00">1～2位</span><span style="--zone:#14213d">3～6位</span><span style="--zone:#98a2b3">7～19位</span><span style="--zone:#d83043">20位</span></div>
         <p class="sub">横軸：最終順位 ／ 縦軸：確率（％）。各順位で終わった回数 ÷ 計算回数 × 100。試し入力にも連動します。<br>各クラブの確率合計は100％（表示は小数第1位に丸め）。0.0％は可能性ゼロを意味しません。狭い画面ではグラフを横にスワイプできます。</p>
       </section>
-      <section class="promotion-only"><h2>優勝・2位・プレーオフ圏の勝点を比較</h2><p class="sub">各シミュレーションで全20クラブを最終順位順に並べ、優勝・2位・6位のクラブの最終勝点をそれぞれ集計します。プレーオフラインは6位の勝点を指します。昇格・出場資格の判定は含みません。</p><p class="sub">開いた時点の試し入力を引き継ぎ、その後の入力・リセットはこのタブ内だけに反映します。</p></section>
+      <section class="promotion-only">
+        <h2>1〜6位の最終勝点を比較</h2>
+        <p class="sub">各試行で全20クラブを最終順位順に並べ、1〜6位のクラブの勝点を順位ごとに集計します。各グラフは同じ軸で表示します。</p>
+        <p class="sub">確率＝その順位のクラブが同じ勝点だった回数 ÷ 計算回数 × 100。中央80％の目安は累積確率の10〜90％点です。同じ勝点の場合は得失点差などで順位が決まります。試し入力・計算精度に連動します。</p>
+      </section>
       <section class="distribution promotion-only" aria-labelledby="titlePointsHeading">
         <h2 id="titlePointsHeading">優勝ラインの確率分布</h2>
         <p class="sub">全20クラブを対象に、各シミュレーションで優勝したクラブの最終勝点を集計します。</p>
         <p class="distribution-summary" id="titlePointsSummary" aria-live="polite"></p>
         <div class="distribution-scroll" id="titlePointsChart"></div>
         <div class="distribution-legend"><span style="--zone:#e5ac00">中央80％の目安</span><span style="--zone:#98a2b3">その外側</span><span style="--zone:#d83043">中央値（破線）</span></div>
-        <p class="sub">横軸：優勝クラブの最終勝点（1点刻み）／ 縦軸：確率（％）。確率＝その勝点で優勝した回数 ÷ 計算回数 × 100。中央80％は累積確率10～90％の位置です。得失点差などで順位が決まるため、この勝点に届けば必ず優勝できるという保証ではありません。試し入力・計算精度にも連動します。0％と表示されても可能性がゼロとは限りません。</p>
         <details><summary>勝点ごとの確率を見る</summary><div class="table-wrap"><table aria-label="優勝勝点ごとの確率"><thead><tr><th>最終勝点</th><th>確率</th><th>回数</th></tr></thead><tbody id="titlePointsRows"></tbody></table></div><p class="sub">観測された勝点のみ表示。確率は小数第2位に丸めています。</p></details>
       </section>
 
-      <section class="distribution promotion-only" aria-labelledby="secondPointsHeading">
-        <h2 id="secondPointsHeading">2位ラインの確率分布</h2>
-        <p class="sub">全20クラブを対象に、各シミュレーションで2位になったクラブの最終勝点を集計します。</p>
-        <p class="distribution-summary" id="secondPointsSummary" aria-live="polite"></p>
-        <div class="distribution-scroll" id="secondPointsChart"></div>
-        <div class="distribution-legend"><span style="--zone:#e5ac00">中央80％の目安</span><span style="--zone:#98a2b3">その外側</span><span style="--zone:#d83043">中央値（破線）</span></div>
-        <p class="sub">横軸：最終2位クラブの最終勝点（1点刻み）／ 縦軸：確率（％）。確率＝2位クラブがその勝点になった回数 ÷ 計算回数 × 100。中央80％は累積確率10～90％の位置です。得失点差などで順位が決まるため、この勝点に届けば必ず2位以内になれるという保証ではありません。試し入力・計算精度にも連動します。0％と表示されても可能性がゼロとは限りません。</p>
-        <details><summary>勝点ごとの確率を見る</summary><div class="table-wrap"><table aria-label="最終2位クラブの勝点ごとの確率"><thead><tr><th>最終勝点</th><th>確率</th><th>回数</th></tr></thead><tbody id="secondPointsRows"></tbody></table></div><p class="sub">観測された勝点のみ表示。確率は小数第2位に丸めています。</p></details>
-      </section>
-      <section class="distribution promotion-only" aria-labelledby="sixthPointsHeading">
-        <h2 id="sixthPointsHeading">プレーオフラインの確率分布</h2>
-        <p class="sub">全20クラブを対象に、各シミュレーションで6位になったクラブの最終勝点を集計します。</p>
-        <p class="distribution-summary" id="sixthPointsSummary" aria-live="polite"></p>
-        <div class="distribution-scroll" id="sixthPointsChart"></div>
-        <div class="distribution-legend"><span style="--zone:#e5ac00">中央80％の目安</span><span style="--zone:#98a2b3">その外側</span><span style="--zone:#d83043">中央値（破線）</span></div>
-        <p class="sub">横軸：最終6位クラブの最終勝点（1点刻み）／ 縦軸：確率（％）。確率＝6位クラブがその勝点になった回数 ÷ 計算回数 × 100。中央80％は累積確率10～90％の位置です。得失点差などで順位が決まるため、この勝点に届けば必ず6位以内になれるという保証ではありません。試し入力・計算精度にも連動します。0％と表示されても可能性がゼロとは限りません。</p>
-        <details><summary>勝点ごとの確率を見る</summary><div class="table-wrap"><table aria-label="最終6位クラブの勝点ごとの確率"><thead><tr><th>最終勝点</th><th>確率</th><th>回数</th></tr></thead><tbody id="sixthPointsRows"></tbody></table></div><p class="sub">観測された勝点のみ表示。確率は小数第2位に丸めています。</p></details>
-      </section>
+      <div class="promotion-only" id="placePointsCharts"></div>
       <section class="distribution gd-only" id="gdSection" aria-labelledby="goalDifferenceHeading">
         <h2 id="goalDifferenceHeading">20クラブの得失点差</h2>
         <p class="sub">公式の確定結果だけを集計した現在の成績です。得失点差＝総得点−総失点。右側がプラス、左側がマイナス。得失点差の大きい順に表示します。</p>
@@ -199,6 +185,13 @@ let completed=J3Results.initialGames.map(g=>g.slice());
 const historicalAuditGames=J3Results.historicalAuditGames.map(g=>g.slice());
 let DATA_AS_OF=J3Results.baseDate;
 const ELO_START=1500, ELO_K=20, ELO_HOME=60;
+const POINTS_LINE_RANKS=[
+  {rank:2,key:'second'},
+  {rank:3,key:'third'},
+  {rank:4,key:'fourth'},
+  {rank:5,key:'fifth'},
+  {rank:6,key:'sixth'}
+];
 const EXPECTED_ROUND_7_CARDS=['FC大阪|福島','熊本|松本','愛媛|讃岐','群馬|高知','鳥取|奈良','鹿児島|栃木SC','金沢|山口','相模原|北九州','長野|岐阜','滋賀|琉球'];
 const OFFICIAL_CHECK={'岐阜':[10,7,3,1,3,15,5],'愛媛':[16,7,5,1,1,18,8],'鹿児島':[19,7,6,1,0,15,7],'相模原':[11,7,3,2,2,12,8],'鳥取':[10,7,3,1,3,10,14],'FC大阪':[13,7,3,4,0,13,7],'長野':[11,7,3,2,2,8,8],'滋賀':[12,7,4,0,3,13,10],'熊本':[10,7,2,4,1,6,4],'栃木SC':[9,7,2,3,2,10,12],'琉球':[10,7,3,1,3,9,9],'讃岐':[4,7,1,1,5,7,13],'山口':[13,7,4,1,2,9,5],'奈良':[11,7,3,2,2,14,15],'高知':[5,7,1,2,4,3,14],'北九州':[6,7,1,3,3,9,15],'松本':[5,7,0,5,2,6,9],'金沢':[7,7,2,1,4,10,12],'群馬':[6,7,2,0,5,7,14],'福島':[4,7,1,1,5,12,17]};
 let scenarios=[], activeTab='forecast', baseline=null, lastForecast=null, baselineTitleCounts=null, lastTitleCounts=null, baselineLineCounts=null, lastLineCounts=null, storageState={available:true,repaired:0,migrated:0};
@@ -284,7 +277,42 @@ function prematchForecast(H,V){if(H===V||!teams.includes(H)||!teams.includes(V))
 function renderPrematch(){const H=$('home').value,V=$('away').value,r=prematchForecast(H,V);if(!r){$('prematch').innerHTML='<div class="prematch-title">異なるクラブを選んでください</div>';return}$('prematch').innerHTML=`<div class="prematch-title">Elo事前予想　${H} vs ${V}</div><div class="prob-grid"><div class="prob"><span>${H}勝利</span><strong>${r.home.toFixed(1)}%</strong></div><div class="prob"><span>引き分け</span><strong>${r.draw.toFixed(1)}%</strong></div><div class="prob"><span>${V}勝利</span><strong>${r.away.toFixed(1)}%</strong></div></div><div class="likely">Elo ${r.ratings[0].toFixed(0)}–${r.ratings[1].toFixed(0)}　｜　順位計算用 ${r.score[0]}–${r.score[1]}</div>`}
 function h2h(games){const p=new Int16Array(400),gd=new Int16Array(400),go=new Int16Array(400);for(const [H,A,hg,ag] of games){const h=ix[H],a=ix[A],ha=h*20+a,ah=a*20+h;gd[ha]+=hg-ag;gd[ah]+=ag-hg;go[ha]+=hg;go[ah]+=ag;if(hg>ag)p[ha]+=3;else if(hg<ag)p[ah]+=3;else{p[ha]++;p[ah]++}}return{p,gd,go}}
 function sortOrder(pts,gf,ga,games,rng){const order=[...Array(20).keys()].sort((a,b)=>pts[b]-pts[a]||(gf[b]-ga[b])-(gf[a]-ga[a])||gf[b]-gf[a]||a-b),hh=h2h(games),tie=Object.fromEntries([...Array(20).keys()].map(t=>[t,rng?rng():t]));for(let s=0;s<20;){let e=s+1;while(e<20&&pts[order[e]]===pts[order[s]]&&gf[order[e]]-ga[order[e]]===gf[order[s]]-ga[order[s]]&&gf[order[e]]===gf[order[s]])e++;if(e-s>1){const group=order.slice(s,e),set=new Set(group),mini=t=>{let p=0,gd=0,go=0;for(const u of set)if(u!==t){const k=t*20+u;p+=hh.p[k];gd+=hh.gd[k];go+=hh.go[k]}return[p,gd,go]};const m=Object.fromEntries(group.map(t=>[t,mini(t)]));group.sort((a,b)=>m[b][0]-m[a][0]||m[b][1]-m[a][1]||m[b][2]-m[a][2]||tie[a]-tie[b]);order.splice(s,e-s,...group)}s=e}return order}
-function simulate(n,what=scenarios,fixturePairs=null,titleCounts=null,lineCounts=null){const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=fixturePairs||[];if(!fixturePairs)for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),last=Array(20).fill(0),rankCounts=Array.from({length:20},()=>Array(20).fill(0)),seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901),rng=mulberry32(seed);const pending=allFixtures.filter(([h,a])=>!used.has(`${teams[h]}|${teams[a]}`)).map(([h,a])=>[h,a,eloProb(model.R,h,a,model.nu)]);for(let z=0;z<n;z++){const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();for(const [h,a,p] of pending){const u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);games.push([teams[h],teams[a],hg,ag]);gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;if(out===0)pts[h]+=3;else if(out===2)pts[a]+=3;else{pts[h]++;pts[a]++}}const order=sortOrder(pts,gf,ga,games,rng);if(titleCounts)titleCounts[pts[order[0]]]++;if(lineCounts){lineCounts.second[pts[order[1]]]++;lineCounts.sixth[pts[order[5]]]++;}order.forEach((t,r)=>{sumP[t]+=pts[t];sumR[t]+=r+1;rankCounts[t][r]++;if(r<2)top2[t]++;if(r<6)top6[t]++;if(r===teams.length-1)last[t]++})}return teams.map((club,i)=>({club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n,last:last[i]*100/n,distribution:rankCounts[i].map(count=>count*100/n)})).sort((a,b)=>a.rank-b.rank)}
+function simulate(n,what=scenarios,fixturePairs=null,titleCounts=null,lineCounts=null){
+  const base=stateWithScenario(what),known=[...confirmed(),...what],used=new Set(known.map(key)),allFixtures=fixturePairs||[];
+  if(!fixturePairs)for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)allFixtures.push([i,j],[j,i]);
+  const model=eloRatings(known),sumP=Array(20).fill(0),sumR=Array(20).fill(0),top2=Array(20).fill(0),top6=Array(20).fill(0),last=Array(20).fill(0);
+  const rankCounts=Array.from({length:20},()=>Array(20).fill(0));
+  const seed=confirmed().reduce((a,g)=>Math.imul(a^((ix[g[0]]+1)*31+(ix[g[1]]+1)*17+g[2]*7+g[3]*11),16777619)>>>0,260901);
+  const rng=mulberry32(seed);
+  const pending=allFixtures.filter(([h,a])=>!used.has(`${teams[h]}|${teams[a]}`)).map(([h,a])=>[h,a,eloProb(model.R,h,a,model.nu)]);
+  const lineHistograms=lineCounts
+    ? POINTS_LINE_RANKS.map(({rank,key})=>[rank-1,lineCounts[key]]).filter(([,counts])=>counts)
+    : [];
+  for(let z=0;z<n;z++){
+    const pts=base.pts.slice(),gf=base.gf.slice(),ga=base.ga.slice(),games=known.slice();
+    for(const [h,a,p] of pending){
+      const u=rng(),out=u<p[0]?0:u<p[0]+p[1]?1:2,[hg,ag]=representativeScore(out);
+      games.push([teams[h],teams[a],hg,ag]);
+      gf[h]+=hg;ga[h]+=ag;gf[a]+=ag;ga[a]+=hg;
+      if(out===0)pts[h]+=3;
+      else if(out===2)pts[a]+=3;
+      else{pts[h]++;pts[a]++;}
+    }
+    const order=sortOrder(pts,gf,ga,games,rng);
+    if(titleCounts)titleCounts[pts[order[0]]]++;
+    for(const [rankIndex,counts] of lineHistograms)counts[pts[order[rankIndex]]]++;
+    order.forEach((t,r)=>{
+      sumP[t]+=pts[t];sumR[t]+=r+1;rankCounts[t][r]++;
+      if(r<2)top2[t]++;
+      if(r<6)top6[t]++;
+      if(r===teams.length-1)last[t]++;
+    });
+  }
+  return teams.map((club,i)=>({
+    club,elo:model.R[i],points:sumP[i]/n,rank:sumR[i]/n,top2:top2[i]*100/n,top6:top6[i]*100/n,last:last[i]*100/n,
+    distribution:rankCounts[i].map(count=>count*100/n)
+  })).sort((a,b)=>a.rank-b.rank);
+}
 function save(){
   try{
     const current=J3Results.readConfirmed();
@@ -317,21 +345,63 @@ function titlePointsStats(counts){
   const maximum=Math.max(...counts);
   return {samples,probabilities,min:support[0].points,max:support[support.length-1].points,mean:counts.reduce((sum,count,points)=>sum+count*points,0)/samples,low:quantile(.1),median:quantile(.5),high:quantile(.9),modes:support.filter(r=>r.count===maximum).map(r=>r.points)};
 }
+function makeLineCounts(){
+  return Object.fromEntries(POINTS_LINE_RANKS.map(({key})=>[key,Array(115).fill(0)]));
+}
 function renderTitleDistribution(){renderPointsDistribution(lastTitleCounts,'titlePoints','優勝クラブ');}
-function renderPromotionLines(){renderPointsDistribution(lastLineCounts?.second,'secondPoints','最終2位クラブ');renderPointsDistribution(lastLineCounts?.sixth,'sixthPoints','最終6位クラブ');}
-function renderPointsDistribution(counts,prefix,label){
-  const stats=titlePointsStats(counts);
+function renderPlacePointsSections(){
+  $('placePointsCharts').innerHTML=POINTS_LINE_RANKS.map(({rank,key})=>{
+    const prefix=key+'Points', heading=rank===6?'6位ライン（プレーオフ圏）の確率分布':rank+'位ラインの確率分布';
+    return `<section class="distribution" aria-labelledby="${prefix}Heading">
+      <h2 id="${prefix}Heading">${heading}</h2>
+      <p class="distribution-summary" id="${prefix}Summary" aria-live="polite"></p>
+      <div class="distribution-scroll" id="${prefix}Chart"></div>
+      <div class="distribution-legend"><span style="--zone:#e5ac00">中央80％の目安</span><span style="--zone:#98a2b3">その外側</span><span style="--zone:#d83043">中央値（破線）</span></div>
+      <details><summary>勝点ごとの確率を見る</summary>
+        <div class="table-wrap"><table aria-label="最終${rank}位クラブの勝点ごとの確率"><thead><tr><th>最終勝点</th><th>確率</th><th>回数</th></tr></thead><tbody id="${prefix}Rows"></tbody></table></div>
+        <p class="sub">観測された勝点のみ表示。確率は小数第2位に丸めています。</p>
+      </details>
+    </section>`;
+  }).join('');
+}
+function renderPromotionLines(){
+  const lines=[
+    {counts:lastTitleCounts,prefix:'titlePoints',label:'優勝クラブ'},
+    ...POINTS_LINE_RANKS.map(({rank,key})=>({counts:lastLineCounts?.[key],prefix:key+'Points',label:`最終${rank}位クラブ`}))
+  ].map(line=>({...line,stats:titlePointsStats(line.counts)}));
+  const stats=lines.map(line=>line.stats).filter(Boolean);
+  const axes=stats.length?{
+    min:Math.min(...stats.map(s=>s.min)),
+    max:Math.max(...stats.map(s=>s.max)),
+    ceiling:pointsProbabilityCeiling(stats.flatMap(s=>s.probabilities))
+  }:null;
+  for(const {counts,prefix,label,stats} of lines)renderPointsDistribution(counts,prefix,label,axes,stats);
+}
+function pointsProbabilityCeiling(probabilities){
+  return Math.min(100,Math.max(5,Math.ceil(Math.max(...probabilities)/5)*5));
+}
+function formatPointsProbability(probability){
+  if(probability>0&&probability<0.01)return '0.01％未満';
+  if(probability>99.99&&probability<100)return '99.99％超';
+  return probability.toFixed(2)+'％';
+}
+function renderPointsDistribution(counts,prefix,label,axes=null,stats=titlePointsStats(counts)){
   if(!stats){$(prefix+'Summary').textContent=label+'の勝点分布を計算中です。';$(prefix+'Chart').innerHTML='';$(prefix+'Rows').innerHTML='';return;}
-  const ceiling=Math.min(100,Math.max(5,Math.ceil(Math.max(...stats.probabilities)/5)*5)),left=52,bottom=230,height=176,width=616,step=width/(stats.max-stats.min+1),tick=Math.max(1,Math.ceil((stats.max-stats.min+1)/12)),x=points=>left+(points-stats.min+.5)*step;
-  const grid=[0,ceiling/2,ceiling].map(value=>{const y=bottom-value/ceiling*height;return `<line x1="${left}" y1="${y}" x2="668" y2="${y}" stroke="#e4e7ec"/><text x="42" y="${y+4}" text-anchor="end" fill="#667085" font-size="11">${value}</text>`;}).join('');
-  let bars='';for(let points=stats.min;points<=stats.max;points++){
+  const {min,max,ceiling}=axes??{min:stats.min,max:stats.max,ceiling:pointsProbabilityCeiling(stats.probabilities)};
+  const left=52,right=668,bottom=230,height=176,step=(right-left)/(max-min+1);
+  const tick=Math.max(1,Math.ceil((max-min+1)/12)),x=points=>left+(points-min+.5)*step;
+  const tickLabelGap=24,medianLabelHalfWidth=38;
+  const medianX=x(stats.median),medianAnchor=right-medianX<medianLabelHalfWidth?'end':'middle';
+  const grid=[0,ceiling/2,ceiling].map(value=>{const y=bottom-value/ceiling*height;return `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#e4e7ec"/><text x="42" y="${y+4}" text-anchor="end" fill="#667085" font-size="11">${value}</text>`;}).join('');
+  let bars='';for(let points=min;points<=max;points++){
     const probability=stats.probabilities[points],barWidth=Math.min(28,step*.8),h=probability/ceiling*height,color=points>=stats.low&&points<=stats.high?'#e5ac00':'#98a2b3';
-    bars+=`<g><title>勝点${points}：${probability.toFixed(2)}％（${counts[points]}回）</title><rect x="${x(points)-barWidth/2}" y="${bottom-h}" width="${barWidth}" height="${h}" fill="${color}" rx="2"/>${(points-stats.min)%tick===0||points===stats.max?`<text x="${x(points)}" y="250" text-anchor="middle" fill="#344054" font-size="11">${points}</text>`:''}</g>`;
+    const showTick=points===max||((points-min)%tick===0&&(max-points)*step>=tickLabelGap);
+    bars+=`<g>${h?`<title>勝点${points}：${formatPointsProbability(probability)}（${counts[points]}回）</title><rect x="${x(points)-barWidth/2}" y="${bottom-h}" width="${barWidth}" height="${h}" fill="${color}" rx="2"/>`:''}${showTick?`<text x="${x(points)}" y="250" text-anchor="middle" fill="#344054" font-size="11">${points}</text>`:''}</g>`;
   }
-  const description=counts.map((count,points)=>count?`勝点${points} ${stats.probabilities[points].toFixed(2)}％`:'').filter(Boolean).join('、');
-  $(prefix+'Chart').innerHTML=`<svg viewBox="0 0 680 284" role="img" aria-labelledby="${prefix}SvgTitle ${prefix}SvgDesc" xmlns="http://www.w3.org/2000/svg"><title id="${prefix}SvgTitle">${label}の最終勝点の確率分布</title><desc id="${prefix}SvgDesc">${stats.samples}回の計算。中央値${stats.median}点、中央80％の目安${stats.low}～${stats.high}点。${description}</desc><text x="8" y="18" fill="#667085" font-size="11">確率（％）</text>${grid}${bars}<line x1="${x(stats.median)}" y1="36" x2="${x(stats.median)}" y2="${bottom}" stroke="#d83043" stroke-width="2" stroke-dasharray="5 4"/><text x="${x(stats.median)}" y="30" text-anchor="middle" fill="#d83043" font-size="11">中央値 ${stats.median}点</text><text x="360" y="274" text-anchor="middle" fill="#667085" font-size="11">${label}の最終勝点</text></svg>`;
+  const description=counts.map((count,points)=>count?`勝点${points} ${formatPointsProbability(stats.probabilities[points])}`:'').filter(Boolean).join('、');
+  $(prefix+'Chart').innerHTML=`<svg viewBox="0 0 680 284" role="img" aria-labelledby="${prefix}SvgTitle ${prefix}SvgDesc" xmlns="http://www.w3.org/2000/svg"><title id="${prefix}SvgTitle">${label}の最終勝点の確率分布</title><desc id="${prefix}SvgDesc">${stats.samples}回の計算。中央値${stats.median}点、中央80％の目安${stats.low}～${stats.high}点。${description}</desc><text x="8" y="18" fill="#667085" font-size="11">確率（％）</text>${grid}${bars}<line x1="${medianX}" y1="36" x2="${medianX}" y2="${bottom}" stroke="#d83043" stroke-width="2" stroke-dasharray="5 4"/><text x="${medianX}" y="30" text-anchor="${medianAnchor}" fill="#d83043" font-size="11">中央値 ${stats.median}点</text><text x="360" y="274" text-anchor="middle" fill="#667085" font-size="11">${label}の最終勝点</text></svg>`;
   $(prefix+'Summary').textContent=`${scenarios.length?'試し入力反映':'公式結果のみ'} ／ 中央値 ${stats.median}点 ／ 中央80％の目安 ${stats.low}～${stats.high}点 ／ 最頻値 ${stats.modes.join('・')}点 ／ 平均 ${stats.mean.toFixed(1)}点 ／ ${stats.samples.toLocaleString('ja-JP')}回計算`;
-  $(prefix+'Rows').innerHTML=counts.map((count,points)=>count?`<tr><td>${points}点</td><td>${stats.probabilities[points].toFixed(2)}％</td><td>${count}</td></tr>`:'').join('');
+  $(prefix+'Rows').innerHTML=counts.map((count,points)=>count?`<tr><td>${points}点</td><td>${formatPointsProbability(stats.probabilities[points])}</td><td>${count}</td></tr>`:'').join('');
 }
 function clubGoalDifferenceRows(){
   const state=stateWithScenario([]);
@@ -606,7 +676,7 @@ function renderCompass(){
 }
 if($('compassTarget'))$('compassTarget').onchange=renderCompass;
 if($('compassCustom'))$('compassCustom').oninput=renderCompass;
-function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(2)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts={second:Array(115).fill(0),sixth:Array(115).fill(0)};baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?{second:Array(115).fill(0),sixth:Array(115).fill(0)}:null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts?{second:baselineLineCounts.second.slice(),sixth:baselineLineCounts.sixth.slice()}:null;}renderPrematch();renderScenarios();renderHero();renderCompass();renderRankChart();renderRankDistribution();renderTitleDistribution();if(LINE_VIEW)renderPromotionLines();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
+function run(){const n=+$('runs').value,mc95=98/Math.sqrt(n);$('uncertainty').textContent=`各確率の乱数誤差上限（95%目安）：±${mc95.toFixed(2)}ポイント ｜ モデル自体の誤差は含みません`;if(renderPending)return;renderPending=true;$('spinner').classList.add('on');setTimeout(()=>{renderPending=false;const n=+$('runs').value;if(GD_VIEW){renderPrematch();renderScenarios();renderGoalDifference();renderVerification();$('spinner').classList.remove('on');return;}if(MONTH_VIEW){renderScenarios();renderMonthForecast(n);renderVerification();$('spinner').classList.remove('on');return;}if(!baseline){baselineTitleCounts=Array(115).fill(0);baselineLineCounts=makeLineCounts();baseline=simulate(n,[],null,baselineTitleCounts,baselineLineCounts);}if(scenarios.length){lastTitleCounts=Array(115).fill(0);lastLineCounts=LINE_VIEW?makeLineCounts():null;lastForecast=simulate(n,scenarios,null,lastTitleCounts,lastLineCounts);}else{lastForecast=baseline.map(x=>({...x}));lastTitleCounts=baselineTitleCounts?.slice()||null;lastLineCounts=baselineLineCounts;}renderPrematch();renderScenarios();renderHero();renderCompass();renderRankChart();renderRankDistribution();if(LINE_VIEW)renderPromotionLines();else renderTitleDistribution();renderTable();renderVerification();$('spinner').classList.remove('on')},20)}
 function validate(g,includeScenario=true){if(!teams.includes(g[0])||!teams.includes(g[1]))return'クラブ名が登録名と一致しません。';if(g[0]===g[1])return'同じクラブ同士は登録できません。';if(!Number.isFinite(g[2])||!Number.isFinite(g[3]))return'両チームの得点を入力してください。';if(g[2]<0||g[3]<0||g[2]>30||g[3]>30||!Number.isInteger(g[2])||!Number.isInteger(g[3]))return'得点は0～30の整数で入力してください。';const used=[...confirmed(),...(includeScenario?scenarios:[])];if(used.some(x=>key(x)===key(g)))return'このホーム／アウェーの対戦は登録済みです。';return''}
 function formGame(){const hs=$('hg').value.trim(),as=$('ag').value.trim();return[$('home').value,$('away').value,hs===''?NaN:Number(hs),as===''?NaN:Number(as)]}
 function updateSubmitLabel(){const hs=$('hg').value.trim()||'?',as=$('ag').value.trim()||'?';$('submitGame').textContent=`${$('home').value} ${hs}–${as} ${$('away').value}を試す`}
@@ -650,7 +720,7 @@ window.addEventListener('focus',()=>{refreshSavedResults();syncAutomaticResults(
 window.addEventListener('pageshow',()=>{refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();});
 window.addEventListener('j3-results-changed',refreshSavedResults);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshSavedResults();syncAutomaticResults();refreshFixtureCalendar();}});
-if(LINE_VIEW){document.body?.classList.add('promotion-view');$('pageTitle').textContent='J3 Promotion Outlook';$('pageDescription').textContent='優勝・2位・プレーオフ圏の最終勝点を確率分布で比較';document.title='J3 Promotion Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
+if(LINE_VIEW){document.body?.classList.add('promotion-view');renderPlacePointsSections();$('pageTitle').textContent='J3 Promotion Outlook';$('pageDescription').textContent='1〜6位の最終勝点を確率分布で比較';document.title='J3 Promotion Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
 if(GD_VIEW){document.body?.classList.add('gd-view');$('pageTitle').textContent='J3 Goal Difference';$('pageDescription').textContent='公式結果から、全20クラブの現在の得失点差を比較';document.title='J3 Goal Difference · 2026/27';if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}
 
 if(MONTH_VIEW){document.body?.classList.add('month-view');$('monthSection').hidden=false;$('pageTitle').textContent='J3 Month-End Outlook';$('pageDescription').textContent='全20クラブの公式日程から、選択した月末の勝点・順位を予測';document.title='J3 Month-End Outlook · 2026/27';try{scenarios=decodeMonthTrials(window.location.hash);if(window.location.hash?.startsWith('#trial=')){try{window.history?.replaceState(null,'',window.location.pathname+window.location.search);}catch{}}}catch(error){$('error').textContent=error.message;}}
