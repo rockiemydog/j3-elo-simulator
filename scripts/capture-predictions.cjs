@@ -1,17 +1,28 @@
-/* Read the actual page's pure calculation functions: never maintain a second
-   implementation of Elo or the simulation for the journal. Fail closed if a
-   function is reformatted; the regression suite exercises this adapter. */
+/* Read the page's pure calculation functions so the journal uses the same Elo
+   and simulation as the site. Functions close on their opening line or with
+   an unindented brace. The regression suite exercises this adapter. */
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const insights=require('../forecast-insights.js');
 const ROOT=path.resolve(__dirname,'..');
 function engine(games){
   const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
-  const teamLine=html.split('\n').find(l=>l.startsWith('const teams='));
+  const pageLines=html.split('\n');
+  const teamLine=pageLines.find(l=>l.startsWith('const teams='));
   const names=['applyGame','stateFromGames','stateWithScenario','key','mulberry32','eloProb','eloRatings','representativeScore','h2h','sortOrder','simulate'];
-  const lines=names.map(name=>{const line=html.split('\n').find(l=>l.startsWith('function '+name+'('));if(!line||!line.endsWith('}'))throw Error('Forecast adapter requires review: '+name);return line;});
-  const constants=html.split('\n').find(l=>l.startsWith('const ELO_START='));
-  if(!teamLine||!constants)throw Error('Forecast model metadata missing');
-  const source=[teamLine,constants,'const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));const scenarios=[];const confirmed=()=>games;',...lines].join('\n');
+  const lines=names.map(name=>{
+    const start=pageLines.findIndex(line=>line.startsWith('function '+name+'('));
+    if(start<0)throw Error('Forecast adapter requires review: '+name);
+    if(pageLines[start].endsWith('}'))return pageLines[start];
+    const end=pageLines.indexOf('}',start+1);
+    if(end<0)throw Error('Forecast adapter requires review: '+name);
+    return pageLines.slice(start,end+1).join('\n');
+  });
+  const constants=pageLines.find(l=>l.startsWith('const ELO_START='));
+  const rankStart=pageLines.indexOf('const POINTS_LINE_RANKS=[');
+  const rankEnd=pageLines.indexOf('];',rankStart+1);
+  if(!teamLine||!constants||rankStart<0||rankEnd<0)throw Error('Forecast model metadata missing');
+  const ranks=pageLines.slice(rankStart,rankEnd+1).join('\n');
+  const source=[teamLine,constants,ranks,'const ix=Object.fromEntries(teams.map((t,i)=>[t,i]));const scenarios=[];const confirmed=()=>games;',...lines].join('\n');
   const ctx=vm.createContext({games});vm.runInContext(source,ctx);
   return {teams:vm.runInContext('teams.slice()',ctx),signature:crypto.createHash('sha256').update(source).digest('hex').slice(0,16),forecast(){return vm.runInContext('simulate(10000,[])',ctx,{timeout:90000});},probabilities(home,away){ctx.home=home;ctx.away=away;return vm.runInContext('(()=>{const m=eloRatings();return eloProb(m.R,ix[home],ix[away],m.nu)})()',ctx);}};
 }
