@@ -1,7 +1,8 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>J3 Match Matrix</title><style>
 body{font:14px -apple-system,"Noto Sans JP",sans-serif;background:#f7f8fa;color:#172033;margin:0;padding:18px}main{max-width:1250px;margin:auto}.wrap{overflow:auto;max-height:75vh;background:white;border:1px solid #ddd;border-radius:10px}table{border-spacing:0;border-collapse:separate;table-layout:fixed}th,td{padding:7px 5px;border-right:1px solid #eee;border-bottom:1px solid #eee;white-space:nowrap;text-align:center;min-width:40px}thead th{position:sticky;top:0;background:#eef1f5;z-index:2}tbody tr{height:44px}tbody td.club-name,tbody td.venue-cell{vertical-align:middle;overflow:hidden;text-overflow:ellipsis}td.club-name,thead th.club-header{position:sticky;left:0;z-index:5;background:#eef1f5;text-align:left;min-width:128px;width:128px;max-width:128px;box-sizing:border-box;box-shadow:2px 0 3px #0000001a}td.venue-cell,thead th.venue-header{position:sticky;left:128px;z-index:4;background:#eef1f5;min-width:40px;width:40px;box-sizing:border-box}thead th.club-header{z-index:8}thead th.venue-header{z-index:7}.club-row.kita td.club-name,.club-row.kita td.venue-cell{background:#fff2b0!important}@media(max-width:600px){td.club-name,thead th.club-header{min-width:112px;width:112px;max-width:112px;padding:8px 4px;font-size:12px}td.venue-cell,thead th.venue-header{left:112px}}.kita th,.kita td,.kitacol{background:#fff2b0!important}.win{color:#111827}.loss{color:#111827}.draw{color:#d62828}.result-symbol{display:inline-block;font-size:20px;line-height:1.1;font-weight:900}.result-symbol.win{color:#111827}.result-symbol.loss{color:#111827}.result-symbol.draw{color:#d62828}.match-mark{display:inline-flex;align-items:center;justify-content:center;margin:0 2px} .venue-cell{font-size:12px;font-weight:900;min-width:26px}.venue-cell.home{color:#175c96}.venue-cell.away{color:#a24118}.club-name{font-weight:900}.club-row.away-row td,.club-row.away-row th{border-bottom:2px solid #c9d0dc}.club-row.home-row td,.club-row.home-row th{border-bottom:1px dashed #e2e6ee}.total-cell{font-weight:800}.venue-label{font-size:12px;line-height:1;font-weight:900;color:#344054}.match-mark.away .venue-label{color:#a24118}.match-mark.home .venue-label{color:#175c96}td button{display:inline-flex;align-items:center;justify-content:center;gap:3px}td button{border:0;background:transparent;font:inherit;font-weight:bold;color:inherit;cursor:pointer}#detail{min-height:36px}p{color:#667085}button#refresh{padding:9px;margin-bottom:12px}
-</style></head><body><main><a href="../">← シミュレーター</a><h1>Match Matrix｜J3対戦勝敗表</h1><p>全20クラブを縦・横とも現在の順位順に表示。公式確定結果から勝点（勝利×3＋引き分け）→得失点差→総得点で集計し、同値は同順位。全日程終了後は当該クラブ間の成績も使用。各クラブは上段H（ホーム）、下段A（アウェー）。○ 白星（黒枠）／● 黒星／△ 引き分け（赤枠）。未対戦は－、同一クラブは—。右端の勝・分・敗・勝点はホーム・アウェー合計。</p><button id="refresh">公式結果を確認</button><p id="status" role="status">読込中</p><div class="wrap"><table aria-label="20クラブ対戦勝敗表"><thead id="head"></thead><tbody id="body"></tbody></table></div><p id="detail" aria-live="polite">記号を押すとスコアを表示します。</p><p id="audit"></p></main><script src="../official-api-config.js"></script><script src="../shared-results.js"></script><script>
+</style></head><body><main><a href="../">← シミュレーター</a><h1>Match Matrix｜J3対戦勝敗表</h1><p>全20クラブを縦・横とも現在の順位順に表示。公式確定結果から勝点（勝利×3＋引き分け）→得失点差→総得点で集計し、同値は同順位。全日程終了後は当該クラブ間の成績も使用。各クラブは上段H（ホーム）、下段A（アウェー）。○ 白星（黒枠）／● 黒星／△ 引き分け（赤枠）。未対戦は－、同一クラブは—。右端の勝・分・敗・勝点はホーム・アウェー合計。</p><button id="refresh">公式結果を確認</button><p id="status" role="status">読込中</p><div class="wrap"><table aria-label="20クラブ対戦勝敗表"><thead id="head"></thead><tbody id="body"></tbody></table></div><p id="detail" aria-live="polite">記号を押すとスコアを表示します。</p><p id="audit"></p></main><script src="../official-api-config.js?v=2abf363444e1"></script><script src="../shared-results.js?v=7fc6302eb764"></script><script>
 const teams=["岐阜","愛媛","鹿児島","相模原","鳥取","FC大阪","長野","滋賀","熊本","栃木SC","琉球","讃岐","山口","奈良","高知","北九州","松本","金沢","群馬","福島"],$=id=>document.getElementById(id);
+let selectedMatch=null;
 function aggregate(games){
  const cells=new Map(teams.map(t=>[t,new Map()])),stats=new Map(teams.map(t=>[t,{w:0,d:0,l:0,gf:0,ga:0}]));
  for(const g of games){
@@ -38,6 +39,14 @@ function rankedClubs(stats,games){
  }
  return rows;
 }
+function renderDetail(cells){
+ if(selectedMatch){
+  const {club,opp,home}=selectedMatch,ms=(cells.get(club)?.get(opp)||[]).filter(m=>m.home===home);
+  if(ms.length){$('detail').textContent=club+' 対 '+opp+'（'+(home?'ホーム':'アウェー')+'）：'+ms.map(m=>m.gf+'－'+m.ga+'（'+m.symbol+'）').join(' ／ ');return}
+  selectedMatch=null;
+ }
+ $('detail').textContent='記号を押すとスコアを表示します。';
+}
 function render(){
  try{
   const games=J3Results.initialGames,{cells,stats}=aggregate(games),rows=rankedClubs(stats,games),orderedTeams=rows.map(r=>r.club),ranks=new Map(rows.map(r=>[r.club,r.rank]));
@@ -57,7 +66,7 @@ function render(){
       const btn=document.createElement('button');
       for(const m of ms){const mark=document.createElement('span');mark.className='match-mark';const sym=document.createElement('span');sym.className='result-symbol '+(m.symbol==='○'?'win':m.symbol==='●'?'loss':'draw');sym.textContent=m.symbol;mark.append(sym);btn.append(mark)}
       btn.setAttribute('aria-label',club+'対'+opp+' '+(home?'ホーム':'アウェー')+'：'+ms.map(m=>m.symbol).join('、'));
-      btn.onclick=()=>$('detail').textContent=club+' 対 '+opp+'（'+(home?'ホーム':'アウェー')+'）：'+ms.map(m=>m.gf+'－'+m.ga+'（'+m.symbol+'）').join(' ／ ');
+      btn.onclick=()=>{selectedMatch={club,opp,home};renderDetail(cells)};
       td.append(btn);
      }
      tr.append(td);
@@ -66,10 +75,10 @@ function render(){
     $('body').append(tr);
    }
   }
-  $('status').textContent=J3Results.statusText();$('audit').textContent='公式確定'+games.length+'試合／結果ID '+J3Results.resultId()+'／対象日 '+J3Results.baseDate;
+  renderDetail(cells);$('status').textContent=J3Results.statusText();$('audit').textContent='公式確定'+games.length+'試合／結果ID '+J3Results.resultId()+'／対象日 '+J3Results.baseDate;
  }catch(e){$('status').textContent='表示エラー：'+e.message}
 }
-async function refresh(force=false){$('refresh').disabled=true;try{await J3Results.refreshOfficial(force);render()}finally{$('refresh').disabled=false}}
+async function refresh(force=false){$('refresh').disabled=true;try{const pending=J3Results.refreshOfficial(force);$('status').textContent=J3Results.statusText();await pending;render()}catch(e){$('status').textContent='公式結果を更新できませんでした。直前の表示を保持しています。'}finally{$('refresh').disabled=false}}
 $('refresh').onclick=()=>refresh(true);
 window.addEventListener('storage',e=>{if(e.key===J3Results.feedKey){J3Results.restoreCachedFeed();render()}});
 window.addEventListener('focus',()=>refresh());
