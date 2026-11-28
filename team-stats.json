@@ -4,7 +4,7 @@
   "club": "北九州",
   "season": "2026/27",
   "source": "https://www.jleague.jp/club/kitakyushu/",
-  "checkedAt": "2026-11-27T21:32:41.943634+00:00",
+  "checkedAt": "2026-11-28T08:17:16.523024+00:00",
   "statsUpdatedAt": null,
   "metrics": [
     {
@@ -121,7 +121,7 @@
       "unit": "本",
       "value": 250,
       "previous": null,
-      "rank": 11,
+      "rank": 10,
       "tied": false
     },
     {
@@ -467,24 +467,24 @@
       "through": "2026-11-25"
     },
     "奈良": {
-      "played": 19,
+      "played": 20,
       "goals": 35,
-      "conceded": 27,
-      "shots": 263,
-      "ck": 101,
+      "conceded": 28,
+      "shots": 274,
+      "ck": 106,
       "cleanSheets": 6,
-      "shotsAgainst": 271,
-      "through": "2026-11-25"
+      "shotsAgainst": 276,
+      "through": "2026-11-28"
     },
     "高知": {
-      "played": 19,
-      "goals": 14,
+      "played": 20,
+      "goals": 15,
       "conceded": 40,
-      "shots": 220,
-      "ck": 85,
-      "cleanSheets": 4,
-      "shotsAgainst": 245,
-      "through": "2026-11-25"
+      "shots": 225,
+      "ck": 89,
+      "cleanSheets": 5,
+      "shotsAgainst": 256,
+      "through": "2026-11-28"
     },
     "北九州": {
       "played": 19,
@@ -2958,6 +2958,15 @@
         "ga": 1,
         "shots": 10,
         "ck": 4
+      },
+      {
+        "id": "2026112810",
+        "date": "2026-11-28",
+        "opponent": "高知",
+        "gf": 0,
+        "ga": 1,
+        "shots": 11,
+        "ck": 5
       }
     ],
     "高知": [
@@ -3130,6 +3139,15 @@
         "gf": 1,
         "ga": 0,
         "shots": 13,
+        "ck": 4
+      },
+      {
+        "id": "2026112810",
+        "date": "2026-11-28",
+        "opponent": "奈良",
+        "gf": 1,
+        "ga": 0,
+        "shots": 5,
         "ck": 4
       }
     ],
@@ -4759,7 +4777,7 @@
       },
       {
         "club": "奈良",
-        "value": 13.842105263157896,
+        "value": 13.7,
         "rank": 5,
         "tied": false
       },
@@ -4836,14 +4854,14 @@
         "tied": false
       },
       {
-        "club": "高知",
-        "value": 11.578947368421053,
+        "club": "鳥取",
+        "value": 11.368421052631579,
         "rank": 18,
         "tied": false
       },
       {
-        "club": "鳥取",
-        "value": 11.368421052631579,
+        "club": "高知",
+        "value": 11.25,
         "rank": 19,
         "tied": false
       },
@@ -4862,14 +4880,14 @@
         "tied": false
       },
       {
-        "club": "奈良",
-        "value": 13.307984790874524,
+        "club": "愛媛",
+        "value": 13.278008298755188,
         "rank": 2,
         "tied": false
       },
       {
-        "club": "愛媛",
-        "value": 13.278008298755188,
+        "club": "奈良",
+        "value": 12.773722627737227,
         "rank": 3,
         "tied": false
       },
@@ -4971,7 +4989,7 @@
       },
       {
         "club": "高知",
-        "value": 6.363636363636363,
+        "value": 6.666666666666667,
         "rank": 20,
         "tied": false
       }
@@ -5045,7 +5063,7 @@
       },
       {
         "club": "奈良",
-        "value": 1.4210526315789473,
+        "value": 1.4,
         "rank": 12,
         "tied": false
       },
@@ -5093,7 +5111,7 @@
       },
       {
         "club": "高知",
-        "value": 2.1052631578947367,
+        "value": 2.0,
         "rank": 20,
         "tied": false
       }
@@ -5149,15 +5167,15 @@
       },
       {
         "club": "高知",
-        "value": 12.894736842105264,
+        "value": 12.8,
         "rank": 9,
-        "tied": true
+        "tied": false
       },
       {
         "club": "金沢",
         "value": 12.894736842105264,
-        "rank": 9,
-        "tied": true
+        "rank": 10,
+        "tied": false
       },
       {
         "club": "北九州",
@@ -5178,14 +5196,14 @@
         "tied": false
       },
       {
-        "club": "愛媛",
-        "value": 13.894736842105264,
+        "club": "奈良",
+        "value": 13.8,
         "rank": 14,
         "tied": false
       },
       {
-        "club": "奈良",
-        "value": 14.263157894736842,
+        "club": "愛媛",
+        "value": 13.894736842105264,
         "rank": 15,
         "tied": false
       },
@@ -5259,7 +5277,7 @@
       },
       {
         "club": "奈良",
-        "value": 5.315789473684211,
+        "value": 5.3,
         "rank": 7,
         "tied": false
       },
@@ -5319,7 +5337,7 @@
       },
       {
         "club": "高知",
-        "value": 4.473684210526316,
+        "value": 4.45,
         "rank": 17,
         "tied": false
       },
@@ -5380,16 +5398,16 @@
         "tied": true
       },
       {
-        "club": "奈良",
+        "club": "松本",
         "value": 31.57894736842105,
         "rank": 6,
         "tied": true
       },
       {
-        "club": "松本",
-        "value": 31.57894736842105,
-        "rank": 6,
-        "tied": true
+        "club": "奈良",
+        "value": 30.0,
+        "rank": 8,
+        "tied": false
       },
       {
         "club": "長野",
@@ -5416,33 +5434,33 @@
         "tied": true
       },
       {
+        "club": "高知",
+        "value": 25.0,
+        "rank": 13,
+        "tied": false
+      },
+      {
         "club": "愛媛",
         "value": 21.05263157894737,
-        "rank": 13,
+        "rank": 14,
         "tied": true
       },
       {
         "club": "鹿児島",
         "value": 21.05263157894737,
-        "rank": 13,
+        "rank": 14,
         "tied": true
       },
       {
         "club": "鳥取",
         "value": 21.05263157894737,
-        "rank": 13,
+        "rank": 14,
         "tied": true
       },
       {
         "club": "滋賀",
         "value": 21.05263157894737,
-        "rank": 13,
-        "tied": true
-      },
-      {
-        "club": "高知",
-        "value": 21.05263157894737,
-        "rank": 13,
+        "rank": 14,
         "tied": true
       },
       {
@@ -5514,32 +5532,32 @@
         "tied": false
       },
       {
-        "club": "高知",
-        "value": 245,
-        "rank": 9,
-        "tied": true
-      },
-      {
         "club": "金沢",
         "value": 245,
         "rank": 9,
-        "tied": true
+        "tied": false
       },
       {
         "club": "北九州",
         "value": 250,
-        "rank": 11,
+        "rank": 10,
         "tied": false
       },
       {
         "club": "琉球",
         "value": 253,
-        "rank": 12,
+        "rank": 11,
         "tied": false
       },
       {
         "club": "長野",
         "value": 254,
+        "rank": 12,
+        "tied": false
+      },
+      {
+        "club": "高知",
+        "value": 256,
         "rank": 13,
         "tied": false
       },
@@ -5551,7 +5569,7 @@
       },
       {
         "club": "奈良",
-        "value": 271,
+        "value": 276,
         "rank": 15,
         "tied": false
       },
@@ -5957,7 +5975,7 @@
     "expectedGoals": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals/search-list/",
-      "checkedAt": "2026-11-27T21:32:41.943634+00:00",
+      "checkedAt": "2026-11-28T08:17:16.523024+00:00",
       "updatedAt": "2026-11-27T21:21:00+09:00",
       "values": [
         {
@@ -6045,7 +6063,7 @@
     "expectedGoalsAgainst": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/expected_goals_against/search-list/",
-      "checkedAt": "2026-11-27T21:32:41.943634+00:00",
+      "checkedAt": "2026-11-28T08:17:16.523024+00:00",
       "updatedAt": "2026-11-27T21:21:00+09:00",
       "values": [
         {
@@ -6133,7 +6151,7 @@
     "chancesCreated": {
       "season": "2026/27",
       "source": "https://www.jleague.jp/j3/stats/club/2026-27/chance_create/search-list/",
-      "checkedAt": "2026-11-27T21:32:41.943634+00:00",
+      "checkedAt": "2026-11-28T08:17:16.523024+00:00",
       "updatedAt": "2026-11-27T21:21:00+09:00",
       "values": [
         {
